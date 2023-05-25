@@ -89,8 +89,13 @@ if (!defined('ABUSEIPDB_VERSION')) {
 // Update the plugin's version and release date (saved as last_modified), if the version has changed.
 if (ABUSEIPDB_VERSION !== ABUSEIPDB_CURRENT_VERSION) {
     switch (true) {
-        // Add version-specific updates here
-
+        case version_compare(ABUSEIPDB_VERSION, '1.0.1', '<'):
+            $db->Execute(
+                "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                    (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
+                 VALUES
+                     ('Enable Logging API Calls?', 'ABUSEIPDB_ENABLE_LOGGING_API', 'false', 'Enable or disable logging of API Calls.', $cgi, now(), 36, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
+            );
         default:                                                    //- Fall-through from above processing
             break;
     }
