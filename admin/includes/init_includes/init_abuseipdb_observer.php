@@ -5,12 +5,12 @@
  * @author marcopolo & chatgpt
  * @copyright 2023
  * @license GNU General Public License (GPL)
- * @version v1.0.0
+ * @version v1.0.1
  * @since 4-14-2023
  */
 // ABUSEIPDB Module
-define('ABUSEIPDB_CURRENT_VERSION', '1.0.0');
-define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-04-14');
+define('ABUSEIPDB_CURRENT_VERSION', '1.0.1');
+define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-05-25');
 
 // Wait until an admin is logged in before installing or updating
 if (!isset($_SESSION['admin_id'])) {
@@ -70,9 +70,9 @@ if (!defined('ABUSEIPDB_VERSION')) {
 
             ('Log File Path', 'ABUSEIPDB_LOG_FILE_PATH', 'logs/', 'The path to the directory where log files are stored.', $cgi, now(), 45, NULL, NULL),
 
-            ('IP Address: Whitelist', 'ABUSEIPDB_WHITELISTED_IPS', '', 'Enter, using a comma-separated list, any <em>specific</em> IP addresses to <em>unconditionally enable</em>.  If you enter only the upper segments of an IP address, e.g. <code>192.168.1.</code>, all matching IP addresses, e.g. <code>192.168.1.0-192.168.1.255</code> will be not be blocked, even if they are identified as a thread by ipdata.co.', $cgi, now(), 50, NULL, 'zen_cfg_textarea('),
+            ('IP Address: Whitelist', 'ABUSEIPDB_WHITELISTED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 50, NULL, 'zen_cfg_textarea('),
 
-            ('Block by: IP Address', 'ABUSEIPDB_BLOCKED_IPS', '', 'Enter, using a comma-separated list, any <em>specific</em> IP addresses to block.  If you enter only the upper segments of an IP address, e.g. <code>192.168.1.</code>, all matching IP addresses, e.g. <code>192.168.1.0-192.168.1.255</code> will be blocked.', $cgi, now(), 55, NULL, NULL),
+            ('Block by: IP Address', 'ABUSEIPDB_BLOCKED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 55, NULL, NULL),
 
             ('Enable Debug?', 'ABUSEIPDB_DEBUG', 'false', '', $cgi, now(), 499, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
     );
