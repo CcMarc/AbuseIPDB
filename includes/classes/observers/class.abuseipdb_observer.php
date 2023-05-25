@@ -4,8 +4,8 @@
  *
  * @author marcopolo & chatgpt
  * @copyright 2023
- * @license MIT License - https://opensource.org/licenses/MIT
- * @version v1.0.0
+ * @license GNU General Public License (GPL)
+ * @version v1.0.1
  * @since 4-14-2023
  */
 class abuseipdb_observer extends base {

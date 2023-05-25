@@ -26,4 +26,4 @@ Support:
 For support, please refer to the Zen Cart forums or contact the module author.
 
 License:
-This module is released under the MIT License.
+This module is released under the GNU General Public License (GPL).
