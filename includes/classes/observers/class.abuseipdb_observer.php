@@ -11,11 +11,11 @@
 class abuseipdb_observer extends base {
 
     public function __construct() {
-        $this->attach($this, array('NOTIFY_HEADER_START'));
+        $this->attach($this, array('NOTIFY_HTML_HEAD_START'));
     }
 
     public function update(&$class, $eventID, $paramsArray = array()) {
-        if ($eventID == 'NOTIFY_HEADER_START') {
+        if ($eventID == 'NOTIFY_HTML_HEAD_START') {
             $this->checkAbusiveIP();
         }
     }
@@ -23,8 +23,8 @@ class abuseipdb_observer extends base {
     protected function checkAbusiveIP() {
 		global $current_page_base;
 
-		// Do not execute the check for the 'page_not_found' page
-		if ($current_page_base == 'page_not_found') {
+		// Do not execute the check for the 'page_not_found' page or for known spiders
+		if ($current_page_base == 'page_not_found' || (isset($spider_flag) && $spider_flag === true)) {
 			return;
 		}
 
