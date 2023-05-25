@@ -62,7 +62,7 @@ if (!defined('ABUSEIPDB_VERSION')) {
 
             ('Enable Test Mode?', 'ABUSEIPDB_TEST_MODE', 'false', 'Enable or disable test mode for the plugin.', $cgi, now(), 25, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 
-            ('Test IP Address', 'ABUSEIPDB_TEST_IP', '', 'An IP address to use for testing the plugin.', $cgi, now(), 30, NULL, NULL),
+            ('Test IP Address's', 'ABUSEIPDB_TEST_IP', '', 'Enter the IP addresses separated by commas without any spaces to use for testing the plugin.', $cgi, now(), 30, NULL, NULL),
 
             ('Enable Logging?', 'ABUSEIPDB_ENABLE_LOGGING', 'false', 'Enable or disable logging of blocked IP addresses.', $cgi, now(), 35, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 

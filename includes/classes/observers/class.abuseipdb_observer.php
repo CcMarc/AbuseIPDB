@@ -37,7 +37,7 @@ class abuseipdb_observer extends base {
             $threshold = (int)ABUSEIPDB_THRESHOLD;
             $cache_time = (int)ABUSEIPDB_CACHE_TIME;
             $test_mode = ABUSEIPDB_TEST_MODE === 'true';
-            $test_ip = ABUSEIPDB_TEST_IP;
+            $test_ips = array_map('trim', explode(',', ABUSEIPDB_TEST_IP));
 			$enable_logging = ABUSEIPDB_ENABLE_LOGGING === 'true';
             $log_file_format = ABUSEIPDB_LOG_FILE_FORMAT;
             $log_file_path = ABUSEIPDB_LOG_FILE_PATH;
@@ -94,7 +94,7 @@ class abuseipdb_observer extends base {
                     error_log('Zen Cart session cache used for IP: ' . $ip . ' with score: ' . $abuseScore);
                 }
 
-                if ($abuseScore >= $threshold || ($test_mode && $ip == $test_ip)) {
+                if ($abuseScore >= $threshold || ($test_mode && in_array($ip, $test_ips))) {
                     $log_file_name = 'abuseipdb_blocked_cache_' . date('Y_m') . '.log';
                     $log_file_path = ABUSEIPDB_LOG_FILE_PATH . $log_file_name;
 
