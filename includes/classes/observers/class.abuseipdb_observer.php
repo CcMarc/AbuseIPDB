@@ -50,7 +50,7 @@ class abuseipdb_observer extends base {
                 error_log('Threshold: ' . $threshold);
                 error_log('Cache Time: ' . $cache_time);
                 error_log('Test Mode: ' . ($test_mode ? 'true' : 'false'));
-                error_log('Test IP: ' . $test_ip);
+                error_log('Test IPs: ' . implode(',', $test_ips));
                 error_log('Enable Logging: ' . ($enable_logging ? 'true' : 'false'));
                 error_log('Log File Format: ' . $log_file_format);
                 error_log('Log File Path: ' . $log_file_path);
@@ -131,7 +131,7 @@ class abuseipdb_observer extends base {
                     'timestamp' => time()
                 );
 
-                if ($abuseScore >= $threshold || ($test_mode && $ip == $test_ip)) {
+                if ($abuseScore >= $threshold || ($test_mode && in_array($ip, $test_ips))) {
                     if ($debug_mode == true) {
                         error_log('IP ' . $ip . ' blocked from API call');
                     }
