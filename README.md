@@ -1,4 +1,4 @@
-# AbuseIPDB for Zen Cart v1.5.5 and Later, v1.0.0
+# AbuseIPDB for Zen Cart v1.5.5 and Later, v1.0.1
 
 About this module:
 
@@ -14,13 +14,6 @@ admin/includes/auto_loaders/config.abuseipdb_admin.php
 admin/includes/extra_datafiles/abuseipdb_settings.php
 admin/includes/init_includes/init_abuseipdb_observer.php
 admin/includes/languages/english/extra_definitions/init_includes/abuseipdb_admin_names.php
-Edit the file /includes/templates/YOUR_TEMPLATE/common/tpl_header.php in a text editor, and add the following line at the beginning of the file, just after the opening <?php tag:
-
-// bof modification AbuseIPDB
-if (ABUSEIPDB_ENABLED) {
-$GLOBALS['zco_notifier']->notify('NOTIFY_HEADER_START');
-}
-// eof modification AbuseIPDB
 
 Configure the module in your Zen Cart admin panel by navigating to the AbuseIPDB Settings page.
 
