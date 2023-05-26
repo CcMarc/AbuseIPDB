@@ -5,11 +5,11 @@
  * @author marcopolo & chatgpt
  * @copyright 2023
  * @license GNU General Public License (GPL)
- * @version v1.0.1
+ * @version v2.0.0
  * @since 4-14-2023
  */
 // ABUSEIPDB Module
-define('ABUSEIPDB_CURRENT_VERSION', '1.0.1');
+define('ABUSEIPDB_CURRENT_VERSION', '2.0.0');
 define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-05-25');
 
 // Wait until an admin is logged in before installing or updating
@@ -62,7 +62,7 @@ if (!defined('ABUSEIPDB_VERSION')) {
 
             ('Enable Test Mode?', 'ABUSEIPDB_TEST_MODE', 'false', 'Enable or disable test mode for the plugin.', $cgi, now(), 25, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 
-            ('Test IP Address's', 'ABUSEIPDB_TEST_IP', '', 'Enter the IP addresses separated by commas without any spaces to use for testing the plugin.', $cgi, now(), 30, NULL, NULL),
+            ('Test IP Address', 'ABUSEIPDB_TEST_IP', '', 'An IP address to use for testing the plugin.', $cgi, now(), 30, NULL, NULL),
 
             ('Enable Logging?', 'ABUSEIPDB_ENABLE_LOGGING', 'false', 'Enable or disable logging of blocked IP addresses.', $cgi, now(), 35, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 
@@ -96,7 +96,25 @@ if (ABUSEIPDB_VERSION !== ABUSEIPDB_CURRENT_VERSION) {
                  VALUES
                      ('Enable Logging API Calls?', 'ABUSEIPDB_ENABLE_LOGGING_API', 'false', 'Enable or disable logging of API Calls.', $cgi, now(), 36, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
             );
-        default:                                                    //- Fall-through from above processing
+		case version_compare(ABUSEIPDB_VERSION, '1.0.2', '<'):
+            $db->Execute(
+                "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                    (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
+                 VALUES
+                     ('Test IP Addresses', 'ABUSEIPDB_TEST_IP', '', 'Enter the IP addresses separated by commas without any spaces to use for testing the plugin.', $cgi, now(), 30, NULL, NULL)
+				 ON DUPLICATE KEY UPDATE
+					 configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
+            );
+		case version_compare(ABUSEIPDB_VERSION, '2.0.0', '<'):
+			$db->Execute(
+				"CREATE TABLE IF NOT EXISTS abuseipdb_cache (
+				ip VARCHAR(45) NOT NULL,
+				score INT NOT NULL,
+				timestamp DATETIME NOT NULL,
+				PRIMARY KEY(ip)
+			)"
+		);
+				default:                                                    //- Fall-through from above processing
             break;
     }
 

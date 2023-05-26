@@ -2,12 +2,13 @@
 /**
  * Module: AbuseIPDBO
  *
- * @author marcopolo & chatgpt
- * @copyright 2023
- * @license GNU General Public License (GPL)
- * @version v1.0.1
- * @since 4-14-2023
+ * Author: marcopolo & chatgpt
+ * Copyright: 2023
+ * License: GNU General Public License (GPL)
+ * Version: v2.0.0
+ * Since: 4-14-2023
  */
+
 class abuseipdb_observer extends base {
 
     public function __construct() {
@@ -20,13 +21,47 @@ class abuseipdb_observer extends base {
         }
     }
 
-    protected function checkAbusiveIP() {
-		global $current_page_base, $_SESSION;
+    protected function getAbuseScore($ip, $api_key, $threshold, $cache_time) {
+        global $db; // Get the Zen Cart database object
 
-		// Do not execute the check for the 'page_not_found' page or for known spiders
-		if ($current_page_base == 'page_not_found' || (isset($spider_flag) && $spider_flag === true)) {
-			return;
-		}
+        // Look for the IP in the database
+        $ip_query = "SELECT * FROM abuseipdb_cache WHERE ip = '" . zen_db_input($ip) . "'";
+        $ip_info = $db->Execute($ip_query);
+
+        // If the IP is in the database and the cache has not expired
+        if (!$ip_info->EOF && (time() - strtotime($ip_info->fields['timestamp'])) < $cache_time) {
+            return $ip_info->fields['score'];
+        } else {
+            // Make the API call
+            $abuseScore = getAbuseConfidenceScore($ip, $api_key);
+
+            // If the IP is in the database, update the score and timestamp
+            if (!$ip_info->EOF) {
+                $update_query = "UPDATE abuseipdb_cache SET score = " . (int)$abuseScore . ", timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
+                $db->Execute($update_query);
+            } else { // If the IP is not in the database, insert it
+                $insert_query = "INSERT INTO abuseipdb_cache (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW())";
+                $db->Execute($insert_query);
+            }
+
+            return $abuseScore;
+        }
+    }
+
+    protected function logAbuseIP($ip, $log_type, $score) {
+        global $db; // Get the Zen Cart database object
+
+        $insert_query = "INSERT INTO abuseipdb_logs (ip, log_type, score, timestamp) VALUES ('" . zen_db_input($ip) . "', '" . zen_db_input($log_type) . "', " . (int)$score . ", NOW())";
+        $db->Execute($insert_query);
+    }
+
+    protected function checkAbusiveIP() {
+        global $current_page_base, $_SESSION, $db;
+
+        // Do not execute the check for the 'page_not_found' page or for known spiders
+        if ($current_page_base == 'page_not_found' || (isset($spider_flag) && $spider_flag === true)) {
+            return;
+        }
 
         $abuseipdb_enabled = (int)ABUSEIPDB_ENABLED;
 
@@ -38,8 +73,8 @@ class abuseipdb_observer extends base {
             $cache_time = (int)ABUSEIPDB_CACHE_TIME;
             $test_mode = ABUSEIPDB_TEST_MODE === 'true';
             $test_ips = array_map('trim', explode(',', ABUSEIPDB_TEST_IP));
-			$enable_logging = ABUSEIPDB_ENABLE_LOGGING === 'true';
-            $log_file_format = ABUSEIPDB_LOG_FILE_FORMAT;
+            $enable_logging = ABUSEIPDB_ENABLE_LOGGING === 'true';
+            $enable_api_logging = ABUSEIPDB_ENABLE_LOGGING_API === 'true';
             $log_file_path = ABUSEIPDB_LOG_FILE_PATH;
             $whitelisted_ips = explode(',', ABUSEIPDB_WHITELISTED_IPS);
             $blocked_ips = explode(',', ABUSEIPDB_BLOCKED_IPS);
@@ -52,7 +87,7 @@ class abuseipdb_observer extends base {
                 error_log('Test Mode: ' . ($test_mode ? 'true' : 'false'));
                 error_log('Test IPs: ' . implode(',', $test_ips));
                 error_log('Enable Logging: ' . ($enable_logging ? 'true' : 'false'));
-                error_log('Log File Format: ' . $log_file_format);
+                error_log('Enable API Logging: ' . ($enable_api_logging ? 'true' : 'false'));
                 error_log('Log File Path: ' . $log_file_path);
                 error_log('Whitelisted IPs: ' . implode(',', $whitelisted_ips));
                 error_log('Blocked IPs: ' . implode(',', $blocked_ips));
@@ -74,78 +109,75 @@ class abuseipdb_observer extends base {
                 $log_file_name = 'abuseipdb_blocked_cache_' . date('Y_m') . '.log';
                 $log_file_path = ABUSEIPDB_LOG_FILE_PATH . $log_file_name;
 
-                $log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked by AbuseIPDB from cache' . PHP_EOL;
-
+                $log_message_cache = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked by AbuseIPDB from cache with score: ' . $abuseScore . PHP_EOL;
                 if ($enable_logging) {
-                    file_put_contents($log_file_path, $log_message, FILE_APPEND);
+                    file_put_contents($log_file_path, $log_message_cache, FILE_APPEND);
                 }
 
                 header('Location: /index.php?main_page=page_not_found');
                 exit();
             }
 
-            // Check if the abuse score is cached in the Zen Cart session and not expired
-            if ($debug_mode == true) {
-                error_log('Checking cache for IP: ' . $ip);
-            }
-            if (isset($_SESSION['abuse_score_cache'][$ip]) && (time() - $_SESSION['abuse_score_cache'][$ip]['timestamp']) < $cache_time) {
-                $abuseScore = $_SESSION['abuse_score_cache'][$ip]['score'];
+            // Look for the IP in the database
+            $ip_query = "SELECT * FROM abuseipdb_cache WHERE ip = '" . zen_db_input($ip) . "'";
+            $ip_info = $db->Execute($ip_query);
+
+            // If the IP is in the database and the cache has not expired
+            if (!$ip_info->EOF && (time() - strtotime($ip_info->fields['timestamp'])) < $cache_time) {
+                $abuseScore = $ip_info->fields['score'];
+
                 if ($debug_mode == true) {
-                    error_log('Zen Cart session cache used for IP: ' . $ip . ' with score: ' . $abuseScore);
+                    error_log('Used cache for IP: ' . $ip . ' with score: ' . $abuseScore);
                 }
 
                 if ($abuseScore >= $threshold || ($test_mode && in_array($ip, $test_ips))) {
                     $log_file_name = 'abuseipdb_blocked_cache_' . date('Y_m') . '.log';
                     $log_file_path = ABUSEIPDB_LOG_FILE_PATH . $log_file_name;
 
-                    $log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked by AbuseIPDB from cache' . PHP_EOL;
+                    $log_message_cache = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked by AbuseIPDB from cache with score: ' . $abuseScore . PHP_EOL;
+
                     if ($enable_logging) {
-                        file_put_contents($log_file_path, $log_message, FILE_APPEND);
+                        file_put_contents($log_file_path, $log_message_cache, FILE_APPEND);
                     }
 
                     header('Location: /index.php?main_page=page_not_found');
                     exit();
                 }
             } else {
+                // Make the API call
                 $abuseScore = getAbuseConfidenceScore($ip, $api_key);
 
-                $enable_api_logging = ABUSEIPDB_ENABLE_LOGGING_API === 'true';
-                // Start: Log API call
-                if ($enable_api_logging) {
-                    $api_call_log_file_name = 'abuseipdb_api_calls_' . date('Y_m') . '.log';
-                    $api_call_log_file_path = ABUSEIPDB_LOG_FILE_PATH . $api_call_log_file_name;
-
-                    $api_call_log_message = date('Y-m-d H:i:s') . ' API call made for IP: ' . $ip . ' with score: ' . $abuseScore . PHP_EOL;
-
-                    file_put_contents($api_call_log_file_path, $api_call_log_message, FILE_APPEND);
+                // If the IP is in the database, update the score and timestamp
+                if (!$ip_info->EOF) {
+                    $update_query = "UPDATE abuseipdb_cache SET score = " . (int)$abuseScore . ", timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
+                    $db->Execute($update_query);
+                } else { // If the IP is not in the database, insert it
+                    $insert_query = "INSERT INTO abuseipdb_cache (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW())";
+                    $db->Execute($insert_query);
                 }
-                // End: Log API call
+
+                if ($enable_api_logging) {
+                    $log_file_name_api = 'abuseipdb_api_call_' . date('Y_m') . '.log';
+                    $log_file_path_api = $log_file_path . $log_file_name_api;
+                    $log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' API call. Score: ' . $abuseScore . PHP_EOL;
+                    file_put_contents($log_file_path_api, $log_message, FILE_APPEND);
+                }
 
                 if ($debug_mode == true) {
-                    error_log('API call made for IP: ' . $ip . ' with score: ' . $abuseScore);
+                    error_log('Used API for IP: ' . $ip . ' with score: ' . $abuseScore);
                 }
 
-                // Cache the abuse score in the Zen Cart session for the cache time
-                $_SESSION['abuse_score_cache'][$ip] = array(
-                    'score' => $abuseScore,
-                    'timestamp' => time()
-                );
-
                 if ($abuseScore >= $threshold || ($test_mode && in_array($ip, $test_ips))) {
-                    if ($debug_mode == true) {
-                        error_log('IP ' . $ip . ' blocked from API call');
-                    }
-
-                    $log_file_name = 'abuseipdb_blocked_' . date('Y_m') . '.log';
+                    $log_file_name = ($abuseScore >= $threshold) ? 'abuseipdb_blocked_' : 'abuseipdb_blocked_cache_';
+                    $log_file_name .= date('Y_m') . '.log';
                     $log_file_path = ABUSEIPDB_LOG_FILE_PATH . $log_file_name;
 
-                    $log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked by AbuseIPDB from API call with score: ' . $abuseScore . PHP_EOL;
+                    $log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked by AbuseIPDB from ' . ($abuseScore >= $threshold ? 'API call' : 'cache') . ' with score: ' . $abuseScore . PHP_EOL;
 
                     if ($enable_logging) {
                         file_put_contents($log_file_path, $log_message, FILE_APPEND);
                     }
 
-                    // Redirect to the 404 page
                     header('Location: /index.php?main_page=page_not_found');
                     exit();
                 }
