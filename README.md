@@ -1,4 +1,4 @@
-# AbuseIPDB for Zen Cart v1.5.5 and Later, v1.0.1
+# AbuseIPDB for Zen Cart v1.5.5 and Later, v2.0.0
 
 About this module:
 
@@ -27,3 +27,7 @@ For support, please refer to the Zen Cart forums or contact the module author.
 
 License:
 This module is released under the GNU General Public License (GPL).
+
+What's New:
+- v1.0.2: Fixed a typo in the admin installation and corrected the license type.
+- v2.0.0: Switched from session caching to database caching for improved performance and reliability.
