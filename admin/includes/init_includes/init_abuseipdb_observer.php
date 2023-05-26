@@ -9,7 +9,7 @@
  * @since 4-14-2023
  */
 // ABUSEIPDB Module
-define('ABUSEIPDB_CURRENT_VERSION', '2.0.0');
+define('ABUSEIPDB_CURRENT_VERSION', '2.0.1');
 define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-05-25');
 
 // Wait until an admin is logged in before installing or updating
@@ -107,7 +107,7 @@ if (ABUSEIPDB_VERSION !== ABUSEIPDB_CURRENT_VERSION) {
             );
 		case version_compare(ABUSEIPDB_VERSION, '2.0.0', '<'):
 			$db->Execute(
-				"CREATE TABLE IF NOT EXISTS abuseipdb_cache (
+				"CREATE TABLE IF NOT EXISTS " . TABLE_ABUSEIPDB_CACHE . " (
 				ip VARCHAR(45) NOT NULL,
 				score INT NOT NULL,
 				timestamp DATETIME NOT NULL,

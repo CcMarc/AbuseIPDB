@@ -5,7 +5,7 @@
  * Author: marcopolo & chatgpt
  * Copyright: 2023
  * License: GNU General Public License (GPL)
- * Version: v2.0.0
+ * Version: v2.0.1
  * Since: 4-14-2023
  */
 
@@ -25,7 +25,7 @@ class abuseipdb_observer extends base {
         global $db; // Get the Zen Cart database object
 
         // Look for the IP in the database
-        $ip_query = "SELECT * FROM abuseipdb_cache WHERE ip = '" . zen_db_input($ip) . "'";
+        $ip_query = "SELECT * FROM " . TABLE_ABUSEIPDB_CACHE . " WHERE ip = '" . zen_db_input($ip) . "'";
         $ip_info = $db->Execute($ip_query);
 
         // If the IP is in the database and the cache has not expired
@@ -37,10 +37,10 @@ class abuseipdb_observer extends base {
 
             // If the IP is in the database, update the score and timestamp
             if (!$ip_info->EOF) {
-                $update_query = "UPDATE abuseipdb_cache SET score = " . (int)$abuseScore . ", timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
+                $update_query = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET score = " . (int)$abuseScore . ", timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
                 $db->Execute($update_query);
             } else { // If the IP is not in the database, insert it
-			$query = "INSERT INTO abuseipdb_cache (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW()) ON DUPLICATE KEY UPDATE score = VALUES(score), timestamp = VALUES(timestamp)";
+			$query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW()) ON DUPLICATE KEY UPDATE score = VALUES(score), timestamp = VALUES(timestamp)";
 			$db->Execute($query);
             }
 
@@ -119,7 +119,7 @@ class abuseipdb_observer extends base {
             }
 
             // Look for the IP in the database
-            $ip_query = "SELECT * FROM abuseipdb_cache WHERE ip = '" . zen_db_input($ip) . "'";
+            $ip_query = "SELECT * FROM " . TABLE_ABUSEIPDB_CACHE . " WHERE ip = '" . zen_db_input($ip) . "'";
             $ip_info = $db->Execute($ip_query);
 
             // If the IP is in the database and the cache has not expired
@@ -149,10 +149,10 @@ class abuseipdb_observer extends base {
 
                 // If the IP is in the database, update the score and timestamp
                 if (!$ip_info->EOF) {
-                    $update_query = "UPDATE abuseipdb_cache SET score = " . (int)$abuseScore . ", timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
+                    $update_query = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET score = " . (int)$abuseScore . ", timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
                     $db->Execute($update_query);
                 } else { // If the IP is not in the database, insert it
-					$query = "INSERT INTO abuseipdb_cache (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW()) ON DUPLICATE KEY UPDATE score = VALUES(score), timestamp = VALUES(timestamp)";
+					$query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW()) ON DUPLICATE KEY UPDATE score = VALUES(score), timestamp = VALUES(timestamp)";
 					$db->Execute($query);                }
 
                 if ($enable_api_logging) {
