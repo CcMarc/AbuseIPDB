@@ -40,8 +40,8 @@ class abuseipdb_observer extends base {
                 $update_query = "UPDATE abuseipdb_cache SET score = " . (int)$abuseScore . ", timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
                 $db->Execute($update_query);
             } else { // If the IP is not in the database, insert it
-                $insert_query = "INSERT INTO abuseipdb_cache (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW())";
-                $db->Execute($insert_query);
+			$query = "INSERT INTO abuseipdb_cache (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW()) ON DUPLICATE KEY UPDATE score = VALUES(score), timestamp = VALUES(timestamp)";
+			$db->Execute($query);
             }
 
             return $abuseScore;
@@ -152,9 +152,8 @@ class abuseipdb_observer extends base {
                     $update_query = "UPDATE abuseipdb_cache SET score = " . (int)$abuseScore . ", timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
                     $db->Execute($update_query);
                 } else { // If the IP is not in the database, insert it
-                    $insert_query = "INSERT INTO abuseipdb_cache (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW())";
-                    $db->Execute($insert_query);
-                }
+					$query = "INSERT INTO abuseipdb_cache (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW()) ON DUPLICATE KEY UPDATE score = VALUES(score), timestamp = VALUES(timestamp)";
+					$db->Execute($query);                }
 
                 if ($enable_api_logging) {
                     $log_file_name_api = 'abuseipdb_api_call_' . date('Y_m') . '.log';
