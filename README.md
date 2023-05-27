@@ -4,7 +4,7 @@
 
 This module is an AbuseIPDB integration for Zen Cart, designed to help protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access to the site if the score exceeds a predefined threshold. The module also supports caching to reduce the number of API calls, a test mode for debugging, and logging for monitoring blocked IPs. Additionally, it allows for manual whitelisting and blacklisting of IP addresses to give you greater control over access to your site.
 
--INSTALLATION:
+-INSTALLATION:  
 Copy the following files and folders to your Zen Cart installation directory, maintaining the same directory structure:  
 
 includes/auto_loaders/config.abuseipdb_observer.php  
@@ -19,7 +19,7 @@ admin/includes/languages/english/extra_definitions/init_includes/abuseipdb_admin
 
 Configure the module in your Zen Cart admin panel by navigating to the AbuseIPDB Settings page.  
 
--THINGS TO KNOW:
+-THINGS TO KNOW:  
 1.	API Key: The script requires a valid API key from AbuseIPDB to check the abuse confidence score of an IP address. Ensure that a valid API key is available and correctly configured in the "AbuseIPDB API Key" setting in the Zen Cart admin panel.  
 2.	Cache Expiry: The script checks the database cache to avoid excessive API calls. If the cache for a specific IP address has expired, the script makes a new API call.  
 3.	Test Mode: The script provides a test mode for debugging. When an IP is in test mode, the script logs the IP as blocked regardless of the abuse score.  
@@ -54,7 +54,7 @@ For support, please refer to the Zen Cart forums or contact the module author.
 -LICENSE:  
 This module is released under the GNU General Public License (GPL).  
 
--WHAT'S NEW:  
+-WHAT'S NEW:   
 - v1.0.2: Fixed a typo in the admin installation and corrected the license type.  
 - v2.0.0: Switched from session caching to database caching for improved performance and reliability.  
 - v2.0.1: Updated table name reference to TABLE_ABUSEIPDB_CACHE for compatibility.  
