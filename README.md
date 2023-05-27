@@ -44,7 +44,7 @@ This section provides an understanding of the logic steps involved in checking a
 a. If the IP is found in the cache and the cache has not expired: - The abuse score is retrieved from the cache. - If the abuse score is above the threshold or the IP is in test mode, the IP is logged as blocked in the cache and a log file is created with the same details as described above.  
 b. If the IP is not found in the cache or the cache has expired: - An API call is made to AbuseIPDB to fetch the abuse score for the IP. - The database cache is then updated with the new abuse score and timestamp.  
 c. Skip IP check for known spiders: If the IP is identified as a known spider and the ABUSEIPDB_SPIDER_ALLOW setting is enabled, the IP check and logging steps are skipped for spiders.
-d. Spider Logging: If Spider logging is enabled, a separate log file for spiders that bypassed an ip check is created.
+d. Spider Logging: If Spider logging is enabled, a separate log file for spiders that bypassed an ip check is created.  
 4.  Database Cleanup: The script's function periodically removes old IP records from the database when triggered, if the cleanup feature is enabled. This operation is performed only once per day, as indicated by the update of the maintenance timestamp.  
 5.	API Logging: If API logging is enabled, a separate log file for API calls is created. The log file creation details are as follows:  
 •	File Name: abuseipdb_api_call_<date>.log  
