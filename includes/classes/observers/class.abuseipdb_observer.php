@@ -5,7 +5,7 @@
  * Author: marcopolo & chatgpt
  * Copyright: 2023
  * License: GNU General Public License (GPL)
- * Version: v2.0.3
+ * Version: v2.0.4
  * Since: 4-14-2023
  */
 
@@ -50,11 +50,16 @@ class abuseipdb_observer extends base {
     }
 }
     protected function getAbuseScore($ip, $api_key, $threshold, $cache_time) {
-        global $db; // Get the Zen Cart database object
+        global $db, $spider_flag; // Get the Zen Cart database object and spider flag
 
         // Look for the IP in the database
         $ip_query = "SELECT * FROM " . TABLE_ABUSEIPDB_CACHE . " WHERE ip = '" . zen_db_input($ip) . "'";
         $ip_info = $db->Execute($ip_query);
+		
+		// Skip API call for known spiders if ABUSEIPDB_SPIDER_ALLOW is true
+		if (isset($spider_flag) && $spider_flag === true && ABUSEIPDB_SPIDER_ALLOW == 'true') {
+			return 0; // Return 0 score for spiders or whatever default value you want
+		}
 
         // If the IP is in the database and the cache has not expired
         if (!$ip_info->EOF && (time() - strtotime($ip_info->fields['timestamp'])) < $cache_time) {
@@ -84,12 +89,12 @@ class abuseipdb_observer extends base {
     }
 
     protected function checkAbusiveIP() {
-        global $current_page_base, $_SESSION, $db;
-
-        // Do not execute the check for the 'page_not_found' page or for known spiders
-        if ($current_page_base == 'page_not_found' || (isset($spider_flag) && $spider_flag === true)) {
-            return;
-        }
+        global $current_page_base, $_SESSION, $db, $spider_flag;
+		
+		// Do not execute the check for the 'page_not_found' page or for known spiders
+		if ($current_page_base == 'page_not_found' || (isset($spider_flag) && $spider_flag === true && ABUSEIPDB_SPIDER_ALLOW == 'true')) {
+			return;
+		}
 
         $abuseipdb_enabled = (int)ABUSEIPDB_ENABLED;
 
