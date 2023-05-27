@@ -67,4 +67,4 @@ This module is released under the GNU General Public License (GPL).
 - v2.0.2: Added IP cleanup feature with configurable settings for automatic deletion of expired IP records and changed abuseipdb_api_call_<date>.log creation to daily instead of monthly.  
 - v2.0.3: Added TABLE_ABUSEIPDB_MAINTENANCE database table for IP cleanup control.  
 - v2.0.4: Added the ability to allow or disable known spiders from bypassing IP checks.  
-- v2.0.5: Added the option to log allowed spiders bypassing IP checks.  
+- v2.0.5: Added the option to log spiders that bypassed IP checking.  
