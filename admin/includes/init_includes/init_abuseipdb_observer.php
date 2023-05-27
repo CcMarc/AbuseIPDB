@@ -5,12 +5,12 @@
  * @author marcopolo & chatgpt
  * @copyright 2023
  * @license GNU General Public License (GPL)
- * @version v2.0.4
+ * @version v2.0.5
  * @since 4-14-2023
  */
 // ABUSEIPDB Module
-define('ABUSEIPDB_CURRENT_VERSION', '2.0.4');
-define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-05-26');
+define('ABUSEIPDB_CURRENT_VERSION', '2.0.5');
+define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-05-27');
 
 // Wait until an admin is logged in before installing or updating
 if (!isset($_SESSION['admin_id'])) {
@@ -134,12 +134,21 @@ if (ABUSEIPDB_VERSION !== ABUSEIPDB_CURRENT_VERSION) {
 				PRIMARY KEY (last_cleanup)
 			)"
 		);
-		case version_compare(ABUSEIPDB_VERSION, '2.0.4', '<='):
+		case version_compare(ABUSEIPDB_VERSION, '2.0.4', '<'):
 			$db->Execute(
 				"INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
 				(configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
 				VALUES
                 ('Allow Spiders?', 'ABUSEIPDB_SPIDER_ALLOW', 'true', 'Enable or disable allowing known spiders to bypass IP checks.', $cgi, now(), 22, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')
+				ON DUPLICATE KEY UPDATE
+				configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
+		);
+		case version_compare(ABUSEIPDB_VERSION, '2.0.5', '<='):
+			$db->Execute(
+				"INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+				(configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
+				VALUES
+                ('Enable Logging Spiders?', 'ABUSEIPDB_SPIDER_ALLOW_LOG', 'false', 'Enable or disable logging of allowed known spiders that bypass IP checks.', $cgi, now(), 37, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')
 				ON DUPLICATE KEY UPDATE
 				configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
 		);

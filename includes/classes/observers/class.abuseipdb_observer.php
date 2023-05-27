@@ -5,7 +5,7 @@
  * Author: marcopolo & chatgpt
  * Copyright: 2023
  * License: GNU General Public License (GPL)
- * Version: v2.0.4
+ * Version: v2.0.5
  * Since: 4-14-2023
  */
 
@@ -58,6 +58,13 @@ class abuseipdb_observer extends base {
 		
 		// Skip API call for known spiders if ABUSEIPDB_SPIDER_ALLOW is true
 		if (isset($spider_flag) && $spider_flag === true && ABUSEIPDB_SPIDER_ALLOW == 'true') {
+			// Check if logging is enabled for allowed spiders
+			if (ABUSEIPDB_SPIDER_ALLOW_LOG == 'true') {			
+				$log_file_name_spiders = 'abuseipdb_allowed_spiders_' . date('Y_m') . '.log';
+				$log_file_path_spiders = $log_file_path . $log_file_name_spiders;
+				$log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . PHP_EOL;
+				file_put_contents($log_file_path_spiders, $log_message, FILE_APPEND);
+			}
 			return 0; // Return 0 score for spiders or whatever default value you want
 		}
 
