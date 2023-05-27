@@ -5,12 +5,12 @@
  * @author marcopolo & chatgpt
  * @copyright 2023
  * @license GNU General Public License (GPL)
- * @version v2.0.0
+ * @version v2.0.3
  * @since 4-14-2023
  */
 // ABUSEIPDB Module
-define('ABUSEIPDB_CURRENT_VERSION', '2.0.1');
-define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-05-25');
+define('ABUSEIPDB_CURRENT_VERSION', '2.0.3');
+define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-05-26');
 
 // Wait until an admin is logged in before installing or updating
 if (!isset($_SESSION['admin_id'])) {
@@ -112,6 +112,26 @@ if (ABUSEIPDB_VERSION !== ABUSEIPDB_CURRENT_VERSION) {
 				score INT NOT NULL,
 				timestamp DATETIME NOT NULL,
 				PRIMARY KEY(ip)
+			)"
+		);
+		case version_compare(ABUSEIPDB_VERSION, '2.0.2', '<'):
+			$db->Execute(
+				"INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+				(configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
+				VALUES
+                ('Enable IP Cleanup?', 'ABUSEIPDB_CLEANUP_ENABLED', 'false', 'Enable or disable automatic IP cleanup', $cgi, now(), 60, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+				('IP Cleanup Period (in days)', 'ABUSEIPDB_CLEANUP_PERIOD', '30', 'Expiration period in days for IP records', $cgi, now(), 65, NULL, NULL)
+
+				ON DUPLICATE KEY UPDATE
+				configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
+		);
+
+		case version_compare(ABUSEIPDB_VERSION, '2.0.3', '<'):
+			$db->Execute(
+				"CREATE TABLE IF NOT EXISTS " . TABLE_ABUSEIPDB_MAINTENANCE  . " (
+				last_cleanup DATETIME NOT NULL,
+				timestamp DATETIME NOT NULL,
+				PRIMARY KEY (last_cleanup)
 			)"
 		);
 				default:                                                    //- Fall-through from above processing

@@ -5,7 +5,7 @@
  * Author: marcopolo & chatgpt
  * Copyright: 2023
  * License: GNU General Public License (GPL)
- * Version: v2.0.1
+ * Version: v2.0.3
  * Since: 4-14-2023
  */
 
@@ -18,9 +18,37 @@ class abuseipdb_observer extends base {
     public function update(&$class, $eventID, $paramsArray = array()) {
         if ($eventID == 'NOTIFY_HTML_HEAD_START') {
             $this->checkAbusiveIP();
+            $this->runCleanup();
         }
     }
 
+    protected function runCleanup() {
+        global $db;
+
+        $cleanup_enabled = ABUSEIPDB_CLEANUP_ENABLED;
+        $cleanup_period = ABUSEIPDB_CLEANUP_PERIOD;
+		$abuseipdb_enabled = ABUSEIPDB_ENABLED;
+
+        if ($cleanup_enabled == 'true' && $abuseipdb_enabled == 'true') {
+            $maintenance_query = "SELECT * FROM " . TABLE_ABUSEIPDB_MAINTENANCE;
+            $maintenance_info = $db->Execute($maintenance_query);
+
+            if (date('Y-m-d') != date('Y-m-d', strtotime($maintenance_info->fields['last_cleanup']))) {
+                // Cleanup old records
+                $cleanup_query = "DELETE FROM " . TABLE_ABUSEIPDB_CACHE . " WHERE timestamp < DATE_SUB(NOW(), INTERVAL " . (int)$cleanup_period . " DAY)";
+                $db->Execute($cleanup_query);
+
+            // Update or insert the maintenance timestamp
+            if ($maintenance_info->RecordCount() > 0) {
+                $update_query = "UPDATE " . TABLE_ABUSEIPDB_MAINTENANCE . " SET last_cleanup = NOW(), timestamp = NOW()";
+                $db->Execute($update_query);
+            } else {
+                $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_MAINTENANCE . " (last_cleanup, timestamp) VALUES (NOW(), NOW())";
+                $db->Execute($insert_query);
+            }
+        }
+    }
+}
     protected function getAbuseScore($ip, $api_key, $threshold, $cache_time) {
         global $db; // Get the Zen Cart database object
 
@@ -40,8 +68,8 @@ class abuseipdb_observer extends base {
                 $update_query = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET score = " . (int)$abuseScore . ", timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
                 $db->Execute($update_query);
             } else { // If the IP is not in the database, insert it
-			$query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW()) ON DUPLICATE KEY UPDATE score = VALUES(score), timestamp = VALUES(timestamp)";
-			$db->Execute($query);
+                $query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW()) ON DUPLICATE KEY UPDATE score = VALUES(score), timestamp = VALUES(timestamp)";
+                $db->Execute($query);
             }
 
             return $abuseScore;
@@ -152,11 +180,12 @@ class abuseipdb_observer extends base {
                     $update_query = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET score = " . (int)$abuseScore . ", timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
                     $db->Execute($update_query);
                 } else { // If the IP is not in the database, insert it
-					$query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW()) ON DUPLICATE KEY UPDATE score = VALUES(score), timestamp = VALUES(timestamp)";
-					$db->Execute($query);                }
+                    $query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW()) ON DUPLICATE KEY UPDATE score = VALUES(score), timestamp = VALUES(timestamp)";
+                    $db->Execute($query);
+                }
 
                 if ($enable_api_logging) {
-                    $log_file_name_api = 'abuseipdb_api_call_' . date('Y_m') . '.log';
+                    $log_file_name_api = 'abuseipdb_api_call_' . date('Y_m_d') . '.log'; // Changed to daily log file
                     $log_file_path_api = $log_file_path . $log_file_name_api;
                     $log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' API call. Score: ' . $abuseScore . PHP_EOL;
                     file_put_contents($log_file_path_api, $log_message, FILE_APPEND);

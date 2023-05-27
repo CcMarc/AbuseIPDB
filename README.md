@@ -1,4 +1,4 @@
-# AbuseIPDB for Zen Cart v1.5.5 and Later, v2.0.1
+# AbuseIPDB for Zen Cart v1.5.5 and Later, v2.0.3
 
 -ABOUT THEIS MODULE:
 
@@ -22,6 +22,7 @@ Configure the module in your Zen Cart admin panel by navigating to the AbuseIPDB
 -THINGS TO KNOW:
 For settings involving multiple IP addresses (whitelisted and blocked IPs), enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3
 Enable or disable the module using the "Enable AbuseIPDB Check" setting in the Zen Cart admin panel.
+IP Cleanup Feature: Enable or disable automatic IP cleanup using the "Enable IP Cleanup" setting. Specify the expiration period in days for IP records with the "IP Cleanup Period (in days)" setting. Expired IP records will be automatically deleted during the cleanup process once per day triggered by the first logged ip.
 
 To obtain an API key for the AbuseIPDB service, visit https://www.abuseipdb.com and sign up for an account. Once you've registered, log in and navigate to the API Key section in your account dashboard. Generate an API key and copy it to the "AbuseIPDB API Key" setting in the Zen Cart admin panel.
 
@@ -77,3 +78,5 @@ This module is released under the GNU General Public License (GPL).
 - v1.0.2: Fixed a typo in the admin installation and corrected the license type.
 - v2.0.0: Switched from session caching to database caching for improved performance and reliability.
 - v2.0.1: Updated table name reference to TABLE_ABUSEIPDB_CACHE for compatibility.
+- v2.0.2: Added IP cleanup feature with configurable settings for automatic deletion of expired IP records and changed abuseipdb_api_call_<date>.log creation to daily instead of monthly.
+- v2.0.3: Added TABLE_ABUSEIPDB_MAINTENANCE database table for IP cleanup control.
