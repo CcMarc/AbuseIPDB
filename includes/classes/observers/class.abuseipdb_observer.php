@@ -5,7 +5,7 @@
  * Author: marcopolo & chatgpt
  * Copyright: 2023
  * License: GNU General Public License (GPL)
- * Version: v2.0.5
+ * Version: v2.0.6
  * Since: 4-14-2023
  */
 
@@ -103,7 +103,7 @@ class abuseipdb_observer extends base {
                     error_log('IP ' . $ip . ' blocked from cache');
                 }
 
-                $log_file_name = 'abuseipdb_blocked_cache_' . date('Y_m') . '.log';
+                $log_file_name = 'abuseipdb_blocked_blacklisted_' . date('Y_m') . '.log';
                 $log_file_path = ABUSEIPDB_LOG_FILE_PATH . $log_file_name;
                 $log_message_cache = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked by blacklist with score: ' . $abuseScore . PHP_EOL;
 

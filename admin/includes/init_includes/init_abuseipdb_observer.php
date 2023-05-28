@@ -5,11 +5,11 @@
  * @author marcopolo & chatgpt
  * @copyright 2023
  * @license GNU General Public License (GPL)
- * @version v2.0.5
+ * @version v2.0.6
  * @since 4-14-2023
  */
 // ABUSEIPDB Module
-define('ABUSEIPDB_CURRENT_VERSION', '2.0.5');
+define('ABUSEIPDB_CURRENT_VERSION', '2.0.6');
 define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-05-27');
 
 // Wait until an admin is logged in before installing or updating
@@ -72,7 +72,7 @@ if (!defined('ABUSEIPDB_VERSION')) {
 
             ('IP Address: Whitelist', 'ABUSEIPDB_WHITELISTED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 50, NULL, 'zen_cfg_textarea('),
 
-            ('Block by: IP Address', 'ABUSEIPDB_BLOCKED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 55, NULL, NULL),
+            ('IP Address: Blacklist', 'ABUSEIPDB_BLOCKED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 55, NULL, NULL, 'zen_cfg_textarea('),
 
             ('Enable Debug?', 'ABUSEIPDB_DEBUG', 'false', '', $cgi, now(), 499, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
     );
@@ -143,7 +143,7 @@ if (ABUSEIPDB_VERSION !== ABUSEIPDB_CURRENT_VERSION) {
 				ON DUPLICATE KEY UPDATE
 				configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
 		);
-		case version_compare(ABUSEIPDB_VERSION, '2.0.5', '<='):
+		case version_compare(ABUSEIPDB_VERSION, '2.0.5', '<'):
 			$db->Execute(
 				"INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
 				(configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
@@ -152,6 +152,16 @@ if (ABUSEIPDB_VERSION !== ABUSEIPDB_CURRENT_VERSION) {
 				ON DUPLICATE KEY UPDATE
 				configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
 		);
+		case version_compare(ABUSEIPDB_VERSION, '2.0.6', '<='):
+            $db->Execute(
+                "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                    (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
+                 VALUES
+					('IP Address: Whitelist', 'ABUSEIPDB_WHITELISTED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 50, NULL, 'zen_cfg_textarea('),
+					('IP Address: Blacklist', 'ABUSEIPDB_BLOCKED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 55, NULL, 'zen_cfg_textarea(')
+				 ON DUPLICATE KEY UPDATE
+					 configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
+        );
 				default:                                                    //- Fall-through from above processing
             break;
     }

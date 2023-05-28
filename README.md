@@ -1,4 +1,4 @@
-# AbuseIPDB for Zen Cart v1.5.5 and Later, v2.0.5
+# AbuseIPDB for Zen Cart v1.5.5 and Later, v2.0.6
 
 -ABOUT THEIS MODULE:
 
@@ -68,3 +68,4 @@ This module is released under the GNU General Public License (GPL).
 - v2.0.3: Added TABLE_ABUSEIPDB_MAINTENANCE database table for IP cleanup control.  
 - v2.0.4: Added the ability to allow or disable known spiders from bypassing IP checks.  
 - v2.0.5: Added the option to log spiders that bypassed IP checking.  
+- v2.0.6: Optimized code, updated AbuseIPDB checks, improved logging and cache handling, and adjusted admin settings.  
