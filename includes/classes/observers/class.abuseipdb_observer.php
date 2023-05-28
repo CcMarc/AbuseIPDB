@@ -103,7 +103,7 @@ class abuseipdb_observer extends base {
                     error_log('IP ' . $ip . ' blocked from cache');
                 }
 
-                $log_file_name = 'abuseipdb_blocked_blacklisted_' . date('Y_m') . '.log';
+                $log_file_name = 'abuseipdb_blocked_' . date('Y_m') . '.log';
                 $log_file_path = ABUSEIPDB_LOG_FILE_PATH . $log_file_name;
                 $log_message_cache = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked by blacklist: ' . $abuseScore . PHP_EOL;
 
