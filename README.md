@@ -1,4 +1,4 @@
-# AbuseIPDB for Zen Cart v1.5.5 and Later, v2.0.6
+# AbuseIPDB for Zen Cart v1.5.5 and Later, v2.0.7
 
 -ABOUT THEIS MODULE:
 
@@ -29,6 +29,7 @@ Configure the module in your Zen Cart admin panel by navigating to the AbuseIPDB
 5.	Manual Whitelisting and Blacklisting: The script checks if an IP is manually whitelisted or blacklisted before it does anything else. Manually whitelisted IPs will bypass the AbuseIPDB check, and manually blacklisted IPs will be immediately blocked. Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3  
 6.	Logging: If logging is enabled, log files are created when an IP is blocked, whether manually or based on the AbuseIPDB score. If API logging is enabled, a separate log file is also created for API calls. The location of these log files can be configured in the "ABUSEIPDB_LOG_FILE_PATH" setting in the Zen Cart admin panel.  
 7.  Skipping IP Check for Known Spiders: If the "Allow Spiders?" setting (ABUSEIPDB_SPIDER_ALLOW) is enabled, known spiders will be skipped in the IP check and logging process, as they are not subject to AbuseIPDB scoring. This can be useful for avoiding unnecessary API calls and log entries for spider sessions.  
+8.  Spider Detection: The script utilizes a file called spiders.txt provided by Zen Cart to identify known spiders, including search engine bots and web crawlers. It reads the user agent from the HTTP request and compares it against the entries in the spiders.txt file. If a match is found, indicating that the user agent corresponds to a known spider, the spider flag is set to true. This flag determines the script's behavior, enabling it to bypass certain checks or execute specific actions tailored for spider sessions.  
 
 To obtain an API key for the AbuseIPDB service, visit https://www.abuseipdb.com and sign up for an account. Once you've registered, log in and navigate to the API Key section in your account dashboard. Generate an API key and copy it to the "AbuseIPDB API Key" setting in the Zen Cart admin panel.  
 
@@ -69,3 +70,4 @@ This module is released under the GNU General Public License (GPL).
 - v2.0.4: Added the ability to allow or disable known spiders from bypassing IP checks.  
 - v2.0.5: Added the option to log spiders that bypassed IP checking.  
 - v2.0.6: Optimized code, updated AbuseIPDB checks, improved logging and cache handling, and adjusted admin settings.  
+- v2.0.7: Added the checkSpiderFlag() function for improved spider detection and updated the spider_flag_user_setting configuration option.  

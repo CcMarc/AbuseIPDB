@@ -51,7 +51,7 @@ class abuseipdb_observer extends base {
 }
 
     protected function checkAbusiveIP() {
-        global $current_page_base, $_SESSION, $db, $spider_flag;
+        global $current_page_base, $_SESSION, $db;
 		
 		// Do not execute the check for the 'page_not_found' page or for known spiders
 		if ($current_page_base == 'page_not_found' || (isset($spider_flag) && $spider_flag === true && ABUSEIPDB_SPIDER_ALLOW == 'true')) {
@@ -116,12 +116,12 @@ class abuseipdb_observer extends base {
             }
 
 			// Skip API call for known spiders if enabled
-				if (isset($spider_flag) && $spider_flag === true && $spider_allow == 'true') {
+				if (checkSpiderFlag() && $spider_allow == 'true') {
 
 					// Check if logging is enabled for allowed spiders
 						$log_file_name_spiders = 'abuseipdb_spiders_' . date('Y_m') . '.log';
 						$log_file_path_spiders = $log_file_path . $log_file_name_spiders;
-						$log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' Spider - Score: ' . $abuseScore . PHP_EOL;
+						$log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' is identified as a Spider. AbuseIPDB API check was bypassed.' . PHP_EOL;
 
 					if ($spider_log_enabled == 'true') {			
 						file_put_contents($log_file_path_spiders, $log_message, FILE_APPEND);
