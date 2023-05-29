@@ -119,7 +119,7 @@ class abuseipdb_observer extends base {
 				if (checkSpiderFlag() && $spider_allow == 'true') {
 
 					// Check if logging is enabled for allowed spiders
-						$log_file_name_spiders = 'abuseipdb_spiders_' . date('Y_m') . '.log';
+						$log_file_name_spiders = 'abuseipdb_spiders_' . date('Y_m_d') . '.log'; // Changed to daily log file
 						$log_file_path_spiders = $log_file_path . $log_file_name_spiders;
 						$log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' is identified as a Spider. AbuseIPDB API check was bypassed.' . PHP_EOL;
 
