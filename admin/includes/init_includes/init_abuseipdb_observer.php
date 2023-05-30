@@ -5,12 +5,12 @@
  * @author marcopolo & chatgpt
  * @copyright 2023
  * @license GNU General Public License (GPL)
- * @version v2.0.7
+ * @version v2.0.8
  * @since 4-14-2023
  */
 // ABUSEIPDB Module
-define('ABUSEIPDB_CURRENT_VERSION', '2.0.7');
-define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-05-28');
+define('ABUSEIPDB_CURRENT_VERSION', '2.0.8');
+define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-05-30');
 
 // Wait until an admin is logged in before installing or updating
 if (!isset($_SESSION['admin_id'])) {
@@ -152,13 +152,23 @@ if (ABUSEIPDB_VERSION !== ABUSEIPDB_CURRENT_VERSION) {
 				ON DUPLICATE KEY UPDATE
 				configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
 		);
-		case version_compare(ABUSEIPDB_VERSION, '2.0.6', '<='):
+		case version_compare(ABUSEIPDB_VERSION, '2.0.6', '<'):
             $db->Execute(
                 "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
                     (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
                  VALUES
 					('IP Address: Whitelist', 'ABUSEIPDB_WHITELISTED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 50, NULL, 'zen_cfg_textarea('),
 					('IP Address: Blacklist', 'ABUSEIPDB_BLOCKED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 55, NULL, 'zen_cfg_textarea(')
+				 ON DUPLICATE KEY UPDATE
+					 configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
+        );
+		case version_compare(ABUSEIPDB_VERSION, '2.0.8', '<='):
+            $db->Execute(
+                "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                    (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
+                 VALUES
+					('Enable IP Blacklist File?', 'ABUSEIPDB_BLACKLIST_ENABLE', 'false', 'Enable or disable the use of a blacklist file for blocking IP addresses. If enabled, make sure you have specified the path to the file in the following setting.', $cgi, now(), 56, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+					('Blacklist File Path', 'ABUSEIPDB_BLACKLIST_FILE_PATH', 'includes/blacklist.txt', 'The complete path including the filename of the file containing blacklisted IP addresses. Each IP address should be on a new line. This will only be used if the above setting is enabled.', $cgi, now(), 57, NULL, NULL)
 				 ON DUPLICATE KEY UPDATE
 					 configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
         );
