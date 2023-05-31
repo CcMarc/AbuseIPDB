@@ -1,4 +1,4 @@
-# AbuseIPDB for Zen Cart v1.5.5 and Later, v2.0.7
+# AbuseIPDB for Zen Cart v1.5.5 and Later, v2.0.8
 
 -ABOUT THEIS MODULE:
 
