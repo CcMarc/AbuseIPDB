@@ -76,6 +76,8 @@ class abuseipdb_observer extends base {
             $debug_mode = ABUSEIPDB_DEBUG === 'true';
 			$spider_allow = ABUSEIPDB_SPIDER_ALLOW;
 			$spider_log_enabled = ABUSEIPDB_SPIDER_ALLOW_LOG;
+			$blacklist_enable = ABUSEIPDB_BLACKLIST_ENABLE === 'true';
+			$blacklist_file_path = ABUSEIPDB_BLACKLIST_FILE_PATH;
 
             if ($debug_mode == true) {
                 error_log('API Key: ' . $api_key);
@@ -97,10 +99,10 @@ class abuseipdb_observer extends base {
                 return;
             }
 
-			// Define the path to your blacklist file, and if it exists, load its content into the $file_blocked_ips array
+			// Define the path to your blacklist file, and if it exists and ABUSEIPDB_BLACKLIST_ENABLE is true, load its content into the $file_blocked_ips array
 			$file_blocked_ips = array();
-			if (defined('ABUSEIPDB_BLACKLIST_ENABLE') && ABUSEIPDB_BLACKLIST_ENABLE && defined('ABUSEIPDB_BLACKLIST_FILE_PATH') && file_exists(ABUSEIPDB_BLACKLIST_FILE_PATH)) {
-			$file_blocked_ips = file(ABUSEIPDB_BLACKLIST_FILE_PATH, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+			if ($blacklist_enable && file_exists($blacklist_file_path)) {
+			$file_blocked_ips = file($blacklist_file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 			}
 			
 			// Check if the IP is manually blocked
@@ -112,7 +114,7 @@ class abuseipdb_observer extends base {
 			}
 
 			// If the IP is not found in the array, check in the file, only if ABUSEIPDB_BLACKLIST_ENABLE is true
-			if (!$ip_blocked && defined('ABUSEIPDB_BLACKLIST_ENABLE') && ABUSEIPDB_BLACKLIST_ENABLE) {
+			if (!$ip_blocked && $blacklist_enable) {
 				foreach ($file_blocked_ips as $blocked_ip) {
 					if (strpos($ip, $blocked_ip) === 0) { // if the current IP starts with the blocked IP
 						$ip_blocked = true;
