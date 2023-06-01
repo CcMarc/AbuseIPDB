@@ -1,4 +1,4 @@
-# AbuseIPDB for Zen Cart v1.5.5 and Later, v2.0.8
+# AbuseIPDB for Zen Cart v1.5.5 and Later, v2.0.9
 
 -ABOUT THEIS MODULE:
 
@@ -74,3 +74,4 @@ This module is released under the GNU General Public License (GPL).
 - v2.0.6: Optimized code, updated AbuseIPDB checks, improved logging and cache handling, and adjusted admin settings.  
 - v2.0.7: Added the checkSpiderFlag() function for improved spider detection and updated the spider_flag_user_setting configuration option.  
 - v2.0.8: Added IP blocking based on a blacklist file in addition to the existing logic.  
+- v2.0.9: Added support for configurable redirect URL for blocked IPs and improved error handling for database queries and file operations. Reverted back to Zencart's spider detection mechanism.  

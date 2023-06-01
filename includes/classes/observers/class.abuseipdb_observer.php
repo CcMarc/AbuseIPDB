@@ -5,7 +5,7 @@
  * Author: marcopolo & chatgpt
  * Copyright: 2023
  * License: GNU General Public License (GPL)
- * Version: v2.0.8
+ * Version: v2.0.9
  * Since: 4-14-2023
  */
 
@@ -51,16 +51,9 @@ class abuseipdb_observer extends base {
 }
 
     protected function checkAbusiveIP() {
-        global $current_page_base, $_SESSION, $db;
-		
-		// Do not execute the check for the 'page_not_found' page or for known spiders
-		if ($current_page_base == 'page_not_found' || (isset($spider_flag) && $spider_flag === true && ABUSEIPDB_SPIDER_ALLOW == 'true')) {
-			return;
-		}
+        global $current_page_base, $_SESSION, $db, $spider_flag;
 
-        $abuseipdb_enabled = (int)ABUSEIPDB_ENABLED;
-
-        if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED == 'true') {
+        if (ABUSEIPDB_ENABLED == 'true') {
             require_once 'includes/functions/abuseipdb_custom.php';
 
             $api_key = ABUSEIPDB_API_KEY;
@@ -78,6 +71,7 @@ class abuseipdb_observer extends base {
 			$spider_log_enabled = ABUSEIPDB_SPIDER_ALLOW_LOG;
 			$blacklist_enable = ABUSEIPDB_BLACKLIST_ENABLE === 'true';
 			$blacklist_file_path = ABUSEIPDB_BLACKLIST_FILE_PATH;
+			$redirect_url = ABUSEIPDB_REDIRECT_URL;
 
             if ($debug_mode == true) {
                 error_log('API Key: ' . $api_key);
@@ -90,7 +84,19 @@ class abuseipdb_observer extends base {
                 error_log('Log File Path: ' . $log_file_path);
                 error_log('Whitelisted IPs: ' . implode(',', $whitelisted_ips));
                 error_log('Blocked IPs: ' . implode(',', $blocked_ips));
+				error_log('Spider Allow: ' . $spider_allow);
+				error_log('Spider Log Enabled: ' . ($spider_log_enabled ? 'true' : 'false'));
+				error_log('Blacklist Enable: ' . ($blacklist_enable ? 'true' : 'false'));
+				error_log('Blacklist File Path: ' . $blacklist_file_path);
+				error_log('Redirect URL: ' . $redirect_url);
             }
+			
+			// Do not execute the check for the 'page_not_found' page
+			if ($current_page_base == 'page_not_found') {
+				return;
+			}
+
+			$abuseipdb_enabled = (int)ABUSEIPDB_ENABLED;
 
             $ip = $_SERVER['REMOTE_ADDR'];
 
@@ -125,7 +131,7 @@ class abuseipdb_observer extends base {
 
 			if ($ip_blocked) {
 				if ($debug_mode == true) {
-					error_log('IP ' . $ip . ' blocked from cache');
+					error_log('IP ' . $ip . ' blocked by blacklist');
 			}
 
                 $log_file_name = 'abuseipdb_blocked_' . date('Y_m') . '.log';
@@ -136,12 +142,12 @@ class abuseipdb_observer extends base {
                     file_put_contents($log_file_path, $log_message_cache, FILE_APPEND);
                 }
 
-                header('Location: /index.php?main_page=page_not_found');
+                header('Location: ' . $redirect_url);
                 exit();
             }
 
 			// Skip API call for known spiders if enabled
-				if (checkSpiderFlag() && $spider_allow == 'true') {
+				if ((isset($spider_flag) && $spider_flag === true && $spider_allow == 'true')) {
 
 					// Check if logging is enabled for allowed spiders
 						$log_file_name_spiders = 'abuseipdb_spiders_' . date('Y_m_d') . '.log'; // Changed to daily log file
@@ -176,7 +182,7 @@ class abuseipdb_observer extends base {
                         file_put_contents($log_file_path, $log_message_cache, FILE_APPEND);
                     }
 
-                    header('Location: /index.php?main_page=page_not_found');
+                    header('Location: ' . $redirect_url);
                     exit();
                 }
             } else {
@@ -213,7 +219,7 @@ class abuseipdb_observer extends base {
                         file_put_contents($log_file_path, $log_message, FILE_APPEND);
                     }
 
-                    header('Location: /index.php?main_page=page_not_found');
+                    header('Location: ' . $redirect_url);
                     exit();
                 }
             }

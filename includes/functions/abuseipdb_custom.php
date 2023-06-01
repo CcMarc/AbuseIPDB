@@ -5,7 +5,7 @@
  * @author marcopolo & chatgpt
  * @copyright 2023
  * @license GNU General Public License (GPL)
- * @version v2.0.7
+ * @version v2.0.9
  * @since 4-14-2023
  */
 
@@ -34,27 +34,4 @@ function getAbuseConfidenceScore($ip, $api_key) {
     }
 
     return -1; // Return -1 if there was an issue retrieving the abuse confidence score
-}
-
-function checkSpiderFlag() {
-    if (defined('SESSION_BLOCK_SPIDERS')) {
-        $user_agent_abuseipdb = '';
-        if (isset($_SERVER['HTTP_USER_AGENT'])) {
-            $user_agent_abuseipdb = strtolower($_SERVER['HTTP_USER_AGENT']);
-        }
-        $spider_flag_abuseipdb = false;
-        if (!empty($user_agent_abuseipdb)) {
-            $spiders_abuseipdb = file(DIR_WS_INCLUDES . 'spiders.txt');
-            for ($i = 0, $n = sizeof($spiders_abuseipdb); $i < $n; $i++) {
-                if (!empty($spiders_abuseipdb[$i]) && substr($spiders_abuseipdb[$i], 0, 4) != '$Id:') {
-                    if (is_integer(strpos($user_agent_abuseipdb, trim($spiders_abuseipdb[$i])))) {
-                        $spider_flag_abuseipdb = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return $spider_flag_abuseipdb;
-    }
-    return false;
 }
