@@ -71,7 +71,7 @@ class abuseipdb_observer extends base {
 			$spider_log_enabled = ABUSEIPDB_SPIDER_ALLOW_LOG;
 			$blacklist_enable = ABUSEIPDB_BLACKLIST_ENABLE === 'true';
 			$blacklist_file_path = ABUSEIPDB_BLACKLIST_FILE_PATH;
-			$redirect_url = ABUSEIPDB_REDIRECT_URL;
+			$redirect_option = ABUSEIPDB_REDIRECT_OPTION;
 
             if ($debug_mode == true) {
                 error_log('API Key: ' . $api_key);
@@ -88,12 +88,18 @@ class abuseipdb_observer extends base {
 				error_log('Spider Log Enabled: ' . ($spider_log_enabled ? 'true' : 'false'));
 				error_log('Blacklist Enable: ' . ($blacklist_enable ? 'true' : 'false'));
 				error_log('Blacklist File Path: ' . $blacklist_file_path);
-				error_log('Redirect URL: ' . $redirect_url);
+				error_log('Redirect Option: ' . $redirect_option);
             }
 			
 			// Do not execute the check for the 'page_not_found' page
-			if ($current_page_base == 'page_not_found') {
-				return;
+			if ($redirect_option === 'page_not_found') {
+				if ($current_page_base == 'page_not_found') {
+					return;
+				}
+			} elseif ($redirect_option === 'forbidden') {
+				// Perform the forbidden redirect logic here
+				header('HTTP/1.0 403 Forbidden');
+				exit();
 			}
 
 			$abuseipdb_enabled = (int)ABUSEIPDB_ENABLED;
@@ -142,8 +148,13 @@ class abuseipdb_observer extends base {
                     file_put_contents($log_file_path, $log_message_cache, FILE_APPEND);
                 }
 
-                header('Location: ' . $redirect_url);
-                exit();
+                if ($redirect_option === 'page_not_found') {
+					header('Location: /index.php?main_page=page_not_found');
+					exit();
+				} elseif ($redirect_option === 'forbidden') {
+					header('HTTP/1.0 403 Forbidden');
+					exit();
+					}
             }
 
 			// Skip API call for known spiders if enabled
@@ -182,8 +193,13 @@ class abuseipdb_observer extends base {
                         file_put_contents($log_file_path, $log_message_cache, FILE_APPEND);
                     }
 
-                    header('Location: ' . $redirect_url);
-                    exit();
+                     if ($redirect_option === 'page_not_found') {
+						header('Location: /index.php?main_page=page_not_found');
+						exit();
+					} elseif ($redirect_option === 'forbidden') {
+						header('HTTP/1.0 403 Forbidden');
+						exit();
+					}
                 }
             } else {
                 // Make the API call
@@ -219,8 +235,13 @@ class abuseipdb_observer extends base {
                         file_put_contents($log_file_path, $log_message, FILE_APPEND);
                     }
 
-                    header('Location: ' . $redirect_url);
-                    exit();
+                    if ($redirect_option === 'page_not_found') {
+						header('Location: /index.php?main_page=page_not_found');
+						exit();
+					} elseif ($redirect_option === 'forbidden') {
+						header('HTTP/1.0 403 Forbidden');
+						exit();
+					}
                 }
             }
         }

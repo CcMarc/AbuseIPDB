@@ -177,7 +177,7 @@ if (ABUSEIPDB_VERSION !== ABUSEIPDB_CURRENT_VERSION) {
                 "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
                     (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
                  VALUES
-					('Redirect URL', 'ABUSEIPDB_REDIRECT_URL', '/index.php?main_page=page_not_found', 'The URL to which the user will be redirected if their IP is found to be abusive.', $cgi, now(), 22, NULL, NULL)
+					('Redirect URL', 'ABUSEIPDB_REDIRECT_OPTION', 'page_not_found', 'The option for redirecting the user if their IP is found to be abusive. <BR><BR><B>Option 1:</B> Page Not Found - If selected, the user will be redirected to the Page Not Found page on your website if their IP is found to be abusive. This is the default option and provides a generic error page to the user.<BR><BR><B>Option 2:</B> 403 Forbidden - If selected, the user will be shown a 403 Forbidden error message if their IP is found to be abusive. This option provides a more explicit message indicating that the user is forbidden from accessing the website due to their IP being flagged as abusive.', $cgi, now(), 22, NULL, 'zen_cfg_select_option(array(\'page_not_found\', \'forbidden\'),')
 				 ON DUPLICATE KEY UPDATE
 					 configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
         );
