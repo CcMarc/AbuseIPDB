@@ -72,7 +72,7 @@ if (!defined('ABUSEIPDB_VERSION')) {
 
             ('IP Address: Whitelist', 'ABUSEIPDB_WHITELISTED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 50, NULL, 'zen_cfg_textarea('),
 
-            ('IP Address: Blacklist', 'ABUSEIPDB_BLOCKED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 55, NULL, NULL, 'zen_cfg_textarea('),
+            ('IP Address: Blacklist', 'ABUSEIPDB_BLOCKED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 55, NULL, 'zen_cfg_textarea('),
 
             ('Enable Debug?', 'ABUSEIPDB_DEBUG', 'false', '', $cgi, now(), 499, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
     );
