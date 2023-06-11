@@ -5,7 +5,7 @@
  * Author: marcopolo & chatgpt
  * Copyright: 2023
  * License: GNU General Public License (GPL)
- * Version: v2.0.9
+ * Version: v2.1.1
  * Since: 4-14-2023
  */
 
@@ -63,6 +63,10 @@ class abuseipdb_observer extends base {
             $test_ips = array_map('trim', explode(',', ABUSEIPDB_TEST_IP));
             $enable_logging = ABUSEIPDB_ENABLE_LOGGING === 'true';
             $enable_api_logging = ABUSEIPDB_ENABLE_LOGGING_API === 'true';
+			$log_file_name = formatLogFileName(ABUSEIPDB_LOG_FILE_FORMAT);
+			$log_file_name_cache = formatLogFileName(ABUSEIPDB_LOG_FILE_FORMAT_CACHE);
+			$log_file_name_api = formatLogFileName(ABUSEIPDB_LOG_FILE_FORMAT_API);
+			$log_file_name_spiders = formatLogFileName(ABUSEIPDB_LOG_FILE_FORMAT_SPIDERS);
             $log_file_path = ABUSEIPDB_LOG_FILE_PATH;
             $whitelisted_ips = explode(',', ABUSEIPDB_WHITELISTED_IPS);
             $blocked_ips = explode(',', ABUSEIPDB_BLOCKED_IPS);
@@ -81,6 +85,10 @@ class abuseipdb_observer extends base {
                 error_log('Test IPs: ' . implode(',', $test_ips));
                 error_log('Enable Logging: ' . ($enable_logging ? 'true' : 'false'));
                 error_log('Enable API Logging: ' . ($enable_api_logging ? 'true' : 'false'));
+				error_log('Log File Format Block: ' . $log_file_name);
+				error_log('Log File Format Cache: ' . $log_file_name_cache);
+				error_log('Log File Format Api: ' . $log_file_name_api);
+				error_log('Log File Format Spiders: ' . $log_file_name_spiders);
                 error_log('Log File Path: ' . $log_file_path);
                 error_log('Whitelisted IPs: ' . implode(',', $whitelisted_ips));
                 error_log('Blocked IPs: ' . implode(',', $blocked_ips));
@@ -96,10 +104,6 @@ class abuseipdb_observer extends base {
 				if ($current_page_base == 'page_not_found') {
 					return;
 				}
-			} elseif ($redirect_option === 'forbidden') {
-				// Perform the forbidden redirect logic here
-				header('HTTP/1.0 403 Forbidden');
-				exit();
 			}
 
 			$abuseipdb_enabled = (int)ABUSEIPDB_ENABLED;
@@ -139,8 +143,6 @@ class abuseipdb_observer extends base {
 				if ($debug_mode == true) {
 					error_log('IP ' . $ip . ' blocked by blacklist');
 			}
-
-                $log_file_name = 'abuseipdb_blocked_' . date('Y_m') . '.log';
                 $log_file_path = ABUSEIPDB_LOG_FILE_PATH . $log_file_name;
                 $log_message_cache = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked by blacklist: ' . $abuseScore . PHP_EOL;
 
@@ -161,7 +163,6 @@ class abuseipdb_observer extends base {
 				if ((isset($spider_flag) && $spider_flag === true && $spider_allow == 'true')) {
 
 					// Check if logging is enabled for allowed spiders
-						$log_file_name_spiders = 'abuseipdb_spiders_' . date('Y_m_d') . '.log'; // Changed to daily log file
 						$log_file_path_spiders = $log_file_path . $log_file_name_spiders;
 						$log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' is identified as a Spider. AbuseIPDB API check was bypassed.' . PHP_EOL;
 
@@ -185,8 +186,7 @@ class abuseipdb_observer extends base {
                 }
 
                 if ($abuseScore >= $threshold || ($test_mode && in_array($ip, $test_ips))) {
-                    $log_file_name = 'abuseipdb_blocked_cache_' . date('Y_m') . '.log';
-                    $log_file_path = ABUSEIPDB_LOG_FILE_PATH . $log_file_name;
+                    $log_file_path = ABUSEIPDB_LOG_FILE_PATH . $log_file_name_cache;
                     $log_message_cache = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked from database cache with score: ' . $abuseScore . PHP_EOL;
 
                     if ($enable_logging) {
@@ -213,8 +213,6 @@ class abuseipdb_observer extends base {
                     $query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, timestamp) VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", NOW()) ON DUPLICATE KEY UPDATE score = VALUES(score), timestamp = VALUES(timestamp)";
                     $db->Execute($query);
                 }
-
-                    $log_file_name_api = 'abuseipdb_api_call_' . date('Y_m_d') . '.log'; // Changed to daily log file
                     $log_file_path_api = $log_file_path . $log_file_name_api;
                     $log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' API call. Score: ' . $abuseScore . PHP_EOL;
 
@@ -227,7 +225,6 @@ class abuseipdb_observer extends base {
                 }
 
 				if ($abuseScore >= $threshold) {
-					$log_file_name = 'abuseipdb_blocked_' . date('Y_m') . '.log';
 					$log_file_path = ABUSEIPDB_LOG_FILE_PATH . $log_file_name;
 					$log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked by AbuseIPDB from API call with score: ' . $abuseScore . PHP_EOL;
 

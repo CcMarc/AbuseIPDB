@@ -5,12 +5,12 @@
  * @author marcopolo & chatgpt
  * @copyright 2023
  * @license GNU General Public License (GPL)
- * @version v2.1.0
+ * @version v2.1.1
  * @since 4-14-2023
  */
 // ABUSEIPDB Module
-define('ABUSEIPDB_CURRENT_VERSION', '2.1.0');
-define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-06-10');
+define('ABUSEIPDB_CURRENT_VERSION', '2.1.1');
+define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-06-11');
 
 // Wait until an admin is logged in before installing or updating
 if (!isset($_SESSION['admin_id'])) {
@@ -172,7 +172,7 @@ if (ABUSEIPDB_VERSION !== ABUSEIPDB_CURRENT_VERSION) {
 				 ON DUPLICATE KEY UPDATE
 					 configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
         );
-		case version_compare(ABUSEIPDB_VERSION, '2.0.9', '<='):
+		case version_compare(ABUSEIPDB_VERSION, '2.0.9', '<'):
             $db->Execute(
                 "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
                     (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
@@ -180,6 +180,18 @@ if (ABUSEIPDB_VERSION !== ABUSEIPDB_CURRENT_VERSION) {
 					('Redirect URL', 'ABUSEIPDB_REDIRECT_OPTION', 'page_not_found', 'The option for redirecting the user if their IP is found to be abusive. <BR><BR><B>Option 1:</B> Page Not Found - If selected, the user will be redirected to the Page Not Found page on your website if their IP is found to be abusive. This is the default option and provides a generic error page to the user.<BR><BR><B>Option 2:</B> 403 Forbidden - If selected, the user will be shown a 403 Forbidden error message if their IP is found to be abusive. This option provides a more explicit message indicating that the user is forbidden from accessing the website due to their IP being flagged as abusive.', $cgi, now(), 22, NULL, 'zen_cfg_select_option(array(\'page_not_found\', \'forbidden\'),')
 				 ON DUPLICATE KEY UPDATE
 					 configuration_title = VALUES(configuration_title), configuration_description = VALUES(configuration_description)"
+        );
+		case version_compare(ABUSEIPDB_VERSION, '2.1.1', '<='):
+            $db->Execute(
+                "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                    (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
+                 VALUES
+				    ('Log File Format Block', 'ABUSEIPDB_LOG_FILE_FORMAT', 'abuseipdb_blocked_%Y_%m.log', 'The log file format for blocked IP addresses.', $cgi, now(), 40, NULL, NULL),
+					('Log File Format Cache', 'ABUSEIPDB_LOG_FILE_FORMAT_CACHE', 'abuseipdb_blocked_cache_%Y_%m.log', 'The log file format for cache logging.', $cgi, now(), 41, NULL, NULL),
+					('Log File Format API', 'ABUSEIPDB_LOG_FILE_FORMAT_API', 'abuseipdb_api_call_%Y_%m_%d.log', 'The log file format for api logging.', $cgi, now(), 42, NULL, NULL),
+					('Log File Format Spiders', 'ABUSEIPDB_LOG_FILE_FORMAT_SPIDERS', 'abuseipdb_spiders_%Y_%m_%d.log', 'The log file format for spider logging.', $cgi, now(), 43, NULL, NULL)
+				 ON DUPLICATE KEY UPDATE
+					 configuration_title = VALUES(configuration_title), configuration_value = VALUES(configuration_value), configuration_description = VALUES(configuration_description)"
         );
 				default:                                                    //- Fall-through from above processing
             break;
