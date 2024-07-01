@@ -1,16 +1,16 @@
 <?php
 /**
- * Module: AbuseIPDBO
+ * Module: AbuseIPDB
  *
  * @author marcopolo & chatgpt
- * @copyright 2023
+ * @copyright 2024
  * @license GNU General Public License (GPL)
- * @version v2.1.1
- * @since 4-14-2023
+ * @version v2.1.2
+ * @since 7-01-2024
  */
 // ABUSEIPDB Module
-define('ABUSEIPDB_CURRENT_VERSION', '2.1.1');
-define('ABUSEIPDB_LAST_UPDATE_DATE', '2023-06-11');
+define('ABUSEIPDB_CURRENT_VERSION', '2.1.2');
+define('ABUSEIPDB_LAST_UPDATE_DATE', '2024-07-01');
 
 // Wait until an admin is logged in before installing or updating
 if (!isset($_SESSION['admin_id'])) {
@@ -54,25 +54,27 @@ if (!defined('ABUSEIPDB_VERSION')) {
 
             ('Enable AbuseIPDB?', 'ABUSEIPDB_ENABLED', 'false', '', $cgi, now(), 5, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 
-            ('AbuseIPDB: API Key', 'ABUSEIPDB_API_KEY', '', '', $cgi, now(), 10, NULL, NULL),
+            ('AbuseIPDB: API Key', 'ABUSEIPDB_API_KEY', '', 'This is the API key that you created during the set up of this plugin. You can find it on the AbuseIPDB webmaster/API section, <a href=\"https://www.abuseipdb.com/account/api\" target=\"_blank\">here</a> after logging in to AbuseIPDB.', $cgi, now(), 10, NULL, NULL),
 
-            ('Score Threshold', 'ABUSEIPDB_THRESHOLD', '50', 'The minimum AbuseIPDB score to block an IP address.', $cgi, now(), 15, NULL, NULL),
+            ('AbuseIPDB: User ID', 'ABUSEIPDB_USERID', '', 'This is the UserID of the account. You can find this by visiting your account summary on AbuseIPDB.com and copying the numbers that appear at the end of the profile URL.<br><br>For example, if your profile was <code>https://www.abuseipdb.com/user/XXXXXX</code>, you would enter <code>XXXXXX</code> here.', $cgi, now(), 15, NULL, NULL),
 
-            ('Cache Time', 'ABUSEIPDB_CACHE_TIME', '3600', 'The time in seconds to cache AbuseIPDB results.', $cgi, now(), 20, NULL, NULL),
+            ('Score Threshold', 'ABUSEIPDB_THRESHOLD', '50', 'The minimum AbuseIPDB score to block an IP address.', $cgi, now(), 20, NULL, NULL),
 
-            ('Enable Test Mode?', 'ABUSEIPDB_TEST_MODE', 'false', 'Enable or disable test mode for the plugin.', $cgi, now(), 25, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+            ('Cache Time', 'ABUSEIPDB_CACHE_TIME', '3600', 'The time in seconds to cache AbuseIPDB results.', $cgi, now(), 25, NULL, NULL),
 
-            ('Test IP Address', 'ABUSEIPDB_TEST_IP', '', 'An IP address to use for testing the plugin.', $cgi, now(), 30, NULL, NULL),
+            ('Enable Test Mode?', 'ABUSEIPDB_TEST_MODE', 'false', 'Enable or disable test mode for the plugin.', $cgi, now(), 30, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 
-            ('Enable Logging?', 'ABUSEIPDB_ENABLE_LOGGING', 'false', 'Enable or disable logging of blocked IP addresses.', $cgi, now(), 35, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+            ('Test IP Address', 'ABUSEIPDB_TEST_IP', '', 'An IP address to use for testing the plugin.', $cgi, now(), 35, NULL, NULL),
 
-            ('Log File Format', 'ABUSEIPDB_LOG_FILE_FORMAT', 'abuseipdb_blocked_Y_m.log', 'The log file format for blocked IP addresses.', $cgi, now(), 40, NULL, NULL),
+            ('Enable Logging?', 'ABUSEIPDB_ENABLE_LOGGING', 'false', 'Enable or disable logging of blocked IP addresses.', $cgi, now(), 40, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 
-            ('Log File Path', 'ABUSEIPDB_LOG_FILE_PATH', 'logs/', 'The path to the directory where log files are stored.', $cgi, now(), 45, NULL, NULL),
+            ('Log File Format', 'ABUSEIPDB_LOG_FILE_FORMAT', 'abuseipdb_blocked_Y_m.log', 'The log file format for blocked IP addresses.', $cgi, now(), 45, NULL, NULL),
 
-            ('IP Address: Whitelist', 'ABUSEIPDB_WHITELISTED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 50, NULL, 'zen_cfg_textarea('),
+            ('Log File Path', 'ABUSEIPDB_LOG_FILE_PATH', 'logs/', 'The path to the directory where log files are stored.', $cgi, now(), 50, NULL, NULL),
 
-            ('IP Address: Blacklist', 'ABUSEIPDB_BLOCKED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: 192.168.1.1,192.168.2.2,192.168.3.3', $cgi, now(), 55, NULL, 'zen_cfg_textarea('),
+            ('IP Address: Whitelist', 'ABUSEIPDB_WHITELISTED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: <code>192.168.1.1,192.168.2.2,192.168.3.3</code>', $cgi, now(), 55, NULL, 'zen_cfg_textarea('),
+
+            ('IP Address: Blacklist', 'ABUSEIPDB_BLOCKED_IPS', '', 'Enter the IP addresses separated by commas without any spaces, like this: <code>192.168.1.1,192.168.2.2,192.168.3.3</code>', $cgi, now(), 60, NULL, 'zen_cfg_textarea('),
 
             ('Enable Debug?', 'ABUSEIPDB_DEBUG', 'false', '', $cgi, now(), 499, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
     );
@@ -192,6 +194,20 @@ if (ABUSEIPDB_VERSION !== ABUSEIPDB_CURRENT_VERSION) {
 					('Log File Format Spiders', 'ABUSEIPDB_LOG_FILE_FORMAT_SPIDERS', 'abuseipdb_spiders_%Y_%m_%d.log', 'The log file format for spider logging.', $cgi, now(), 43, NULL, NULL)
 				 ON DUPLICATE KEY UPDATE
 					 configuration_title = VALUES(configuration_title), configuration_value = VALUES(configuration_value), configuration_description = VALUES(configuration_description)"
+        );
+        case version_compare(ABUSEIPDB_VERSION, '2.1.2', '<='):
+            $db->Execute(
+                "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                    (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
+                 VALUES
+                    ('AbuseIPDB: User ID', 'ABUSEIPDB_USERID', '', 'This is the UserID of the account. You can find this by visiting your account summary on AbuseIPDB.com and copying the numbers that appear at the end of the profile URL.<br><br>For example, if your profile was <code>https://www.abuseipdb.com/user/XXXXXX</code>, you would enter <code>XXXXXX</code> here.', $cgi, now(), 13, NULL, NULL)
+				 ON DUPLICATE KEY UPDATE
+					 configuration_title = VALUES(configuration_title), configuration_value = VALUES(configuration_value), configuration_description = VALUES(configuration_description)"
+        );
+            $db->Execute(
+                "UPDATE " . TABLE_CONFIGURATION . "
+                SET configuration_description = 'This is the API key that you created during the set up of this plugin. You can find it on the AbuseIPDB webmaster/API section, <a href=\"https://www.abuseipdb.com/account/api\" target=\"_blank\">here</a>, after logging in to AbuseIPDB.'
+                WHERE configuration_key = 'ABUSEIPDB_API_KEY'"
         );
 				default:                                                    //- Fall-through from above processing
             break;
