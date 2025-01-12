@@ -1,5 +1,5 @@
 
-# AbuseIPDB for Zen Cart v1.5.5 and Later, v2.1.2
+# AbuseIPDB v2.1.3 for Zen Cart v2.1.0 and Later
 
 ## ABOUT THIS MODULE
 This module is an AbuseIPDB integration for Zen Cart, designed to help protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access to the site if the score exceeds a predefined threshold. The module also supports caching to reduce the number of API calls, a test mode for debugging, and logging for monitoring blocked IPs. Additionally, it allows for manual whitelisting and blacklisting of IP addresses to give you greater control over access to your site.
@@ -54,7 +54,10 @@ Change the `'column'` and `'sort'` values as desired.
 7.	Logging: If logging is enabled, log files are created when an IP is blocked, whether manually or based on the AbuseIPDB score. If API logging is enabled, a separate log file is also created for API calls. The location of these log files can be configured in the `ABUSEIPDB_LOG_FILE_PATH` setting in the Zen Cart admin panel.  
 8.  Skipping IP Check for Known Spiders: If the "Allow Spiders?" setting (`ABUSEIPDB_SPIDER_ALLOW`) is enabled, known spiders will be skipped in the IP check and logging process, as they are not subject to AbuseIPDB scoring. This can be useful for avoiding unnecessary API calls and log entries for spider sessions.  
 9.  Spider Detection: The script utilizes a file called `spiders.txt` provided by Zen Cart to identify known spiders, including search engine bots and web crawlers. It reads the user agent from the HTTP request and compares it against the entries in the spiders.txt file. If a match is found, indicating that the user agent corresponds to a known spider, the spider flag is set to true. This flag determines the script's behavior, enabling it to bypass certain checks or execute specific actions tailored for spider sessions.  
-10. **NEW** Added a new widget to help boost the limits of the AbuseIPDB API. With this you can boost the `check & report` limits to **5,000 per day** instead of the usual 1,000 per day. The widget just sits on your admin backend landing page and is unobtrusive otherwise. There is a new field you need to set in the configuration page to enable this though. You will need your profile ID number which is found in your account summary area in AbuseIPDB. Be sure to grab your profile ID number from the account summary page and input as needed. 
+10. Added a new widget to help boost the limits of the AbuseIPDB API. With this you can boost the `check & report` limits to **5,000 per day** instead of the usual 1,000 per day. The widget just sits on your admin backend landing page and is unobtrusive otherwise. There is a new field you need to set in the configuration page to enable this though. You will need your profile ID number which is found in your account summary area in AbuseIPDB. Be sure to grab your profile ID number from the account summary page and input as needed. 
+11. **NEW** Enhanced the "Who's Online" page to display AbuseIPDB confidence scores for each visitor, allowing real-time threat assessment. Clicking on the score redirects to the AbuseIPDB website for detailed information about the IP address.
+12. **NEW** Added an interactive icon next to each score to indicate the IP's status: a red shield for blocked IPs or a grey circle with a slash for unblocked IPs. The icon allows quick manual addition of the IP to the blacklist file directly from the "Who's Online" screen.
+
 
 To obtain an API key for the AbuseIPDB service, visit https://www.abuseipdb.com and sign up for an account. Once you've registered, log in and navigate to the API Key section in your account dashboard. Generate an API key and copy it to the "AbuseIPDB API Key" setting in the Zen Cart admin panel.  
 
@@ -102,3 +105,4 @@ This module is released under the GNU General Public License (GPL).
 - v2.1.0: Fixed an error in the installation file.  
 - v2.1.1: Added additional admin log configuration options for enhanced logging capabilities.  
 - v2.1.2: Added the verification badge as a widget to the front page of the admin area. Fixed the formatting of the readme.
+- v2.1.3: Integrated AbuseIPDB functionality into the "Who's Online" page. Tested on Zen Cart v2.1.0. Compatibility with earlier versions may vary.

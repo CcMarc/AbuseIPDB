@@ -3,14 +3,14 @@
  * Module: AbuseIPDB
  *
  * @author marcopolo & chatgpt
- * @copyright 2024
+ * @copyright 2025
  * @license GNU General Public License (GPL)
- * @version v2.1.2
- * @since 7-01-2024
+ * @version v2.1.3
+ * @since 01-12-2025
  */
 // ABUSEIPDB Module
-define('ABUSEIPDB_CURRENT_VERSION', '2.1.2');
-define('ABUSEIPDB_LAST_UPDATE_DATE', '2024-07-01');
+define('ABUSEIPDB_CURRENT_VERSION', '2.1.3');
+define('ABUSEIPDB_LAST_UPDATE_DATE', '2025-12-01');
 
 // Wait until an admin is logged in before installing or updating
 if (!isset($_SESSION['admin_id'])) {
