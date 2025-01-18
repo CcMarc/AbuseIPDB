@@ -1,6 +1,6 @@
 
 # AbuseIPDB v2.1.6 for Zen Cart 2.1.0 or later
-# PHP 7.4+ (recommended: PHP 8.x)
+## PHP 7.4+ (recommended: PHP 8.x)
 
 ## ABOUT THIS MODULE
 This module is an AbuseIPDB integration for Zen Cart, designed to help protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access to the site if the score exceeds a predefined threshold. The module also supports caching to reduce the number of API calls, a test mode for debugging, and logging for monitoring blocked IPs. Additionally, it allows for manual whitelisting and blacklisting of IP addresses to give you greater control over access to your site.
