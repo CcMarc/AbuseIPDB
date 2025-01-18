@@ -102,7 +102,7 @@ This module is released under the GNU General Public License (GPL).
 - v2.1.0: Fixed an error in the installation file.  
 - v2.1.1: Added additional admin log configuration options for enhanced logging capabilities.  
 - v2.1.2: Added the verification badge as a widget to the front page of the admin area. Fixed the formatting of the readme.
-- v2.1.3: Integrated AbuseIPDB functionality into the "Who's Online" page. Tested on Zen Cart v2.1.0. Compatibility with earlier versions may vary.
+- v2.1.3: Integrated AbuseIPDB functionality into the "Who's Online" page.
 - v2.1.4: Enhanced fallback logic for API failures to prevent disruptions.
 - v2.1.5: Improved consistency in date handling across the module.
 - v2.1.6: Minor code optimizations for maintainability.
