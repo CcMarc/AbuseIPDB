@@ -21,7 +21,7 @@ admin/whos_online.php
 admin/includes/auto_loaders/config.abuseipdb_admin.php  
 admin/includes/extra_datafiles/abuseipdb_settings.php  
 admin/includes/init_includes/init_abuseipdb_observer.php  
-admin/includes/languages/english/extra_definitions/init_includes/abuseipdb_admin_names.php
+admin/includes/languages/english/extra_definitions/abuseipdb_admin_names.php
 admin/includes/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php
 ```
 Configure the module in your Zen Cart admin panel by navigating to the AbuseIPDB Settings page.  (Found under the "Configuration" menu in the admin dashboard.)
