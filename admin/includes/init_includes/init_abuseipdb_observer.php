@@ -12,7 +12,7 @@
  */
 // ABUSEIPDB Module
 define('ABUSEIPDB_CURRENT_VERSION', '2.1.6');
-define('ABUSEIPDB_LAST_UPDATE_DATE', '2025-18-01');
+define('ABUSEIPDB_LAST_UPDATE_DATE', '2025-01-18');
 
 // Wait until an admin is logged in before installing or updating
 if (!isset($_SESSION['admin_id'])) {
