@@ -78,8 +78,7 @@ This section provides an understanding of the logic steps involved in checking a
 7.	Safe IP: If none of the above conditions trigger a block, the IP is considered safe, and the script proceeds without further action.  
 
 ## SUPPORT
-For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/showthread.php?229438-AbuseIPDB-Integration-module). 
-or visit the [GitHub repository](https://github.com/CcMarc/AbuseIPDB) for additional resources, updates, or to report issues.
+For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/showthread.php?229438-AbuseIPDB-Integration-module) or visit the [GitHub repository](https://github.com/CcMarc/AbuseIPDB) for additional resources, updates, or to report issues.
 
 ## LICENSE:  
 This module is released under the GNU General Public License (GPL).  
