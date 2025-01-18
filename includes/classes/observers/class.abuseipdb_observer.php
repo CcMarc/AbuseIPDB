@@ -1,12 +1,14 @@
 <?php
-/**
- * Module: AbuseIPDBO
+ /**
+ * Module: AbuseIPDB
  *
- * Author: marcopolo & chatgpt
- * Copyright: 2023
- * License: GNU General Public License (GPL)
- * Version: v2.1.1
- * Since: 4-14-2023
+ * @requires    Zen Cart 2.1.0 or later, PHP 7.4+ (recommended: PHP 8.x)
+ * @author      Marcopolo
+ * @copyright   2023-2025
+ * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
+ * @version     2.1.6
+ * @updated     1-18-2023
+ * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
 class abuseipdb_observer extends base {
@@ -22,33 +24,46 @@ class abuseipdb_observer extends base {
         }
     }
 
-    protected function runCleanup() {
-        global $db;
+protected function runCleanup() {
+    global $db, $zcDate;
 
-        $cleanup_enabled = ABUSEIPDB_CLEANUP_ENABLED;
-        $cleanup_period = ABUSEIPDB_CLEANUP_PERIOD;
-		$abuseipdb_enabled = ABUSEIPDB_ENABLED;
+    $cleanup_enabled = ABUSEIPDB_CLEANUP_ENABLED;
+    $cleanup_period = ABUSEIPDB_CLEANUP_PERIOD;
+    $abuseipdb_enabled = ABUSEIPDB_ENABLED;
 
-        if ($cleanup_enabled == 'true' && $abuseipdb_enabled == 'true') {
-            $maintenance_query = "SELECT * FROM " . TABLE_ABUSEIPDB_MAINTENANCE;
-            $maintenance_info = $db->Execute($maintenance_query);
+    if ($cleanup_enabled == 'true' && $abuseipdb_enabled == 'true') {
+        $maintenance_query = "SELECT last_cleanup, timestamp FROM " . TABLE_ABUSEIPDB_MAINTENANCE;
+        $maintenance_info = $db->Execute($maintenance_query);
 
-            if (date('Y-m-d') != date('Y-m-d', strtotime($maintenance_info->fields['last_cleanup']))) {
+        $last_cleanup_date = $maintenance_info->fields['last_cleanup'] ?? null;
+
+        // Validate and handle missing last_cleanup
+        if ($maintenance_info->RecordCount() > 0 && $last_cleanup_date) {
+            $formatted_date = $zcDate 
+                ? (int)$zcDate->output($last_cleanup_date) 
+                : strtotime($last_cleanup_date);
+            
+            if (date('Y-m-d') != date('Y-m-d', $formatted_date)) {
                 // Cleanup old records
-                $cleanup_query = "DELETE FROM " . TABLE_ABUSEIPDB_CACHE . " WHERE timestamp < DATE_SUB(NOW(), INTERVAL " . (int)$cleanup_period . " DAY)";
+                $cleanup_query = "DELETE FROM " . TABLE_ABUSEIPDB_CACHE . 
+                                 " WHERE timestamp < DATE_SUB(NOW(), INTERVAL " . (int)$cleanup_period . " DAY)";
                 $db->Execute($cleanup_query);
-
-            // Update or insert the maintenance timestamp
-            if ($maintenance_info->RecordCount() > 0) {
-                $update_query = "UPDATE " . TABLE_ABUSEIPDB_MAINTENANCE . " SET last_cleanup = NOW(), timestamp = NOW()";
-                $db->Execute($update_query);
-            } else {
-                $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_MAINTENANCE . " (last_cleanup, timestamp) VALUES (NOW(), NOW())";
-                $db->Execute($insert_query);
             }
+        }
+
+        // Update or insert the maintenance timestamp
+        if ($maintenance_info->RecordCount() > 0) {
+            $update_query = "UPDATE " . TABLE_ABUSEIPDB_MAINTENANCE . 
+                            " SET last_cleanup = NOW(), timestamp = NOW()";
+            $db->Execute($update_query);
+        } else {
+            $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_MAINTENANCE . 
+                            " (last_cleanup, timestamp) VALUES (NOW(), NOW())";
+            $db->Execute($insert_query);
         }
     }
 }
+
 
     protected function checkAbusiveIP() {
         global $current_page_base, $_SESSION, $db, $spider_flag;

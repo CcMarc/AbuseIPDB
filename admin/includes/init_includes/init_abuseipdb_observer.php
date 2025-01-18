@@ -1,16 +1,18 @@
 <?php
-/**
+ /**
  * Module: AbuseIPDB
  *
- * @author marcopolo & chatgpt
- * @copyright 2025
- * @license GNU General Public License (GPL)
- * @version v2.1.3
- * @since 01-12-2025
+ * @requires    Zen Cart 2.1.0 or later, PHP 7.4+ (recommended: PHP 8.x)
+ * @author      Marcopolo
+ * @copyright   2023-2025
+ * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
+ * @version     2.1.6
+ * @updated     1-18-2025
+ * @github      https://github.com/CcMarc/AbuseIPDB
  */
 // ABUSEIPDB Module
-define('ABUSEIPDB_CURRENT_VERSION', '2.1.3');
-define('ABUSEIPDB_LAST_UPDATE_DATE', '2025-12-01');
+define('ABUSEIPDB_CURRENT_VERSION', '2.1.6');
+define('ABUSEIPDB_LAST_UPDATE_DATE', '2025-18-01');
 
 // Wait until an admin is logged in before installing or updating
 if (!isset($_SESSION['admin_id'])) {

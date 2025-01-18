@@ -1,5 +1,6 @@
 
-# AbuseIPDB v2.1.3 for Zen Cart v2.1.0 and Later
+# AbuseIPDB v2.1.6 for Zen Cart 2.1.0 or later
+# PHP 7.4+ (recommended: PHP 8.x)
 
 ## ABOUT THIS MODULE
 This module is an AbuseIPDB integration for Zen Cart, designed to help protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access to the site if the score exceeds a predefined threshold. The module also supports caching to reduce the number of API calls, a test mode for debugging, and logging for monitoring blocked IPs. Additionally, it allows for manual whitelisting and blacklisting of IP addresses to give you greater control over access to your site.
@@ -22,24 +23,16 @@ admin/includes/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php
 Configure the module in your Zen Cart admin panel by navigating to the AbuseIPDB Settings page.  (Found under the "Configuration" menu in the admin dashboard.)
 
 ### Adding the Admin Dashboard Widget
-There are two different methods of adding the widget to your admin dashboard. You only need to 
+To integrate the AbuseIPDB dashboard widget, follow these steps:
 
-#### ZenCart 2.0.0, 1.5.8 and below
-Open `admin/index_dashboard.php` and add the following block where you want the widget to appear (it should be placed in line with the other similar blocks in this file):
+#### ZenCart 2.1.0 or later
+Open `admin/index_dashboard.php` 
 
-```
-<?php
-include DIR_WS_MODULES . 'dashboard_widgets/AbuseIPDBDashboardWidget.php';
-?>
-```
-**HINT**: The page is laid out into three columns. The widgets appear as they are presented. If you want the widget to appear in the lower left corner, underneath the first column: you may want to add the block above under the block for Order Status. Otherwise, you may place it wherever. To trigger the supporter role, you only need it to appear in one place.
+Locate the line `$widgets = [];` and add the following code immediately below it:
 
-#### ZenCart 2.0.1 and onward
-Open `admin/index_dashboard.php` add the following line of code under the line `$widgets = [];`. 
-
-```
+`
 $widgets[] = ['column' => 1, 'sort' => 30, 'visible' => true, 'path' => DIR_WS_MODULES . 'dashboard_widgets/AbuseIPDBDashboardWidget.php'];
-```
+`
 
 Change the `'column'` and `'sort'` values as desired.
 
@@ -85,7 +78,8 @@ This section provides an understanding of the logic steps involved in checking a
 7.	Safe IP: If none of the above conditions trigger a block, the IP is considered safe, and the script proceeds without further action.  
 
 ## SUPPORT
-For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/showthread.php?229438-AbuseIPDB-Integration-module) or contact the module author.  
+For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/showthread.php?229438-AbuseIPDB-Integration-module) or contact the module author.
+or visit the [GitHub repository](https://github.com/CcMarc/AbuseIPDB) for additional resources, updates, or to report issues.
 
 ## LICENSE:  
 This module is released under the GNU General Public License (GPL).  
@@ -106,3 +100,6 @@ This module is released under the GNU General Public License (GPL).
 - v2.1.1: Added additional admin log configuration options for enhanced logging capabilities.  
 - v2.1.2: Added the verification badge as a widget to the front page of the admin area. Fixed the formatting of the readme.
 - v2.1.3: Integrated AbuseIPDB functionality into the "Who's Online" page. Tested on Zen Cart v2.1.0. Compatibility with earlier versions may vary.
+- v2.1.4: Enhanced fallback logic for API failures to prevent disruptions.
+- v2.1.5: Improved consistency in date handling across the module.
+- v2.1.6: Minor code optimizations for maintainability.

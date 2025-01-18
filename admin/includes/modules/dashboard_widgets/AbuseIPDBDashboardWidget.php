@@ -1,10 +1,16 @@
 <?php
-/**
- * @copyright Copyright 2003-2022 Zen Cart Development Team
- * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
- * @version $Id: Erik Kerkhoven 2021 May 02 Modified in v1.5.8-alpha $
+ /**
+ * Module: AbuseIPDB
+ *
+ * @requires    Zen Cart 2.1.0 or later, PHP 7.4+ (recommended: PHP 8.x)
+ * @author      Marcopolo
+ * @contributor Retched
+ * @copyright   2023-2025
+ * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
+ * @version     2.1.2
+ * @updated     7-7-2024
+ * @github      https://github.com/CcMarc/AbuseIPDB
  */
-
 if (!zen_is_superuser() && !check_page(FILENAME_ORDERS, '')) return;
 
 // to disable this module for everyone, uncomment the following "return" statement so the rest of this file is ignored
