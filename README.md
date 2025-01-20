@@ -61,15 +61,15 @@ zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/classes/functions/abuseipdb_custom.
 zc_plugins/AbuseIPDB/vX.X.X/installer/ScriptedInstaller.php
 
 Optional_Install/includes/blacklist.txt (if upgrading from below v3.0.0 this will be there already)
-Optional_Install/Zencart 2.1.0 or later/YOUR ADMIN/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php (if upgrading from v2.1.2 - v2.1.6 this may be there already if you installed it)
-Optional_Install/Zencart 2.1.0 or later/YOUR ADMIN/whos_online.php - (**NEW** file updated for this version)
+Optional_Install/ZC_210/YOUR_ADMIN/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php (if upgrading from v2.1.2 - v2.1.6 this may be there already if you installed it)
+Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php - (**NEW** file updated for this version)
 ```
 
 ### Optional | Adding the Admin Dashboard Widget
 To integrate the AbuseIPDB dashboard widget, follow these steps:
 
 #### ZenCart 2.1.0 or later
-Open `admin/index_dashboard.php` 
+Open `YOUR_ADMIN/index_dashboard.php` 
 
 Locate the line `$widgets = [];` and add the following code immediately below it:
 
