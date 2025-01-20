@@ -91,9 +91,16 @@ Change the `'column'` and `'sort'` values as desired.
 8.  Skipping IP Check for Known Spiders: If the "Allow Spiders?" setting (`ABUSEIPDB_SPIDER_ALLOW`) is enabled, known spiders will be skipped in the IP check and logging process, as they are not subject to AbuseIPDB scoring. This can be useful for avoiding unnecessary API calls and log entries for spider sessions.  
 9.  Spider Detection: The script utilizes a file called `spiders.txt` provided by Zen Cart to identify known spiders, including search engine bots and web crawlers. It reads the user agent from the HTTP request and compares it against the entries in the spiders.txt file. If a match is found, indicating that the user agent corresponds to a known spider, the spider flag is set to true. This flag determines the script's behavior, enabling it to bypass certain checks or execute specific actions tailored for spider sessions.  
 10. Added a new widget to help boost the limits of the AbuseIPDB API. With this you can boost the `check & report` limits to **5,000 per day** instead of the usual 1,000 per day. The widget just sits on your admin backend landing page and is unobtrusive otherwise. There is a new field you need to set in the configuration page to enable this though. You will need your profile ID number which is found in your account summary area in AbuseIPDB. Be sure to grab your profile ID number from the account summary page and input as needed. 
-11. **NEW** Enhanced the "Who's Online" page to display AbuseIPDB confidence scores for each visitor, allowing real-time threat assessment. Clicking on the score redirects to the AbuseIPDB website for detailed information about the IP address.
-12. **NEW** Added an interactive icon next to each score to indicate the IP's status: a red shield for blocked IPs or a grey circle with a slash for unblocked IPs. The icon allows quick manual addition of the IP to the blacklist file directly from the "Who's Online" screen.
+11. **Enhanced "Who's Online" Page Features**  
+    - Real-Time Threat Assessment: Displays AbuseIPDB confidence scores for each visitor, enabling real-time assessment of potential threats. Clicking on a score redirects to the AbuseIPDB website for detailed information about the IP address.  
+    - Interactive IP Status Icons:  
+        - 🛡️ **Red Shield**: Indicates a blocked IP.  
+        - 🚫 **Grey Circle with Slash**: Indicates an unblocked IP.  
+      These icons allow quick manual addition of IPs to the blacklist file directly from the "Who's Online" screen.  
 
+12. **Requirements for "Who's Online" Features**  
+    - The **"Enable IP Blacklist File"** setting must be set to **true** in the configuration.  
+    - Ensure the optional files `blacklist.txt` and `whos_online.php` are uploaded to activate these features.  
 
 To obtain an API key for the AbuseIPDB service, visit https://www.abuseipdb.com and sign up for an account. Once you've registered, log in and navigate to the API Key section in your account dashboard. Generate an API key and copy it to the "AbuseIPDB API Key" setting in the Zen Cart admin panel.  
 
