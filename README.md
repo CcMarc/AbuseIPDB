@@ -81,7 +81,16 @@ Change the `'column'` and `'sort'` values as desired.
 
 ## THINGS TO KNOW:  
 
-1.	API Key: The script requires a valid API key from AbuseIPDB to check the abuse confidence score of an IP address. Ensure that a valid API key is available and correctly configured in the "AbuseIPDB API Key" setting in the Zen Cart admin panel. Be sure to [verify yourself](https://www.abuseipdb.com/account/webmasters) as owner of your domain in the AbuseIPDB Webmasters section so that you can get more daily API calls.
+1. **API Key Setup**  
+    - The script requires a valid API key from AbuseIPDB to check the abuse confidence score of an IP address.  
+    - Ensure that a valid API key is available and correctly configured in the **"AbuseIPDB API Key"** setting in the Zen Cart admin panel.  
+    - Be sure to [verify yourself](https://www.abuseipdb.com/account/webmasters) as the owner of your domain in the AbuseIPDB Webmasters section to increase your daily API call limits.  
+
+    **How to Obtain an API Key**:  
+    - Visit [AbuseIPDB](https://www.abuseipdb.com) and sign up for an account.  
+    - Once registered, log in and navigate to the **API Key** section in your account dashboard.  
+    - Generate an API key and copy it into the **"AbuseIPDB API Key"** setting in the Zen Cart admin panel.
+	
 2.	Cache Expiry: The script checks the database cache to avoid excessive API calls. If the cache for a specific IP address has expired, the script makes a new API call.  
 3.	Test Mode: The script provides a test mode for debugging. When an IP is in test mode, the script logs the IP as blocked regardless of the abuse score.  
 4.	IP Cleanup Feature: The module has an IP Cleanup feature that automatically deletes expired IP records. The cleanup process is triggered once per day by the first logged IP. This functionality can be enabled or disabled, and the IP record expiration period can be configured in the settings "IP Cleanup Period (in days)".  
@@ -112,7 +121,6 @@ Change the `'column'` and `'sort'` values as desired.
     - The **"Enable IP Blacklist File"** setting must be set to **true** in the configuration.  
     - Ensure the optional files `blacklist.txt` and `whos_online.php` are uploaded to activate these features.  
 
-To obtain an API key for the AbuseIPDB service, visit https://www.abuseipdb.com and sign up for an account. Once you've registered, log in and navigate to the API Key section in your account dashboard. Generate an API key and copy it to the "AbuseIPDB API Key" setting in the Zen Cart admin panel.  
 
 ## SCRIPT LOGIC
 This section provides an understanding of the logic steps involved in checking an IP and creating the corresponding log files:  
