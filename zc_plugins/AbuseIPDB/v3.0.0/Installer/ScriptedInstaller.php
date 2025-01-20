@@ -4,7 +4,7 @@
  *
  * @package    AbuseIPDB
  * @version    3.0.0
- * @updated    1-19-2025
+ * @updated    1-20-2025
  * @author     Marcopolo
  * @license    GNU General Public License (GPL) v3
  * @github     https://github.com/CcMarc/AbuseIPDB
@@ -46,23 +46,13 @@ class ScriptedInstaller extends ScriptedInstallBase
                 'Configuration settings for the AbuseIPDB plugin.',
                 null
             );
-			
-			// Insert configuration settings
-			$this->executeInstallerSql(
-				"INSERT INTO " . TABLE_CONFIGURATION . "
-				(configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
-				VALUES
-				('Plugin Version', 'ABUSEIPDB_VERSION', '3.0.0', 'The <em>AbuseIPDB</em> installed version.', $this->configurationGroupId, NOW(), 10, NULL, 'trim(')
-				ON DUPLICATE KEY UPDATE
-				configuration_value = '3.0.0',
-				date_added = NOW()"
-			);
 
             // Insert configuration settings
             $this->executeInstallerSql(
                 "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
                 (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
                 VALUES
+				('Plugin Version', 'ABUSEIPDB_VERSION', '0.0.0', 'The <em>AbuseIPDB</em> installed version.', $this->configurationGroupId, NOW(), 10, NULL, 'trim('),
 				('Enable AbuseIPDB?', 'ABUSEIPDB_ENABLED', 'false', '', $this->configurationGroupId, NOW(), 20, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 				('AbuseIPDB: API Key', 'ABUSEIPDB_API_KEY', '', 'This is the API key that you created during the set up of this plugin. You can find it on the AbuseIPDB webmaster/API section, <a href=\"https://www.abuseipdb.com/account/api\" target=\"_blank\">here</a> after logging in to AbuseIPDB.<br>', $this->configurationGroupId, NOW(), 30, NULL, NULL),
 				('AbuseIPDB: User ID', 'ABUSEIPDB_USERID', '', 'This is the UserID of the account. You can find this by visiting your account summary on AbuseIPDB.com and copying the numbers that appear at the end of the profile URL.<br><br>For example, if your profile was <code>https://www.abuseipdb.com/user/XXXXXX</code>, you would enter <code>XXXXXX</code> here.<br>', $this->configurationGroupId, NOW(), 40, NULL, NULL),
@@ -89,6 +79,7 @@ class ScriptedInstaller extends ScriptedInstallBase
 				('Enable Debug?', 'ABUSEIPDB_DEBUG', 'false', '', $this->configurationGroupId, NOW(), 250, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),');
 				"
             );
+			
 
             // Create necessary tables
             $this->executeInstallerSql(
@@ -123,6 +114,13 @@ class ScriptedInstaller extends ScriptedInstallBase
                     'Y'
                 );
             }
+			
+			$db->Execute(
+				"UPDATE " . TABLE_CONFIGURATION . "
+				SET configuration_value = '" . self::ABUSEIPDB_CURRENT_VERSION . "'
+				WHERE configuration_key = 'ABUSEIPDB_VERSION'
+				LIMIT 1"
+			);
 
             return true;
         } catch (Exception $e) {
