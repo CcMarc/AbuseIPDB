@@ -108,7 +108,7 @@ Change the `'column'` and `'sort'` values as desired.
         - 🚫 **Grey Circle with Slash**: Indicates an unblocked IP.  
       These icons allow quick manual addition of IPs to the blacklist file directly from the "Who's Online" screen.  
 
-12. **Requirements for "Who's Online" Features**  
+    - **Requirements for "Who's Online" Features**  
     - The **"Enable IP Blacklist File"** setting must be set to **true** in the configuration.  
     - Ensure the optional files `blacklist.txt` and `whos_online.php` are uploaded to activate these features.  
 
