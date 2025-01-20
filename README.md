@@ -27,7 +27,6 @@ Important: The following legacy files are automatically removed when v3.0.0 or l
 /includes/extra_datafiles/abuseipdb_filenames.php
 /includes/functions/abuseipdb_custom.php
 ```
-… then …
 
 ## Installation Instructions
 
