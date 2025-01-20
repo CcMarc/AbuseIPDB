@@ -131,22 +131,24 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 This module is released under the GNU General Public License (GPL).  
 
 ## WHAT'S NEW:
-- v1.0.2: Fixed a typo in the admin installation and corrected the license type.  
-- v2.0.0: Switched from session caching to database caching for improved performance and reliability.  
-- v2.0.1: Updated table name reference to `TABLE_ABUSEIPDB_CACHE` for compatibility.  
-- v2.0.2: Added IP cleanup feature with configurable settings for automatic deletion of expired IP records and changed `abuseipdb_api_call_<date>.log` creation to daily instead of monthly.  
-- v2.0.3: Added `TABLE_ABUSEIPDB_MAINTENANCE` database table for IP cleanup control.  
-- v2.0.4: Added the ability to allow or disable known spiders from bypassing IP checks.  
-- v2.0.5: Added the option to log spiders that bypassed IP checking.  
-- v2.0.6: Optimized code, updated AbuseIPDB checks, improved logging and cache handling, and adjusted admin settings.  
-- v2.0.7: Added the `checkSpiderFlag()` function for improved spider detection and updated the `spider_flag_user_setting` configuration option.  
-- v2.0.8: Added IP blocking based on a blacklist file in addition to the existing logic.  
-- v2.0.9: Added support for configurable redirect URL for blocked IPs, allowing website owners to choose between "Page Not Found" and "403 Forbidden" as the redirection option. Reverted back to ZenCart's spider detection mechanism for identifying spiders.
-- v2.1.0: Fixed an error in the installation file.  
-- v2.1.1: Added additional admin log configuration options for enhanced logging capabilities.  
-- v2.1.2: Added the verification badge as a widget to the front page of the admin area. Fixed the formatting of the readme.
-- v2.1.3: Integrated AbuseIPDB functionality into the "Who's Online" page.
-- v2.1.4: Enhanced fallback logic for API failures to prevent disruptions.
-- v2.1.5: Improved consistency in date handling across the module.
-- v2.1.6: Minor code optimizations for maintainability.
-- v3.0.0: Migrated to Encapsulated Plugin Architecture.
+## Changelog
+
+- **v3.0.0**: Migrated to Encapsulated Plugin Architecture.  
+- **v2.1.6**: Minor code optimizations for maintainability.  
+- **v2.1.5**: Improved consistency in date handling across the module.  
+- **v2.1.4**: Enhanced fallback logic for API failures to prevent disruptions.  
+- **v2.1.3**: Integrated AbuseIPDB functionality into the "Who's Online" page.  
+- **v2.1.2**: Added the verification badge as a widget to the front page of the admin area. Fixed the formatting of the readme.  
+- **v2.1.1**: Added additional admin log configuration options for enhanced logging capabilities.  
+- **v2.1.0**: Fixed an error in the installation file.  
+- **v2.0.9**: Added support for configurable redirect URL for blocked IPs, allowing website owners to choose between "Page Not Found" and "403 Forbidden" as the redirection option. Reverted back to ZenCart's spider detection mechanism for identifying spiders.  
+- **v2.0.8**: Added IP blocking based on a blacklist file in addition to the existing logic.  
+- **v2.0.7**: Added the `checkSpiderFlag()` function for improved spider detection and updated the `spider_flag_user_setting` configuration option.  
+- **v2.0.6**: Optimized code, updated AbuseIPDB checks, improved logging and cache handling, and adjusted admin settings.  
+- **v2.0.5**: Added the option to log spiders that bypassed IP checking.  
+- **v2.0.4**: Added the ability to allow or disable known spiders from bypassing IP checks.  
+- **v2.0.3**: Added `TABLE_ABUSEIPDB_MAINTENANCE` database table for IP cleanup control.  
+- **v2.0.2**: Added IP cleanup feature with configurable settings for automatic deletion of expired IP records and changed `abuseipdb_api_call_<date>.log` creation to daily instead of monthly.  
+- **v2.0.1**: Updated table name reference to `TABLE_ABUSEIPDB_CACHE` for compatibility.  
+- **v2.0.0**: Switched from session caching to database caching for improved performance and reliability.  
+- **v1.0.2**: Fixed a typo in the admin installation and corrected the license type.  
