@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     2.1.6
- * @updated     1-18-2023
+ * @version     3.0.0
+ * @updated     1-19-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -24,8 +24,13 @@ class abuseipdb_observer extends base {
         }
     }
 
-protected function runCleanup() {
-    global $db, $zcDate;
+    protected function getZcPluginDir(): string {
+        $baseDir = __DIR__ . '/../../../../'; // Adjust this to match your plugin's structure
+        return realpath($baseDir) . '/catalog/';
+    }
+
+    protected function runCleanup() {
+        global $db, $zcDate;
 
     $cleanup_enabled = ABUSEIPDB_CLEANUP_ENABLED;
     $cleanup_period = ABUSEIPDB_CLEANUP_PERIOD;
@@ -69,7 +74,8 @@ protected function runCleanup() {
         global $current_page_base, $_SESSION, $db, $spider_flag;
 
         if (ABUSEIPDB_ENABLED == 'true') {
-            require_once 'includes/functions/abuseipdb_custom.php';
+            $pluginDir = $this->getZcPluginDir();
+            require_once $pluginDir . 'includes/functions/abuseipdb_custom.php';
 
             $api_key = ABUSEIPDB_API_KEY;
             $threshold = (int)ABUSEIPDB_THRESHOLD;
@@ -89,10 +95,11 @@ protected function runCleanup() {
 			$spider_allow = ABUSEIPDB_SPIDER_ALLOW;
 			$spider_log_enabled = ABUSEIPDB_SPIDER_ALLOW_LOG;
 			$blacklist_enable = ABUSEIPDB_BLACKLIST_ENABLE === 'true';
-			$blacklist_file_path = ABUSEIPDB_BLACKLIST_FILE_PATH;
+			$blacklist_file_path = DIR_FS_CATALOG . ABUSEIPDB_BLACKLIST_FILE_PATH;
 			$redirect_option = ABUSEIPDB_REDIRECT_OPTION;
 
             if ($debug_mode == true) {
+                error_log("Plugin Directory: $pluginDir");
                 error_log('API Key: ' . $api_key);
                 error_log('Threshold: ' . $threshold);
                 error_log('Cache Time: ' . $cache_time);
@@ -159,7 +166,7 @@ protected function runCleanup() {
 					error_log('IP ' . $ip . ' blocked by blacklist');
 			}
                 $log_file_path = ABUSEIPDB_LOG_FILE_PATH . $log_file_name;
-                $log_message_cache = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked by blacklist: ' . $abuseScore . PHP_EOL;
+                $log_message_cache = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' blocked by blacklist: ' . PHP_EOL;
 
                 if ($enable_logging) {
                     file_put_contents($log_file_path, $log_message_cache, FILE_APPEND);

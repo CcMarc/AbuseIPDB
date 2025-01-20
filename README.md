@@ -1,5 +1,5 @@
 
-# AbuseIPDB v2.1.6 for Zen Cart 2.1.0 or later
+# AbuseIPDB v3.0.0 for Zen Cart 2.1.0 or later
 
 ## Prerequisites
 - Zen Cart 2.1.0 or later
@@ -8,21 +8,64 @@
 ## ABOUT THIS MODULE
 This module is an AbuseIPDB integration for Zen Cart, designed to help protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access to the site if the score exceeds a predefined threshold. The module also supports caching to reduce the number of API calls, a test mode for debugging, and logging for monitoring blocked IPs. Additionally, it allows for manual whitelisting and blacklisting of IP addresses to give you greater control over access to your site.
 
-## INSTALLATION
-Copy the following files and folders to your Zen Cart installation directory, maintaining the same directory structure. Be sure to rename the admin folder to match your admin folder in your directory structure.
+## INSTALLATION AND UPGRADE
+
+Before you start …
+
+If you are upgrading from a version below v3.0.0, please note that earlier versions of this plugin did not use Zen Cart's Encapsulated Plugins system. Starting with v3.0.0, the plugin has been fully transitioned to this modern framework, and outdated files from earlier versions will be automatically removed during installation.
+
+Important: The following legacy files are automatically removed when v3.0.0 or later is installed:
+
 ```
-includes/auto_loaders/config.abuseipdb_observer.php  
-includes/classes/observers/class.abuseipdb_observer.php  
-includes/extra_datafiles/abuseipdb_filenames.php  
-includes/functions/abuseipdb_custom.php  
-includes/blacklist.txt  
-admin/abuseipdb_settings.php
-admin/whos_online.php
-admin/includes/auto_loaders/config.abuseipdb_admin.php  
-admin/includes/extra_datafiles/abuseipdb_settings.php  
-admin/includes/init_includes/init_abuseipdb_observer.php  
-admin/includes/languages/english/extra_definitions/abuseipdb_admin_names.php
-admin/includes/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php
+/YOUR_ADMIN/includes/auto_loaders/config.abuseipdb_admin.php
+/YOUR_ADMIN/includes/extra_datafiles/abuseipdb_settings.php
+/YOUR_ADMIN/includes/init_includes/init_abuseipdb_observer.php
+/YOUR_ADMIN/includes/english/extra_definitions/abuseipdb_admin_names.php
+/YOUR_ADMIN/abuseipdb_settings.php
+/includes/auto_loaders/config.abuseipdb_observer.php
+/includes/classes/observers/class.abuseipdb_observer.php
+/includes/extra_datafiles/abuseipdb_filenames.php
+/includes/functions/abuseipdb_custom.php
+```
+… then …
+
+## Installation Instructions
+
+1. **Unzip the Plugin**  
+   Extract the contents of the distribution's zip file. Inside, you'll find a `zc_plugins` directory, which contains an `AbuseIPDB` directory. Within that directory is another folder with the plugin's version number.
+
+2. **Upload the Plugin Files**  
+   Copy the entire `AbuseIPDB` directory from the extracted contents into your site's `zc_plugins` directory, preserving the directory structure.
+
+3. **Install the Plugin**  
+   - Log in to your Zen Cart admin.  
+   - Navigate to **Modules → Plugin Manager**.  
+   - Locate **AbuseIPDB** in the list, click **Install**, and confirm by clicking **Install** again.
+
+4. **Configure the Plugin**  
+   - After installation, you'll find an **AbuseIPDB Settings** element under the admin's **Configuration** tab.  
+   - Follow the configuration steps outlined below to finalize the setup.
+
+---
+
+## Files to Upload
+
+To install or upgrade the AbuseIPDB plugin, upload the following files to your Zen Cart file system, maintaining the directory structure:
+
+
+```
+zc_plugins/AbuseIPDB/vX.X.X/manifest.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/auto_loaders/config.abuseipdb.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/languages/english/extra_definitions/lang.abuseipdb_admin_names.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/abuseipdb_settings.php
+zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/auto_loaders/config.abuseipdb.php
+zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/classes/observers/abuseipdb_observer.php
+zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/classes/functions/abuseipdb_custom.php
+zc_plugins/AbuseIPDB/vX.X.X/installer/ScriptedInstaller.php
+
+Optional_Install/includes/blacklist.txt (if upgrading from below v3.0.0 this will be there already)
+Optional_Install/Zencart 2.1.0 or later/YOUR ADMIN/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php (if upgrading from below v2.1.2 - v2.1.6 this may be there already if you installed it)
+Optional_Install/Zencart 2.1.0 or later/YOUR ADMIN/whos_online.php - (New File updated for this version)
 ```
 Configure the module in your Zen Cart admin panel by navigating to the AbuseIPDB Settings page.  (Found under the "Configuration" menu in the admin dashboard.)
 
@@ -106,3 +149,4 @@ This module is released under the GNU General Public License (GPL).
 - v2.1.4: Enhanced fallback logic for API failures to prevent disruptions.
 - v2.1.5: Improved consistency in date handling across the module.
 - v2.1.6: Minor code optimizations for maintainability.
+- v3.0.0: Migrated to Encapsulated Plugin Architecture.

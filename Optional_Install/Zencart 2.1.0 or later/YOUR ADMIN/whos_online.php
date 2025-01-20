@@ -4,7 +4,7 @@
  * @copyright Portions Copyright 2003 osCommerce
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
  * @version $Id: Scott Wilson 2024 May 24 Modified in v2.1.0-alpha1 $
- * @modified Marcopolo - 1-12-2025 - Added logic for AbuseIPDB integration in Who's Online
+ * @modified Marcopolo - 1-19-2025 - Added logic for AbuseIPDB integration in Who's Online
  */
 // Default refresh interval (0=off).  NOTE: Using automated refresh may put you in breach of PCI Compliance
 $defaultRefreshInterval = 0;
@@ -227,7 +227,7 @@ $listingURL = zen_href_link(FILENAME_WHOS_ONLINE, zen_get_all_get_params(['q', '
                     }
                     ?>
                 </td>
-                <td class="dataTableContentWhois dataTableButtonCell text-left align-top">
+                <td class="dataTableContentWhois dataTableButtonCell text-center align-top">
                     <?php
                     $whois_url = 'https://whois.domaintools.com/' . $item['ip_address'];
                     $additional_ipaddress_links = '';
@@ -241,8 +241,7 @@ $listingURL = zen_href_link(FILENAME_WHOS_ONLINE, zen_get_all_get_params(['q', '
                 <td>&nbsp;</td>
                 <td class="dataTableContentWhois text-center align-top"><?php echo date('H:i:s', $item['time_entry']); ?></td>
                 <td class="dataTableContentWhois text-center align-top"><?php echo date('H:i:s', $item['time_last_click']); ?></td>
-                <td class="dataTableContentWhois align-top" colspan="1">&nbsp;</td>
-	
+		<td class="dataTableContentWhois align-top" colspan="<?php echo (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') ? 1 : 2; ?>">&nbsp;</td>
 		<!-- BOF - AbuseIPDB -->
 		<?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
 		<td class="dataTableContentWhois text-center align-top">
@@ -331,7 +330,11 @@ $listingURL = zen_href_link(FILENAME_WHOS_ONLINE, zen_get_all_get_params(['q', '
                       echo '<div class="last-url-link">' . $lastURLlink . '</div>';
                       ?>
                   </td>
-                  <td class="dataTableContentWhois align-top" colspan=3>&nbsp;&nbsp;</td>
+		<?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
+  		<td class="dataTableContentWhois align-top" colspan=3>&nbsp;&nbsp;</td>
+		<?php else : ?>
+		<?php endif; ?>
+
                   </tr>
                   <?php
                 } // show host

@@ -6,9 +6,10 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     2.0.3
- * @updated     4-14-2023
+ * @version     3.0.0
+ * @updated     1-19-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
-define('TABLE_ABUSEIPDB_CACHE', 'abuseipdb_cache');
-define('TABLE_ABUSEIPDB_MAINTENANCE', 'abuseipdb_maintenance');
+return [
+    'BOX_ABUSEIPDB_NAME' => 'AbuseIPDB Settings',
+];
