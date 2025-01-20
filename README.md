@@ -43,15 +43,13 @@ Important: The following legacy files are automatically removed when v3.0.0 or l
    - Locate **AbuseIPDB** in the list, click **Install**, and confirm by clicking **Install** again.
 
 4. **Configure the Plugin**  
-   - After installation, you'll find an **AbuseIPDB Settings** element under the admin's **Configuration** tab.  
-   - Follow the configuration steps outlined below to finalize the setup.
+   - After installation, you'll find an **AbuseIPDB Settings** element under the admin's **Configuration** tab where you can configure the module.
 
 ---
 
 ## Files to Upload
 
 To install or upgrade the AbuseIPDB plugin, upload the following files to your Zen Cart file system, maintaining the directory structure:
-
 
 ```
 zc_plugins/AbuseIPDB/vX.X.X/manifest.php
@@ -67,9 +65,8 @@ Optional_Install/includes/blacklist.txt (if upgrading from below v3.0.0 this wil
 Optional_Install/Zencart 2.1.0 or later/YOUR ADMIN/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php (if upgrading from below v2.1.2 - v2.1.6 this may be there already if you installed it)
 Optional_Install/Zencart 2.1.0 or later/YOUR ADMIN/whos_online.php - (New File updated for this version)
 ```
-Configure the module in your Zen Cart admin panel by navigating to the AbuseIPDB Settings page.  (Found under the "Configuration" menu in the admin dashboard.)
 
-### Adding the Admin Dashboard Widget
+### Optional | Adding the Admin Dashboard Widget
 To integrate the AbuseIPDB dashboard widget, follow these steps:
 
 #### ZenCart 2.1.0 or later
