@@ -115,9 +115,13 @@ class ScriptedInstaller extends ScriptedInstallBase
                 );
             }
 			
+			// Get the current date in the required format
+			$currentDateTime = date('Y-m-d H:i:s');
+			
 			$db->Execute(
 				"UPDATE " . TABLE_CONFIGURATION . "
-				SET configuration_value = '" . self::ABUSEIPDB_CURRENT_VERSION . "'
+				SET configuration_value = '" . self::ABUSEIPDB_CURRENT_VERSION . "',
+				last_modified = '" . $currentDateTime . "'
 				WHERE configuration_key = 'ABUSEIPDB_VERSION'
 				LIMIT 1"
 			);
