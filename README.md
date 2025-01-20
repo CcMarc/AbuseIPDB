@@ -123,9 +123,6 @@ This section provides an understanding of the logic steps involved in checking a
 ## SUPPORT
 For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/showthread.php?229438-AbuseIPDB-Integration-module) or visit the [GitHub repository](https://github.com/CcMarc/AbuseIPDB) for additional resources, updates, or to report issues.
 
-## LICENSE:  
-This module is released under the GNU General Public License (GPL).  
-
 ## WHAT'S NEW:
 
 - **v3.0.0**: Migrated to Encapsulated Plugin Architecture.  
@@ -147,3 +144,6 @@ This module is released under the GNU General Public License (GPL).
 - **v2.0.1**: Updated table name reference to `TABLE_ABUSEIPDB_CACHE` for compatibility.  
 - **v2.0.0**: Switched from session caching to database caching for improved performance and reliability.  
 - **v1.0.2**: Fixed a typo in the admin installation and corrected the license type.  
+
+## LICENSE:  
+This module is released under the GNU General Public License (GPL).  
