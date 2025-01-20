@@ -84,24 +84,16 @@ Change the `'column'` and `'sort'` values as desired.
 1. **API Key Setup**  
     - The script requires a valid API key from AbuseIPDB to check the abuse confidence score of an IP address.  
     - Ensure that a valid API key is available and correctly configured in the **"AbuseIPDB API Key"** setting in the Zen Cart admin panel.  
-    - Be sure to [verify yourself](https://www.abuseipdb.com/account/webmasters) as the owner of your domain in the AbuseIPDB Webmasters section to increase your daily API call limits.  
+    - Be sure to [verify yourself](https://www.abuseipdb.com/account/webmasters) as the owner of your domain in the AbuseIPDB Webmasters section to increase your daily free API call limit from 1000 to 3000.  
 
     **How to Obtain an API Key**:  
     - Visit [AbuseIPDB](https://www.abuseipdb.com) and sign up for an account.  
     - Once registered, log in and navigate to the **API Key** section in your account dashboard.  
     - Generate an API key and copy it into the **"AbuseIPDB API Key"** setting in the Zen Cart admin panel.
 	
-2.	Cache Expiry: The script checks the database cache to avoid excessive API calls. If the cache for a specific IP address has expired, the script makes a new API call.  
-3.	Test Mode: The script provides a test mode for debugging. When an IP is in test mode, the script logs the IP as blocked regardless of the abuse score.  
-4.	IP Cleanup Feature: The module has an IP Cleanup feature that automatically deletes expired IP records. The cleanup process is triggered once per day by the first logged IP. This functionality can be enabled or disabled, and the IP record expiration period can be configured in the settings "IP Cleanup Period (in days)".  
-5.	Manual Whitelisting and Blacklisting: The script checks if an IP is manually whitelisted or blacklisted before it does anything else. Manually whitelisted IPs will bypass the AbuseIPDB check, and manually blacklisted IPs will be immediately blocked. Enter the IP addresses separated by commas without any spaces, like this: `192.168.1.1,192.168.2.2,192.168.3.3`.
-6.  Additional IP Blacklist File Option: The module offers an advanced IP blacklist feature. Administrators can enable or disable this functionality through the "Enable IP Blacklist File?" setting in the Zen Cart admin panel. Once enabled, the module examines a designated blacklist file for every incoming IP address. The blacklist file should list one complete or partial IP address per line. If there is a match, the corresponding IP will be promptly blocked, bypassing any other checks or scoring methods. This feature provides administrators with enhanced control over blocking specific IP addresses by utilizing complete or partial matches from the blacklist file.    
-7.	Logging: If logging is enabled, log files are created when an IP is blocked, whether manually or based on the AbuseIPDB score. If API logging is enabled, a separate log file is also created for API calls. The location of these log files can be configured in the `ABUSEIPDB_LOG_FILE_PATH` setting in the Zen Cart admin panel.  
-8.  Skipping IP Check for Known Spiders: If the "Allow Spiders?" setting (`ABUSEIPDB_SPIDER_ALLOW`) is enabled, known spiders will be skipped in the IP check and logging process, as they are not subject to AbuseIPDB scoring. This can be useful for avoiding unnecessary API calls and log entries for spider sessions.  
-9.  Spider Detection: The script utilizes a file called `spiders.txt` provided by Zen Cart to identify known spiders, including search engine bots and web crawlers. It reads the user agent from the HTTP request and compares it against the entries in the spiders.txt file. If a match is found, indicating that the user agent corresponds to a known spider, the spider flag is set to true. This flag determines the script's behavior, enabling it to bypass certain checks or execute specific actions tailored for spider sessions.  
-10. **Boost AbuseIPDB API Limits**  
+	**Boost AbuseIPDB API Limits**  
     - Added a new widget to help boost the limits of the AbuseIPDB API.  
-    - With this, you can increase the `check & report` limits to **5,000 per day** instead of the usual **1,000** or **3,000** per day.  
+    - With this, you can increase the `check & report` limits to **5,000 per day** instead of the usual **1,000** or **3,000** free tier per day.  
     - The widget sits unobtrusively on your admin backend landing page.  
 
     **Configuration Steps**:  
@@ -110,7 +102,16 @@ Change the `'column'` and `'sort'` values as desired.
       - Be sure to grab your profile ID number and input it in the configuration settings.  
       - **Note**: Your AbuseIPDB profile must be set to public to retrieve the profile ID. If your profile is set to private, the option to view and copy the profile ID will not be available.
 
-11. **Enhanced "Who's Online" Page Features**  
+2.	Cache Expiry: The script checks the database cache to avoid excessive API calls. If the cache for a specific IP address has expired, the script makes a new API call.  
+3.	Test Mode: The script provides a test mode for debugging. When an IP is in test mode, the script logs the IP as blocked regardless of the abuse score.  
+4.	IP Cleanup Feature: The module has an IP Cleanup feature that automatically deletes expired IP records. The cleanup process is triggered once per day by the first logged IP. This functionality can be enabled or disabled, and the IP record expiration period can be configured in the settings "IP Cleanup Period (in days)".  
+5.	Manual Whitelisting and Blacklisting: The script checks if an IP is manually whitelisted or blacklisted before it does anything else. Manually whitelisted IPs will bypass the AbuseIPDB check, and manually blacklisted IPs will be immediately blocked. Enter the IP addresses separated by commas without any spaces, like this: `192.168.1.1,192.168.2.2,192.168.3.3`.
+6.  Additional IP Blacklist File Option: The module offers an advanced IP blacklist feature. Administrators can enable or disable this functionality through the "Enable IP Blacklist File?" setting in the Zen Cart admin panel. Once enabled, the module examines a designated blacklist file for every incoming IP address. The blacklist file should list one complete or partial IP address per line. If there is a match, the corresponding IP will be promptly blocked, bypassing any other checks or scoring methods. This feature provides administrators with enhanced control over blocking specific IP addresses by utilizing complete or partial matches from the blacklist file.    
+7.	Logging: If logging is enabled, log files are created when an IP is blocked, whether manually or based on the AbuseIPDB score. If API logging is enabled, a separate log file is also created for API calls. The location of these log files can be configured in the `ABUSEIPDB_LOG_FILE_PATH` setting in the Zen Cart admin panel.  
+8.  Skipping IP Check for Known Spiders: If the "Allow Spiders?" setting (`ABUSEIPDB_SPIDER_ALLOW`) is enabled, known spiders will be skipped in the IP check and logging process, as they are not subject to AbuseIPDB scoring. This can be useful for avoiding unnecessary API calls and log entries for spider sessions.  
+9.  Spider Detection: The script utilizes a file called `spiders.txt` provided by Zen Cart to identify known spiders, including search engine bots and web crawlers. It reads the user agent from the HTTP request and compares it against the entries in the spiders.txt file. If a match is found, indicating that the user agent corresponds to a known spider, the spider flag is set to true. This flag determines the script's behavior, enabling it to bypass certain checks or execute specific actions tailored for spider sessions.  
+
+10. **Enhanced "Who's Online" Page Features**  
     - Real-Time Threat Assessment: Displays AbuseIPDB confidence scores for each visitor, enabling real-time assessment of potential threats. Clicking on a score redirects to the AbuseIPDB website for detailed information about the IP address.  
     - Interactive IP Status Icons:  
         - 🛡️ **Red Shield**: Indicates a blocked IP.  
