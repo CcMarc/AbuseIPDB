@@ -93,7 +93,7 @@ Change the `'column'` and `'sort'` values as desired.
 	
 	**Boost AbuseIPDB API Limits**  
     - Added a new widget to help boost the limits of the AbuseIPDB API.  
-    - With this, you can increase the `check & report` limits to **5,000 per day** instead of the usual **1,000** or **3,000** free tier per day.  
+    - With this, you can increase the `check & report` limits to **5,000 per day** instead of the usual **1,000** or **3,000** available on the free tier.  
     - The widget sits unobtrusively on your admin backend landing page.  
 
     **Configuration Steps**:  
