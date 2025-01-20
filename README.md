@@ -131,7 +131,6 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 This module is released under the GNU General Public License (GPL).  
 
 ## WHAT'S NEW:
-## Changelog
 
 - **v3.0.0**: Migrated to Encapsulated Plugin Architecture.  
 - **v2.1.6**: Minor code optimizations for maintainability.  
