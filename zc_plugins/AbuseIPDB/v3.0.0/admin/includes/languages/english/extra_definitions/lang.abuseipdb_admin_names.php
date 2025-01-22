@@ -7,7 +7,7 @@
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
  * @version     3.0.0
- * @updated     1-19-2025
+ * @updated     1-22-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 return [
