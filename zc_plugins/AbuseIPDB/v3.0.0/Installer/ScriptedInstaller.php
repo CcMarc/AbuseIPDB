@@ -101,7 +101,7 @@ class ScriptedInstaller extends ScriptedInstallBase
 
             // Register admin page
             $pageKey = 'configAbuseIPDB';
-            $checkPageSql = "SELECT COUNT(*) AS count FROM admin_pages WHERE page_key = :page_key";
+            $checkPageSql = "SELECT COUNT(*) AS count FROM " . TABLE_ADMIN_PAGES . " WHERE page_key = :page_key";
             $checkPageSql = $db->bindVars($checkPageSql, ':page_key', $pageKey, 'string');
             $result = $db->Execute($checkPageSql);
 
