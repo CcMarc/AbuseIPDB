@@ -12,4 +12,5 @@
  */
 return [
     'BOX_ABUSEIPDB_NAME' => 'AbuseIPDB Settings',
+    'BOX_ABUSEIPDB_HEADER' => 'AbuseIPDB Contributor'
 ];
