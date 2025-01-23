@@ -86,16 +86,23 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
     - With this, you can increase the `check & report` limits to **5,000 per day** instead of the usual **1,000** or **3,000** available on the free tier.  
     - The widget sits unobtrusively on your admin backend landing page.  
 
-    **Configuration Steps**:
+	**Configuration Steps**:
+
 	- To integrate the (optional) AbuseIPDB dashboard widget, follow these steps:
-    - A new field is available in the configuration page to enable this feature.  
-    - You will need your profile ID number, which can be found in the **Account Summary** section of AbuseIPDB.  
-      - Be sure to grab your profile ID number and input it in the configuration settings.
-	  - Obtain your user ID by visiting the [Contributors Badge](https://www.abuseipdb.com/account/contributor) section of the AbuseIPDB Dasbhoard in its backend.
-	  - After logging in, you will notice there is a large code block present with HTML inside. Within that block, look careful for an `<a>` tag at the start of that block. You'll want to look for a line that looks like: `<a href="https://www.abuseipdb.com/user/XXXXXX" title="AbuseIPDB is an IP address blacklist for webmasters and sysadmins to report IP addresses engaging in abusive behavior on their networks">`. Where you see the `XXXXXX` in the example, should be a number that represents your Member ID. (**NOTE**: This is different than your API Key which is your main access key to turn on the module.)
-	  - With your Member ID in hand, proceed to the ZenCart dashboard area and navigate to **Configuration > AbuseIPDB Settings** and look for a configuration setting that reads: "AbuseIPDB: User ID". Click on that and enter SOLELY the number that you were provided. Entering the number here will enable the Widget and if detected correctly, will grant you the role of `Supporter` and thus boost your ability to report back to AbuseIPDB.
-	  - If you did this correctly, you will notice that there is a new widget present on the Admin Dashboard area. This is all that needs to be done. You can disable this widget by removing your UserID from the same setting and clearing it though note you may lose your **Supporter** role if you do.
-      - **Note**: Your AbuseIPDB profile must be set to public to retrieve the profile ID. If your profile is set to private, the option to view and copy the profile ID will not be available.
+	  1. A new field is available in the configuration page to enable this feature.
+	  2. You will need your profile ID number, which can be found in the **Account Summary** section of AbuseIPDB.  
+		- Obtain your profile ID by visiting the [Contributors Badge](https://www.abuseipdb.com/account/contributor) section of the AbuseIPDB dashboard.
+		- After logging in, locate the HTML block in the Contributors Badge section. Look carefully for an `<a>` tag, which will contain a line like this:  
+       `<a href="https://www.abuseipdb.com/user/XXXXXX" title="AbuseIPDB is an IP address blacklist for webmasters and sysadmins to report IP addresses engaging in abusive behavior on their networks">`.  
+       The `XXXXXX` in the URL is your Member ID. (**Note**: This is different from your API Key, which is required to activate the module.)
+	  3. Once you have your Member ID, navigate to **Configuration > AbuseIPDB Settings** in the ZenCart admin area.
+		- Locate the configuration setting labeled "AbuseIPDB: User ID."
+		- Enter only the numeric Member ID obtained earlier. This will enable the widget and, if configured correctly, grant you the role of `Supporter`, boosting your ability to report back to AbuseIPDB.
+	  4. If everything is set up correctly, the widget will appear on the Admin Dashboard.  
+		- To disable the widget, clear the User ID field in the configuration settings. Note that removing your User ID may result in losing the **Supporter** role.
+
+	- **Important**:  
+	Your AbuseIPDB profile must be set to public to retrieve the profile ID. If your profile is private, the profile ID will not be accessible.
 
 2. Cache Expiry: The script checks the database cache to avoid excessive API calls. If the cache for a specific IP address has expired, the script makes a new API call.  
 3. Test Mode: The script provides a test mode for debugging. When an IP is in test mode, the script logs the IP as blocked regardless of the abuse score.  
