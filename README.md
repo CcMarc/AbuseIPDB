@@ -66,7 +66,7 @@ zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/classes/functions/abuseipdb_custom.
 zc_plugins/AbuseIPDB/vX.X.X/installer/ScriptedInstaller.php
 
 Optional_Install/includes/blacklist.txt (if upgrading from below v3.0.0 this will be there already)
-Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php - (**NEW** file updated for this version)
+Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
 ```
 
 ### Optional | Adding the Admin Dashboard Widget
