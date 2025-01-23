@@ -100,9 +100,6 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
 		- Enable Admin Widget? - Set this to true which will enable the widget to display on your Admin Dashboard and, if configured correctly, grant you the role of `Supporter`, boosting your ability to report back to AbuseIPDB.
 		- To disable the widget, set Enable Admin Widget? back to false. Note doing this may result in losing the **Supporter** role.
 
-		- **Important**:  
-		Your AbuseIPDB profile must be set to public to retrieve the profile ID. If your profile is private, the profile ID will not be accessible.
-
 2. Cache Expiry: The script checks the database cache to avoid excessive API calls. If the cache for a specific IP address has expired, the script makes a new API call.  
 3. Test Mode: The script provides a test mode for debugging. When an IP is in test mode, the script logs the IP as blocked regardless of the abuse score.  
 4. IP Cleanup Feature: The module has an IP Cleanup feature that automatically deletes expired IP records. The cleanup process is triggered once per day by the first logged IP. This functionality can be enabled or disabled, and the IP record expiration period can be configured in the settings "IP Cleanup Period (in days)".  
