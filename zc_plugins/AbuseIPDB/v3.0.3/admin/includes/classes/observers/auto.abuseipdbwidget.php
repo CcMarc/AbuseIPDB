@@ -22,10 +22,16 @@ class zcObserverAbuseIPDBWidget extends base
 
     public function updateNotifyAdminDashboardWidgets(&$class, $eventID, $empty, &$widgets)
     {
-        if ($eventID == 'NOTIFY_ADMIN_DASHBOARD_WIDGETS' && zen_not_null(ABUSEIPDB_USERID) && defined('ABUSEIPDB_WIDGET_ENABLED') && ABUSEIPDB_WIDGET_ENABLED === 'true')
+        if ($eventID == 'NOTIFY_ADMIN_DASHBOARD_WIDGETS' && zen_not_null(ABUSEIPDB_USERID))
         {
 
-            // Filter the widgets where column is 1
+            global $db;
+
+            // What is the current version of the module?
+            $version_sql = $db->execute("SELECT version FROM " . TABLE_PLUGIN_CONTROL . " WHERE unique_key = 'AbuseIPDB'");
+            $version = $version_sql->fields["version"];
+
+            // Filter the widgets where column is 1 (1 is Left, 2 is Center, 3 is Right)
             $filteredWidgets = array_filter($widgets, function($item) {
                 return $item['column'] === 1;
             });
@@ -33,9 +39,12 @@ class zcObserverAbuseIPDBWidget extends base
             // Extract the 'sort' values from the filtered widgets
             $sortValues = array_column($filteredWidgets, 'sort');
 
-            // Get the maximum 'sort' value
+            // Get the maximum of the 'sort' values.
             $maxSort = max($sortValues);
-            $widgets[] = ['column' => 1, 'sort' => $maxSort + 10, 'visible' => true, 'path' => DIR_WS_MODULES . 'dashboard_widgets/AbuseIPDBDashboardWidget.php'];
+
+            // Add the AbuseIPDBWidget to the LEFT column with a sort of 10 more than the maximum value.
+            // Hardcoding to the current version of the module
+            $widgets[] = ['column' => 1, 'sort' => $maxSort + 10, 'visible' => true, 'path' => DIR_FS_CATALOG . "zc_plugins/AbuseIPDB/$version/admin/includes/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php"];
 
         }
     }
