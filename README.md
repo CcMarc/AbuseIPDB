@@ -1,6 +1,7 @@
 
 # AbuseIPDB v3.2.0 for Zen Cart 2.1.0 or later
 
+
 ## Prerequisites
 
 - Zen Cart 2.1.0 or later
@@ -152,6 +153,7 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 ## WHAT'S NEW
 
 - **v3.1.0**: Moved the AbuseIPDB Contributor Badge to being an observer class triggered when there is a value entered in "AbuseIPDB: User ID".
+- **v3.0.1**: Bug Fix - resolved an issue with undefined constants.
 - **v3.0.0**: Migrated to Encapsulated Plugin Architecture.  
 - **v2.1.6**: Minor code optimizations for maintainability.  
 - **v2.1.5**: Improved consistency in date handling across the module.  

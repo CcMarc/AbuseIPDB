@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     3.0.0
- * @updated     1-20-2025
+ * @version     3.0.1
+ * @updated     1-22-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -17,7 +17,7 @@ class ScriptedInstaller extends ScriptedInstallBase
 {
     protected string $configGroupTitle = 'AbuseIPDB Configuration';
 
-    public const ABUSEIPDB_CURRENT_VERSION = '3.0.0';
+    public const ABUSEIPDB_CURRENT_VERSION = '3.0.1';
 
     protected int $configurationGroupId;
 
@@ -162,6 +162,36 @@ class ScriptedInstaller extends ScriptedInstallBase
 
         return true;
     }
+	
+	 /**
+     * Upgrade Logic
+     */
+	
+	protected function executeUpgrade($oldVersion): bool
+	{
+    global $db;
+
+    try {
+        // Update the plugin version in the configuration table
+        $db->Execute(
+            "UPDATE " . TABLE_CONFIGURATION . "
+             SET configuration_value = '" . self::ABUSEIPDB_CURRENT_VERSION . "',
+                 last_modified = NOW()
+             WHERE configuration_key = 'ABUSEIPDB_VERSION'"
+        );
+
+        // Placeholder for future upgrade logic
+        // Add schema changes, new settings, or other updates as needed
+
+        return true;
+    } catch (Exception $e) {
+        // Log errors during the upgrade process
+        error_log('Error upgrading AbuseIPDB plugin to version ' . self::ABUSEIPDB_CURRENT_VERSION . ': ' . $e->getMessage());
+        return false;
+		}
+	}
+
+
 
     /**
      * Uninstall Logic
