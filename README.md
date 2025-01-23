@@ -69,17 +69,6 @@ Optional_Install/includes/blacklist.txt (if upgrading from below v3.0.0 this wil
 Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
 ```
 
-### Optional | Adding the Admin Dashboard Widget
-
-To integrate the (optional) AbuseIPDB dashboard widget, follow these steps:
-
-#### ZenCart 2.1.0 or later
-
-- Obtain your user ID by visiting the [Contributors Badge](https://www.abuseipdb.com/account/contributor) section of the AbuseIPDB Dasbhoard in its backend.
-- After logging in, you will notice there is a large code block present with HTML inside. Within that block, look careful for an `<a>` tag at the start of that block. You'll want to look for a line that looks like: `<a href="https://www.abuseipdb.com/user/XXXXXX" title="AbuseIPDB is an IP address blacklist for webmasters and sysadmins to report IP addresses engaging in abusive behavior on their networks">`. Where you see the `XXXXXX` in the example, should be a number that represents your Member ID. (**NOTE**: This is different than your API Key which is your main access key to turn on the module.)
-- With your Member ID in hand, proceed to the ZenCart dashboard area and navigate to **Configuration > AbuseIPDB Settings** and look for a configuration setting that reads: "AbuseIPDB: User ID". Click on that and enter SOLELY the number that you were provided. Entering the number here will enable the Widget and if detected correctly, will grant you the role of `Supporter` and thus boost your ability to report back to AbuseIPDB.
-- If you did this correctly, you will notice that there is a new widget present on the Admin Dashboard area. This is all that needs to be done. You can disable this widget by removing your UserID from the same setting and clearing it though note you may lose your **Supporter** role if you do.
-
 ## THINGS TO KNOW
 
 1. **API Key Setup**  
@@ -97,10 +86,15 @@ To integrate the (optional) AbuseIPDB dashboard widget, follow these steps:
     - With this, you can increase the `check & report` limits to **5,000 per day** instead of the usual **1,000** or **3,000** available on the free tier.  
     - The widget sits unobtrusively on your admin backend landing page.  
 
-    **Configuration Steps**:  
+    **Configuration Steps**:
+	- To integrate the (optional) AbuseIPDB dashboard widget, follow these steps:
     - A new field is available in the configuration page to enable this feature.  
     - You will need your profile ID number, which can be found in the **Account Summary** section of AbuseIPDB.  
-      - Be sure to grab your profile ID number and input it in the configuration settings.  
+      - Be sure to grab your profile ID number and input it in the configuration settings.
+	  - Obtain your user ID by visiting the [Contributors Badge](https://www.abuseipdb.com/account/contributor) section of the AbuseIPDB Dasbhoard in its backend.
+	  - After logging in, you will notice there is a large code block present with HTML inside. Within that block, look careful for an `<a>` tag at the start of that block. You'll want to look for a line that looks like: `<a href="https://www.abuseipdb.com/user/XXXXXX" title="AbuseIPDB is an IP address blacklist for webmasters and sysadmins to report IP addresses engaging in abusive behavior on their networks">`. Where you see the `XXXXXX` in the example, should be a number that represents your Member ID. (**NOTE**: This is different than your API Key which is your main access key to turn on the module.)
+	  - With your Member ID in hand, proceed to the ZenCart dashboard area and navigate to **Configuration > AbuseIPDB Settings** and look for a configuration setting that reads: "AbuseIPDB: User ID". Click on that and enter SOLELY the number that you were provided. Entering the number here will enable the Widget and if detected correctly, will grant you the role of `Supporter` and thus boost your ability to report back to AbuseIPDB.
+	  - If you did this correctly, you will notice that there is a new widget present on the Admin Dashboard area. This is all that needs to be done. You can disable this widget by removing your UserID from the same setting and clearing it though note you may lose your **Supporter** role if you do.
       - **Note**: Your AbuseIPDB profile must be set to public to retrieve the profile ID. If your profile is set to private, the option to view and copy the profile ID will not be available.
 
 2. Cache Expiry: The script checks the database cache to avoid excessive API calls. If the cache for a specific IP address has expired, the script makes a new API call.  
