@@ -86,7 +86,7 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
     - With this, you can increase the `check & report` limits to **5,000 per day** instead of the usual **1,000** or **3,000** available on the free tier.  
     - The widget sits unobtrusively on your admin backend landing page.  
 
-	**Configuration Steps**:
+	**Widget Configuration Steps**:
 
 	- To integrate the (optional) AbuseIPDB dashboard widget, follow these steps:
 	  1. A new field is available in the configuration page to enable this feature.
