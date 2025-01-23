@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     3.0.3
- * @updated     1-22-2025
+ * @version     3.0.4
+ * @updated     1-23-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -17,7 +17,7 @@ class ScriptedInstaller extends ScriptedInstallBase
 {
     protected string $configGroupTitle = 'AbuseIPDB Configuration';
 
-    public const ABUSEIPDB_CURRENT_VERSION = '3.0.3';
+    public const ABUSEIPDB_CURRENT_VERSION = '3.0.4';
 
     private const SETTING_COUNT = 27;
     protected int $configurationGroupId;
@@ -141,6 +141,7 @@ class ScriptedInstaller extends ScriptedInstallBase
             DIR_FS_ADMIN . 'includes/extra_datafiles/abuseipdb_settings.php',
             DIR_FS_ADMIN . 'includes/init_includes/init_abuseipdb_observer.php',
             DIR_FS_ADMIN . 'includes/languages/english/extra_definitions/abuseipdb_admin_names.php',
+			DIR_FS_ADMIN . 'includes/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php',
             DIR_FS_ADMIN . 'abuseipdb_settings.php',
             DIR_FS_CATALOG . 'includes/auto_loaders/config.abuseipdb_observer.php',
             DIR_FS_CATALOG . 'includes/classes/observers/class.abuseipdb_observer.php',
@@ -188,6 +189,10 @@ class ScriptedInstaller extends ScriptedInstallBase
     global $db;
 
     try {
+    	// Purge old files
+        if (!$this->purgeOldFiles()) {
+           return false;
+        }
         // Create or get configuration group ID
         $this->configurationGroupId = $this->getOrCreateConfigGroupId(
         $this->configGroupTitle,

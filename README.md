@@ -1,5 +1,5 @@
 
-# AbuseIPDB v3.0.3 for Zen Cart 2.1.0 or later
+# AbuseIPDB v3.0.4 for Zen Cart 2.1.0 or later
 
 ## Prerequisites
 
@@ -23,6 +23,7 @@ Important: The following legacy files are automatically removed when v3.0.0 or l
 /YOUR_ADMIN/includes/extra_datafiles/abuseipdb_settings.php
 /YOUR_ADMIN/includes/init_includes/init_abuseipdb_observer.php
 /YOUR_ADMIN/includes/english/extra_definitions/abuseipdb_admin_names.php
+/YOUR_ADMIN/includes/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php
 /YOUR_ADMIN/abuseipdb_settings.php
 /includes/auto_loaders/config.abuseipdb_observer.php
 /includes/classes/observers/class.abuseipdb_observer.php
@@ -57,6 +58,7 @@ zc_plugins/AbuseIPDB/vX.X.X/manifest.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/includes/auto_loaders/config.abuseipdb.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/includes/classes//observers/auto.abuseipdbwidget.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/includes/languages/english/extra_definitions/lang.abuseipdb_admin_names.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/abuseipdb_settings.php
 zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/auto_loaders/config.abuseipdb.php
 zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/classes/observers/abuseipdb_observer.php
@@ -64,7 +66,6 @@ zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/classes/functions/abuseipdb_custom.
 zc_plugins/AbuseIPDB/vX.X.X/installer/ScriptedInstaller.php
 
 Optional_Install/includes/blacklist.txt (if upgrading from below v3.0.0 this will be there already)
-Optional_Install/ZC_210/YOUR_ADMIN/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php (if upgrading from v2.1.2 - v2.1.6 this may be there already if you installed it. **NEW** this file should be removed as it's apart of the core module. Even if you do not plan on using the module, do not delete this file from the zc_plugin directory.)
 Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php - (**NEW** file updated for this version)
 ```
 
@@ -152,6 +153,7 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
+- **v3.0.4**: Unified GitHub merges with minor updates for consistency.
 - **v3.0.3**: Transitioned the AbuseIPDB Widget to an observer class for improved modularity and encapsulation.
 - **v3.0.2**: Added total settings count display to ensure all settings are accounted for.
 - **v3.0.1**: Bug Fix - resolved an issue with undefined constants.
