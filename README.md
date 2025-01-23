@@ -2,10 +2,12 @@
 # AbuseIPDB v3.0.1 for Zen Cart 2.1.0 or later
 
 ## Prerequisites
+
 - Zen Cart 2.1.0 or later
 - PHP 7.4+ (recommended: PHP 8.x)
 
 ## ABOUT THIS MODULE
+
 This module is an AbuseIPDB integration for Zen Cart, designed to help protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access to the site if the score exceeds a predefined threshold. The module also supports caching to reduce the number of API calls, a test mode for debugging, and logging for monitoring blocked IPs. Additionally, it allows for manual whitelisting and blacklisting of IP addresses to give you greater control over access to your site.
 
 ## INSTALLATION AND UPGRADE
@@ -16,7 +18,7 @@ If you are upgrading from a version below v3.0.0, please note that earlier versi
 
 Important: The following legacy files are automatically removed when v3.0.0 or later is installed:
 
-```
+``` text
 /YOUR_ADMIN/includes/auto_loaders/config.abuseipdb_admin.php
 /YOUR_ADMIN/includes/extra_datafiles/abuseipdb_settings.php
 /YOUR_ADMIN/includes/init_includes/init_abuseipdb_observer.php
@@ -44,42 +46,41 @@ Important: The following legacy files are automatically removed when v3.0.0 or l
 4. **Configure the Plugin**  
    - After installation, you'll find an **AbuseIPDB Settings** element under the admin's **Configuration** tab where you can configure the module.
 
+### Optional | Adding the Admin Dashboard Widget
+
+This widget can be enabled to allow for additional reporting to be done with the AbuseIPDB servers. This badge is relatively unobtrusive and lightweight. To enable the widget:
+
+- Visit the AbuseIPDB website and log in.
+- Visit the Account Summary area and navigate to the "[Contributor Badge](https://www.abuseipdb.com/account/contributor)" section. Once there, you will see a large HTML code block. Look in the first line of that block for an HTML `<a>` tag. At the end of that `href` will be a series of numbers. That number will be your Member ID. Copy JUST the number of the end.
+- In your ZenCart dashboard, visit the **AbuseIPDB Settings** element under the admin's **Configuration** tab. Look for the setting _AbuseIPDB: User ID_. Insert your number there. Make sure the module is also enabled.
+
+If all went well you will see a new dashboard widget "AbuseIPDB Contributor" in your dashboard. Additionally, if you go back to AbuseIPDB, you will notice that you were granted the "Supporter" role with AbuseIPDB. (The Supporter role is what boosts your check and report limits with AbuseIPDB up to 5000.)
+
+**NOTE**: If you used the version before v3.0.1 and you had the Widget enabled, you may have made an edit to your `/admin/index_dashboard.php` file. It is STRONGLY recommended that you undo that edit by removing the line which references `AbuseIPDBDashboardWidget.php` in its entirety. (The encapsulated version of this module takes care of adding the widget to the dashboard. This hard edit is redundant and not necessary. Additionally, if you had the 2.1.6 version of the module, **DELETE** the `AbuseIPDBDashboardWidget.php` that was uploaded to `/admin/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php`)
+
 ---
 
 ## Files to Upload
 
 To install or upgrade the AbuseIPDB plugin, upload the following files to your Zen Cart file system, maintaining the directory structure:
 
-```
+``` text
 zc_plugins/AbuseIPDB/vX.X.X/manifest.php
-zc_plugins/AbuseIPDB/vX.X.X/admin/includes/auto_loaders/config.abuseipdb.php
-zc_plugins/AbuseIPDB/vX.X.X/admin/includes/languages/english/extra_definitions/lang.abuseipdb_admin_names.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/abuseipdb_settings.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/auto_loaders/config.abuseipdb.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/classes/observers/auto.abuseipdbwidget.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/languages/english/extra_definitions/lang.abuseipdb_admin_names.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php
 zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/auto_loaders/config.abuseipdb.php
 zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/classes/observers/abuseipdb_observer.php
 zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/classes/functions/abuseipdb_custom.php
 zc_plugins/AbuseIPDB/vX.X.X/installer/ScriptedInstaller.php
 
 Optional_Install/includes/blacklist.txt (if upgrading from below v3.0.0 this will be there already)
-Optional_Install/ZC_210/YOUR_ADMIN/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php (if upgrading from v2.1.2 - v2.1.6 this may be there already if you installed it)
 Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php - (**NEW** file updated for this version)
 ```
 
-### Optional | Adding the Admin Dashboard Widget
-To integrate the AbuseIPDB dashboard widget, follow these steps:
-
-#### ZenCart 2.1.0 or later
-Open `YOUR_ADMIN/index_dashboard.php` 
-
-Locate the line `$widgets = [];` and add the following code immediately below it:
-
-`
-$widgets[] = ['column' => 1, 'sort' => 30, 'visible' => true, 'path' => DIR_WS_MODULES . 'dashboard_widgets/AbuseIPDBDashboardWidget.php'];
-`
-
-Change the `'column'` and `'sort'` values as desired.
-
-## THINGS TO KNOW:  
+## THINGS TO KNOW
 
 1. **API Key Setup**  
     - The script requires a valid API key from AbuseIPDB to check the abuse confidence score of an IP address.  
@@ -90,8 +91,8 @@ Change the `'column'` and `'sort'` values as desired.
     - Visit [AbuseIPDB](https://www.abuseipdb.com) and sign up for an account.  
     - Once registered, log in and navigate to the **API Key** section in your account dashboard.  
     - Generate an API key and copy it into the **"AbuseIPDB API Key"** setting in the Zen Cart admin panel.
-	
-	**Boost AbuseIPDB API Limits**  
+
+    **Boost AbuseIPDB API Limits**  
     - Added a new widget to help boost the limits of the AbuseIPDB API.  
     - With this, you can increase the `check & report` limits to **5,000 per day** instead of the usual **1,000** or **3,000** available on the free tier.  
     - The widget sits unobtrusively on your admin backend landing page.  
@@ -102,15 +103,14 @@ Change the `'column'` and `'sort'` values as desired.
       - Be sure to grab your profile ID number and input it in the configuration settings.  
       - **Note**: Your AbuseIPDB profile must be set to public to retrieve the profile ID. If your profile is set to private, the option to view and copy the profile ID will not be available.
 
-2.	Cache Expiry: The script checks the database cache to avoid excessive API calls. If the cache for a specific IP address has expired, the script makes a new API call.  
-3.	Test Mode: The script provides a test mode for debugging. When an IP is in test mode, the script logs the IP as blocked regardless of the abuse score.  
-4.	IP Cleanup Feature: The module has an IP Cleanup feature that automatically deletes expired IP records. The cleanup process is triggered once per day by the first logged IP. This functionality can be enabled or disabled, and the IP record expiration period can be configured in the settings "IP Cleanup Period (in days)".  
-5.	Manual Whitelisting and Blacklisting: The script checks if an IP is manually whitelisted or blacklisted before it does anything else. Manually whitelisted IPs will bypass the AbuseIPDB check, and manually blacklisted IPs will be immediately blocked. Enter the IP addresses separated by commas without any spaces, like this: `192.168.1.1,192.168.2.2,192.168.3.3`.
-6.  Additional IP Blacklist File Option: The module offers an advanced IP blacklist feature. Administrators can enable or disable this functionality through the "Enable IP Blacklist File?" setting in the Zen Cart admin panel. Once enabled, the module examines a designated blacklist file for every incoming IP address. The blacklist file should list one complete or partial IP address per line. If there is a match, the corresponding IP will be promptly blocked, bypassing any other checks or scoring methods. This feature provides administrators with enhanced control over blocking specific IP addresses by utilizing complete or partial matches from the blacklist file.    
-7.	Logging: If logging is enabled, log files are created when an IP is blocked, whether manually or based on the AbuseIPDB score. If API logging is enabled, a separate log file is also created for API calls. The location of these log files can be configured in the `ABUSEIPDB_LOG_FILE_PATH` setting in the Zen Cart admin panel.  
-8.  Skipping IP Check for Known Spiders: If the "Allow Spiders?" setting (`ABUSEIPDB_SPIDER_ALLOW`) is enabled, known spiders will be skipped in the IP check and logging process, as they are not subject to AbuseIPDB scoring. This can be useful for avoiding unnecessary API calls and log entries for spider sessions.  
-9.  Spider Detection: The script utilizes a file called `spiders.txt` provided by Zen Cart to identify known spiders, including search engine bots and web crawlers. It reads the user agent from the HTTP request and compares it against the entries in the spiders.txt file. If a match is found, indicating that the user agent corresponds to a known spider, the spider flag is set to true. This flag determines the script's behavior, enabling it to bypass certain checks or execute specific actions tailored for spider sessions.  
-
+2. Cache Expiry: The script checks the database cache to avoid excessive API calls. If the cache for a specific IP address has expired, the script makes a new API call.  
+3. Test Mode: The script provides a test mode for debugging. When an IP is in test mode, the script logs the IP as blocked regardless of the abuse score.  
+4. IP Cleanup Feature: The module has an IP Cleanup feature that automatically deletes expired IP records. The cleanup process is triggered once per day by the first logged IP. This functionality can be enabled or disabled, and the IP record expiration period can be configured in the settings "IP Cleanup Period (in days)".  
+5. Manual Whitelisting and Blacklisting: The script checks if an IP is manually whitelisted or blacklisted before it does anything else. Manually whitelisted IPs will bypass the AbuseIPDB check, and manually blacklisted IPs will be immediately blocked. Enter the IP addresses separated by commas without any spaces, like this: `192.168.1.1,192.168.2.2,192.168.3.3`.
+6. Additional IP Blacklist File Option: The module offers an advanced IP blacklist feature. Administrators can enable or disable this functionality through the "Enable IP Blacklist File?" setting in the Zen Cart admin panel. Once enabled, the module examines a designated blacklist file for every incoming IP address. The blacklist file should list one complete or partial IP address per line. If there is a match, the corresponding IP will be promptly blocked, bypassing any other checks or scoring methods. This feature provides administrators with enhanced control over blocking specific IP addresses by utilizing complete or partial matches from the blacklist file.    
+7. Logging: If logging is enabled, log files are created when an IP is blocked, whether manually or based on the AbuseIPDB score. If API logging is enabled, a separate log file is also created for API calls. The location of these log files can be configured in the `ABUSEIPDB_LOG_FILE_PATH` setting in the Zen Cart admin panel.  
+8. Skipping IP Check for Known Spiders: If the "Allow Spiders?" setting (`ABUSEIPDB_SPIDER_ALLOW`) is enabled, known spiders will be skipped in the IP check and logging process, as they are not subject to AbuseIPDB scoring. This can be useful for avoiding unnecessary API calls and log entries for spider sessions.  
+9. Spider Detection: The script utilizes a file called `spiders.txt` provided by Zen Cart to identify known spiders, including search engine bots and web crawlers. It reads the user agent from the HTTP request and compares it against the entries in the spiders.txt file. If a match is found, indicating that the user agent corresponds to a known spider, the spider flag is set to true. This flag determines the script's behavior, enabling it to bypass certain checks or execute specific actions tailored for spider sessions.  
 10. **Enhanced "Who's Online" Page Features**  
     - Real-Time Threat Assessment: Displays AbuseIPDB confidence scores for each visitor, enabling real-time assessment of potential threats. Clicking on a score redirects to the AbuseIPDB website for detailed information about the IP address.  
     - Interactive IP Status Icons:  
@@ -122,34 +122,35 @@ Change the `'column'` and `'sort'` values as desired.
     - The **"Enable IP Blacklist File"** setting must be set to **true** in the configuration.  
     - Ensure the optional files `blacklist.txt` and `whos_online.php` are uploaded to activate these features.  
 
-
 ## SCRIPT LOGIC
+
 This section provides an understanding of the logic steps involved in checking an IP and creating the corresponding log files:  
 
-1.	IP Whitelisting: The script first checks if the IP is whitelisted. If it is, the IP is permitted without further processing.  
-2.	Manual IP Blocking: If the IP is not whitelisted, the script checks if the IP is manually blocked. If it is, the IP address is logged as blocked in the cache and a corresponding log file is generated. The log file creation details are as follows:  
+1. IP Whitelisting: The script first checks if the IP is whitelisted. If it is, the IP is permitted without further processing.  
+2. Manual IP Blocking: If the IP is not whitelisted, the script checks if the IP is manually blocked. If it is, the IP address is logged as blocked in the cache and a corresponding log file is generated. The log file creation details are as follows:  
     - File Name: `abuseipdb_blocked_cache_<date>.log`
     - Location: `ABUSEIPDB_LOG_FILE_PATH`
-3.	IP Cache Lookup: If the IP is neither whitelisted nor manually blocked, the script then looks for the IP in the database cache.  
+3. IP Cache Lookup: If the IP is neither whitelisted nor manually blocked, the script then looks for the IP in the database cache.  
     - a. If the IP is found in the cache and the cache has not expired: 
       - The abuse score is retrieved from the cache. 
       - If the abuse score is above the threshold or the IP is in test mode, the IP is logged as blocked in the cache and a log file is created with the same details as described above.
     - b. If the IP is not found in the cache or the cache has expired: - An API call is made to AbuseIPDB to fetch the abuse score for the IP. - The database cache is then updated with the new abuse score and timestamp.  
     - c. Skip IP check for known spiders: If the IP is identified as a known spider and the ABUSEIPDB_SPIDER_ALLOW setting is enabled, the IP check and logging steps are skipped for spiders.  
     - d. Spider Logging: If Spider logging is enabled, a separate log file for spiders that bypassed an ip check is created.  
-4.  Database Cleanup: The script's function periodically removes old IP records from the database when triggered, if the cleanup feature is enabled. This operation is performed only once per day, as indicated by the update of the maintenance timestamp.  
-5.	API Logging: If API logging is enabled, a separate log file for API calls is created. The log file creation details are as follows:  
+4. Database Cleanup: The script's function periodically removes old IP records from the database when triggered, if the cleanup feature is enabled. This operation is performed only once per day, as indicated by the update of the maintenance timestamp.  
+5. API Logging: If API logging is enabled, a separate log file for API calls is created. The log file creation details are as follows:  
     - File Name: `abuseipdb_api_call_date.log`
     - Location: `ABUSEIPDB_LOG_FILE_PATH`  
-6.	IP Blocking: If the abuse score is above the threshold or the IP is in test mode, the IP address is logged as blocked (either from the API call or from the cache) and a corresponding log file is created. The log file creation details are as follows:  
+6. IP Blocking: If the abuse score is above the threshold or the IP is in test mode, the IP address is logged as blocked (either from the API call or from the cache) and a corresponding log file is created. The log file creation details are as follows:  
     - File Name: `abuseipdb_blocked_\<date.log`
     - Location: `ABUSEIPDB_LOG_FILE_PATH`
-7.	Safe IP: If none of the above conditions trigger a block, the IP is considered safe, and the script proceeds without further action.  
+7. Safe IP: If none of the above conditions trigger a block, the IP is considered safe, and the script proceeds without further action.  
 
 ## SUPPORT
+
 For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/showthread.php?229438-AbuseIPDB-Integration-module) or visit the [GitHub repository](https://github.com/CcMarc/AbuseIPDB) for additional resources, updates, or to report issues.
 
-## WHAT'S NEW:
+## WHAT'S NEW
 
 - **v3.0.1**: Bug Fix - resolved an issue with undefined constants.
 - **v3.0.0**: Migrated to Encapsulated Plugin Architecture.  
@@ -172,5 +173,6 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 - **v2.0.0**: Switched from session caching to database caching for improved performance and reliability.  
 - **v1.0.2**: Fixed a typo in the admin installation and corrected the license type.  
 
-## LICENSE:  
-This module is released under the GNU General Public License (GPL).  
+## LICENSE
+
+This module is released under the GNU General Public License (GPL).
