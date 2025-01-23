@@ -1,5 +1,5 @@
 
-# AbuseIPDB v3.0.1 for Zen Cart 2.1.0 or later
+# AbuseIPDB v3.0.3 for Zen Cart 2.1.0 or later
 
 ## Prerequisites
 
@@ -68,7 +68,9 @@ To install or upgrade the AbuseIPDB plugin, upload the following files to your Z
 zc_plugins/AbuseIPDB/vX.X.X/manifest.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/abuseipdb_settings.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/includes/auto_loaders/config.abuseipdb.php
+
 zc_plugins/AbuseIPDB/vX.X.X/admin/includes/classes/observers/auto.abuseipdbwidget.php
+
 zc_plugins/AbuseIPDB/vX.X.X/admin/includes/languages/english/extra_definitions/lang.abuseipdb_admin_names.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php
 zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/auto_loaders/config.abuseipdb.php
@@ -79,6 +81,17 @@ zc_plugins/AbuseIPDB/vX.X.X/installer/ScriptedInstaller.php
 Optional_Install/includes/blacklist.txt (if upgrading from below v3.0.0 this will be there already)
 Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php - (**NEW** file updated for this version)
 ```
+
+### Optional | Adding the Admin Dashboard Widget
+
+To integrate the (optional) AbuseIPDB dashboard widget, follow these steps:
+
+#### ZenCart 2.1.0 or later
+
+- Obtain your user ID by visiting the [Contributors Badge](https://www.abuseipdb.com/account/contributor) section of the AbuseIPDB Dasbhoard in its backend.
+- After logging in, you will notice there is a large code block present with HTML inside. Within that block, look careful for an `<a>` tag at the start of that block. You'll want to look for a line that looks like: `<a href="https://www.abuseipdb.com/user/XXXXXX" title="AbuseIPDB is an IP address blacklist for webmasters and sysadmins to report IP addresses engaging in abusive behavior on their networks">`. Where you see the `XXXXXX` in the example, should be a number that represents your Member ID. (**NOTE**: This is different than your API Key which is your main access key to turn on the module.)
+- With your Member ID in hand, proceed to the ZenCart dashboard area and navigate to `Configuration > AbuseIPDB Settings` and look for a configuration setting that reads: "AbuseIPDB: User ID". Click on that and enter SOLELY the number that you were provided. Entering the number here will enable the Widget and if detected correctly, will boost you as a `Webmaster and Supporter` and thus boost your ability to report back to AbuseIPDB.
+- If you did this correctly, you will notice that there is a new widget present on the Admin Dashboard area. This is all that needs to be done. You can disable this widget by removing your UserID from the same setting and clearing it.
 
 ## THINGS TO KNOW
 
@@ -152,6 +165,8 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
+- **v3.0.3**: Transitioned the AbuseIPDB Widget to an observer class for improved modularity and encapsulation.
+- **v3.0.2**: Added total settings count display to ensure all settings are accounted for.
 - **v3.0.1**: Bug Fix - resolved an issue with undefined constants.
 - **v3.0.0**: Migrated to Encapsulated Plugin Architecture.  
 - **v2.1.6**: Minor code optimizations for maintainability.  

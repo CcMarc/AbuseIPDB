@@ -7,8 +7,8 @@
  * @contributor Retched
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     2.1.2
- * @updated     7-7-2024
+ * @version     3.0.3
+ * @updated     1-22-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 if (!zen_is_superuser() && !check_page(FILENAME_ORDERS, '')) return;
