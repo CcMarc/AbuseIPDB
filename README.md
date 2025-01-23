@@ -89,20 +89,19 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
 	**Widget Configuration Steps**:
 
 	- To integrate the (optional) AbuseIPDB dashboard widget, follow these steps:
-		- A new field is available in the configuration page to enable this feature.
 		- You will need your profile ID number, which can be found in the **Account Summary** section of AbuseIPDB.  
 		- Obtain your profile ID by visiting the [Contributors Badge](https://www.abuseipdb.com/account/contributor) section of the AbuseIPDB dashboard.
 		- After logging in, locate the HTML block in the Contributors Badge section. Look carefully for an `<a>` tag, which will contain a line like this:  
 		`<a href="https://www.abuseipdb.com/user/XXXXXX" title="AbuseIPDB is an IP address blacklist for webmasters and sysadmins to report IP addresses engaging in abusive behavior on their networks">`.  
 		The `XXXXXX` in the URL is your Member ID. (**Note**: This is different from your API Key, which is required to activate the module.)
-	- Once you have your Member ID, navigate to **Configuration > AbuseIPDB Settings** in the ZenCart admin area.
-	- Locate the configuration setting labeled "AbuseIPDB: User ID."
-	- Enter only the numeric Member ID obtained earlier.
-	- Enable Admin Widget? - Set this to true which will enable the widget to display on your Admin Dashboard and, if configured correctly, grant you the role of `Supporter`, boosting your ability to report back to AbuseIPDB.
-	- To disable the widget, set Enable Admin Widget? back to false. Note doing this may result in losing the **Supporter** role.
+		- Once you have your Member ID, navigate to **Configuration > AbuseIPDB Settings** in the ZenCart admin area.
+		- Locate the configuration setting labeled "AbuseIPDB: User ID."
+		- Enter only the numeric Member ID obtained earlier.
+		- Enable Admin Widget? - Set this to true which will enable the widget to display on your Admin Dashboard and, if configured correctly, grant you the role of `Supporter`, boosting your ability to report back to AbuseIPDB.
+		- To disable the widget, set Enable Admin Widget? back to false. Note doing this may result in losing the **Supporter** role.
 
-	- **Important**:  
-	Your AbuseIPDB profile must be set to public to retrieve the profile ID. If your profile is private, the profile ID will not be accessible.
+		- **Important**:  
+		Your AbuseIPDB profile must be set to public to retrieve the profile ID. If your profile is private, the profile ID will not be accessible.
 
 2. Cache Expiry: The script checks the database cache to avoid excessive API calls. If the cache for a specific IP address has expired, the script makes a new API call.  
 3. Test Mode: The script provides a test mode for debugging. When an IP is in test mode, the script logs the IP as blocked regardless of the abuse score.  
