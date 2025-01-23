@@ -98,7 +98,7 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
 		- Locate the configuration setting labeled "AbuseIPDB: User ID."
 		- Enter only the numeric Member ID obtained earlier.
 		- Now find the setting **Enable Admin Widget?** - Set this to **true** which will enable the widget to display on your Admin Dashboard and, if configured correctly, grant you the role of `Supporter`, boosting your ability to report back to AbuseIPDB.
-		- To disable the widget, set Enable Admin Widget? back to false. Note doing this may result in losing the **Supporter** role.
+		- To disable the widget, set **Enable Admin Widget?** back to **false**. Note doing this may result in losing the **Supporter** role.
 
 2. Cache Expiry: The script checks the database cache to avoid excessive API calls. If the cache for a specific IP address has expired, the script makes a new API call.  
 3. Test Mode: The script provides a test mode for debugging. When an IP is in test mode, the script logs the IP as blocked regardless of the abuse score.  
