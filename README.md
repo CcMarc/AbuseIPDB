@@ -13,7 +13,7 @@ The module supports caching to reduce the number of API calls, test mode for deb
 Additionally, it allows manual whitelisting, blacklisting, and country blocking to give you even greater control over access to your site.
 
 **Major Update Notice:**
-If you are upgrading from v3.0.4 or earlier, you must uninstall the previous module before installing v4.0.0.
+If you are upgrading from v3.0.4 or earlier, you must uninstall the previous module before installing v4.0.0.  
 ⚡ Important: Be sure to screen-capture your existing settings before uninstalling AbuseIPDB **v3.0.4 or lower** to preserve your configuration.
 
 ## INSTALLATION AND UPGRADE
