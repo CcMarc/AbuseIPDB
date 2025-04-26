@@ -1,5 +1,5 @@
 
-# AbuseIPDB v3.0.4 for Zen Cart 2.1.0 or later
+# AbuseIPDB v4.0.0 for Zen Cart 2.1.0 or later
 
 ## Prerequisites
 
@@ -8,7 +8,13 @@
 
 ## ABOUT THIS MODULE
 
-This module is an AbuseIPDB integration for Zen Cart, designed to help protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access to the site if the score exceeds a predefined threshold. The module also supports caching to reduce the number of API calls, a test mode for debugging, and logging for monitoring blocked IPs. Additionally, it allows for manual whitelisting and blacklisting of IP addresses to give you greater control over access to your site.
+This module is an AbuseIPDB integration for Zen Cart, designed to help protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access to the site if the score exceeds a predefined threshold.
+The module supports caching to reduce the number of API calls, test mode for debugging, logging for monitoring blocked IPs, and a range of new flood protection features based on IP prefixes and country-level analysis.
+Additionally, it allows manual whitelisting, blacklisting, and country blocking to give you even greater control over access to your site.
+
+Major Update Notice:
+If you are upgrading from v3.0.4 or earlier, you must uninstall the previous module before installing v4.0.0.
+⚡ Important: Be sure to screen-capture your existing settings before uninstalling AbuseIPDB **v3.0.4 or lower** to preserve your configuration.
 
 ## INSTALLATION AND UPGRADE
 
@@ -120,6 +126,38 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
     - The **"Enable IP Blacklist File"** setting must be set to **true** in the configuration.  
     - Ensure the optional files `blacklist.txt` and `whos_online.php` are uploaded to activate these features.  
 
+11. **Flood Tracking and Flood Blocking (NEW!)**  
+    - The module now tracks IP hits based on:
+      - 2-octet prefixes (e.g., `192.168`)
+      - 3-octet prefixes (e.g., `192.168.1`)
+      - Country codes (e.g., `US`, `VN`)
+    - If the number of hits from a prefix or country exceeds a configurable threshold, automatic blocking will occur.
+    - Country and foreign (non-home country) floods are handled separately with their own thresholds for maximum flexibility.
+    - Administrators can now manually block entire countries via configuration settings.
+
+12. **Foreign Country Flood Detection (NEW!)**  
+    - You can separately monitor "foreign" traffic — meaning traffic originating outside your store’s configured home country.
+    - If hits from a foreign country exceed the configured threshold, blocking will occur automatically.
+
+13. **Manual Country Blocking (NEW!)**  
+    - Administrators can manually specify a list of country codes to instantly block (e.g., `VN,CN,RU`) without waiting for AbuseIPDB scores or flood detection to trigger.
+    - Supports both proactive (manual) and reactive (automatic) defense strategies.
+
+14. **Score-Safe Flood Logic**  
+    - Even if flood thresholds are crossed, an IP must meet a minimum AbuseIPDB score before blocking occurs.
+    - Ensures legitimate customers are not accidentally blocked during sudden spikes in real traffic (e.g., newsletters, sales).
+
+15. **Automatic API Usage Failsafe**  
+    - If the AbuseIPDB API quota is exceeded, API calls will fail gracefully.
+    - IP scores of `-1` are treated as neutral and **will not** trigger flood or country blocking — keeping your site accessible even when the API is unavailable.
+
+16. **Expanded Admin Settings**  
+    - New settings added:
+      - Foreign Flood Threshold
+      - Minimum Score for Country Flood Blocking
+      - Manual Blocked Country List
+    - Provides fine-grained control over flood detection, country-level blocking, and API safety margins.
+
 ## SCRIPT LOGIC
 
 This section provides an understanding of the logic steps involved in checking an IP and creating the corresponding log files:  
@@ -135,14 +173,25 @@ This section provides an understanding of the logic steps involved in checking a
     - b. If the IP is not found in the cache or the cache has expired: - An API call is made to AbuseIPDB to fetch the abuse score for the IP. - The database cache is then updated with the new abuse score and timestamp.  
     - c. Skip IP check for known spiders: If the IP is identified as a known spider and the ABUSEIPDB_SPIDER_ALLOW setting is enabled, the IP check and logging steps are skipped for spiders.  
     - d. Spider Logging: If Spider logging is enabled, a separate log file for spiders that bypassed an ip check is created.  
-4. Database Cleanup: The script's function periodically removes old IP records from the database when triggered, if the cleanup feature is enabled. This operation is performed only once per day, as indicated by the update of the maintenance timestamp.  
-5. API Logging: If API logging is enabled, a separate log file for API calls is created. The log file creation details are as follows:  
+4. **Flood Tracking and Flood Blocking (NEW!)**: After an IP is cached or updated, the system automatically tracks hits against:
+    - 2-octet prefixes (e.g., `192.168`)
+    - 3-octet prefixes (e.g., `192.168.1`)
+    - Country codes (e.g., `US`, `VN`)
+
+    Additional behavior:
+    - If hits from a prefix or country exceed the configured thresholds, the visitor may be automatically blocked (even if their AbuseIPDB score is low).
+    - Separate Foreign Country Flood Detection monitors traffic from countries other than the store's Default Country.
+    - Manual Country Blocking allows specifying country codes (e.g., `VN,CN,RU`) that are always blocked without needing score checks.
+    - Score-Safe Rule: Even if a flood is detected, an IP will only be blocked if it meets the configured Minimum Score for Flood Blocking.
+    - API Fail-Safe: If AbuseIPDB API calls are exhausted and return `-1` scores, flood or country blocking will not trigger — ensuring legitimate traffic is not mistakenly locked out.
+5. Database Cleanup: The script's function periodically removes old IP records from the database when triggered, if the cleanup feature is enabled. This operation is performed only once per day, as indicated by the update of the maintenance timestamp.  
+6. API Logging: If API logging is enabled, a separate log file for API calls is created. The log file creation details are as follows:  
     - File Name: `abuseipdb_api_call_date.log`
     - Location: `ABUSEIPDB_LOG_FILE_PATH`  
-6. IP Blocking: If the abuse score is above the threshold or the IP is in test mode, the IP address is logged as blocked (either from the API call or from the cache) and a corresponding log file is created. The log file creation details are as follows:  
-    - File Name: `abuseipdb_blocked_\<date.log`
+7. IP Blocking: If the abuse score is above the threshold or the IP is in test mode, the IP address is logged as blocked (either from the API call or from the cache) and a corresponding log file is created. The log file creation details are as follows:  
+    - File Name: `abuseipdb_blocked_date.log`
     - Location: `ABUSEIPDB_LOG_FILE_PATH`
-7. Safe IP: If none of the above conditions trigger a block, the IP is considered safe, and the script proceeds without further action.  
+8. Safe IP: If none of the above conditions trigger a block, the IP is considered safe, and the script proceeds without further action.  
 
 ## SUPPORT
 
@@ -150,6 +199,7 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
+- **v4.0.0**: Major update with full flood tracking (2-octet, 3-octet, country), foreign flood detection, manual country blocking, and score-safe protection logic.
 - **v3.0.4**: Unified GitHub merges with minor updates for consistency.
 - **v3.0.3**: Transitioned the AbuseIPDB Widget to an observer class for improved modularity and encapsulation.
 - **v3.0.2**: Added total settings count display to ensure all settings are accounted for.

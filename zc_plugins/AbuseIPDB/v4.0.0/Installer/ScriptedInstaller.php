@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     3.0.4
- * @updated     1-23-2025
+ * @version     4.0.0
+ * @updated     4-26-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -17,9 +17,9 @@ class ScriptedInstaller extends ScriptedInstallBase
 {
     protected string $configGroupTitle = 'AbuseIPDB Configuration';
 
-    public const ABUSEIPDB_CURRENT_VERSION = '3.0.4';
+    public const ABUSEIPDB_CURRENT_VERSION = '4.0.0';
 
-    private const SETTING_COUNT = 27;
+    private const SETTING_COUNT = 41;
     protected int $configurationGroupId;
 
     /**
@@ -40,6 +40,9 @@ class ScriptedInstaller extends ScriptedInstallBase
             }
             if (!defined('TABLE_ABUSEIPDB_MAINTENANCE')) {
                 define('TABLE_ABUSEIPDB_MAINTENANCE', 'abuseipdb_maintenance');
+            }
+            if (!defined('TABLE_ABUSEIPDB_FLOOD')) {
+                define('TABLE_ABUSEIPDB_FLOOD', 'abuseipdb_flood');
             }
 
             // Create or get configuration group ID
@@ -79,8 +82,22 @@ class ScriptedInstaller extends ScriptedInstallBase
 				('Blacklist File Path', 'ABUSEIPDB_BLACKLIST_FILE_PATH', 'includes/blacklist.txt', 'The path to the file containing blacklisted IP addresses.<br>', {$this->configurationGroupId}, NOW(), 220, NULL, NULL),
 				('Enable IP Cleanup?', 'ABUSEIPDB_CLEANUP_ENABLED', 'true', 'Enable or disable automatic IP cleanup<br>', $this->configurationGroupId, NOW(), 230, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 				('IP Cleanup Period (in days)', 'ABUSEIPDB_CLEANUP_PERIOD', '10', 'Expiration period in days for IP records<br>', $this->configurationGroupId, NOW(), 240, NULL, NULL),
-				('Enable Admin Widget?', 'ABUSEIPDB_WIDGET_ENABLED', 'false', 'Enable Admin Widget?<br><br>(This is an <strong>optional setting</strong>. You must install it separately. Please refer to the module <strong>README</strong> for detailed instructions.)<br>', $this->configurationGroupId, NOW(), 245, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
-				('Enable Debug?', 'ABUSEIPDB_DEBUG', 'false', '', $this->configurationGroupId, NOW(), 250, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),');
+				('Enable 2-Octet Flood Detection?', 'ABUSEIPDB_FLOOD_2OCTET_ENABLED', 'false', '', {$this->configurationGroupId}, NOW(), 260, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+				('2-Octet Flood Threshold', 'ABUSEIPDB_FLOOD_2OCTET_THRESHOLD', '10', '', {$this->configurationGroupId}, NOW(), 270, NULL, NULL),
+				('2-Octet Flood Reset (seconds)', 'ABUSEIPDB_FLOOD_2OCTET_RESET', '3600', '', {$this->configurationGroupId}, NOW(), 280, NULL, NULL),
+				('Enable 3-Octet Flood Detection?', 'ABUSEIPDB_FLOOD_3OCTET_ENABLED', 'false', '', {$this->configurationGroupId}, NOW(), 290, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+				('3-Octet Flood Threshold', 'ABUSEIPDB_FLOOD_3OCTET_THRESHOLD', '5', '', {$this->configurationGroupId}, NOW(), 300, NULL, NULL),
+				('3-Octet Flood Reset (seconds)', 'ABUSEIPDB_FLOOD_3OCTET_RESET', '3600', '', {$this->configurationGroupId}, NOW(), 310, NULL, NULL),
+				('Enable Country Flood Detection?', 'ABUSEIPDB_FLOOD_COUNTRY_ENABLED', 'false', 'Enable or disable blocking based on country-level request counts.', {$this->configurationGroupId}, NOW(), 320, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+				('Country Flood Threshold', 'ABUSEIPDB_FLOOD_COUNTRY_THRESHOLD', '50', 'Number of requests from the same country before triggering flood protection.', {$this->configurationGroupId}, NOW(), 330, NULL, NULL),
+				('Country Flood Reset (seconds)', 'ABUSEIPDB_FLOOD_COUNTRY_RESET', '3600', 'How often to reset country flood counters (in seconds).', {$this->configurationGroupId}, NOW(), 340, NULL, NULL),
+				('Country Flood Minimum Score', 'ABUSEIPDB_FLOOD_COUNTRY_MIN_SCORE', '5', 'Minimum AbuseIPDB score required before a country-based block is enforced. (Set to 0 to block all if threshold is exceeded.)', {$this->configurationGroupId}, NOW(), 350, NULL, NULL),
+				('Enable Foreign Flood Detection?', 'ABUSEIPDB_FOREIGN_FLOOD_ENABLED', 'false', '', {$this->configurationGroupId}, NOW(), 360, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+				('Foreign Flood Threshold', 'ABUSEIPDB_FOREIGN_FLOOD_THRESHOLD', '50', 'Maximum allowed requests from a foreign country (non-local) before blocking occurs.', {$this->configurationGroupId}, NOW(), 370, NULL, NULL),
+				('Manually Blocked Country Codes', 'ABUSEIPDB_BLOCKED_COUNTRIES', '', 'Comma-separated list of ISO country codes to always block immediately, e.g., RU,CN,BR. (no spaces)', {$this->configurationGroupId}, NOW(), 380, NULL, NULL),
+				('Default Country Code', 'ABUSEIPDB_DEFAULT_COUNTRY', 'US', 'Store\'s default country code (e.g., US, CA, GB). Used for foreign flood detection.', $this->configurationGroupId, NOW(), 390, NULL, NULL),
+				('Enable Admin Widget?', 'ABUSEIPDB_WIDGET_ENABLED', 'false', 'Enable Admin Widget?<br><br>(This is an <strong>optional setting</strong>. You must install it separately. Please refer to the module <strong>README</strong> for detailed instructions.)<br>', $this->configurationGroupId, NOW(), 400, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+				('Enable Debug?', 'ABUSEIPDB_DEBUG', 'false', '', $this->configurationGroupId, NOW(), 410, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),');
 				"
             );
 			
@@ -90,7 +107,9 @@ class ScriptedInstaller extends ScriptedInstallBase
                 "CREATE TABLE IF NOT EXISTS " . TABLE_ABUSEIPDB_CACHE . " (
                     ip VARCHAR(45) NOT NULL,
                     score INT NOT NULL,
+                    country_code CHAR(2) DEFAULT NULL,
                     timestamp DATETIME NOT NULL,
+					flood_tracked TINYINT(1) NOT NULL DEFAULT 0,
                     PRIMARY KEY (ip)
                 ) ENGINE=InnoDB"
             );
@@ -99,6 +118,17 @@ class ScriptedInstaller extends ScriptedInstallBase
                     last_cleanup DATETIME NOT NULL,
                     timestamp DATETIME NOT NULL,
                     PRIMARY KEY (last_cleanup)
+                ) ENGINE=InnoDB"
+            );
+			
+			$this->executeInstallerSql(
+                "CREATE TABLE IF NOT EXISTS " . TABLE_ABUSEIPDB_FLOOD . " (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    prefix VARCHAR(45) NOT NULL,
+                    prefix_type ENUM('2','3','country') NOT NULL,
+                    country_code CHAR(2) DEFAULT NULL,
+                    count INT DEFAULT 0,
+                    timestamp DATETIME NOT NULL
                 ) ENGINE=InnoDB"
             );
 
@@ -181,59 +211,6 @@ class ScriptedInstaller extends ScriptedInstallBase
     }
 	
     /**
-     * Upgrade Logic
-     */
-	
-	protected function executeUpgrade($oldVersion): bool
-	{
-    global $db;
-
-    try {
-    	// Purge old files
-        if (!$this->purgeOldFiles()) {
-           return false;
-        }
-        // Create or get configuration group ID
-        $this->configurationGroupId = $this->getOrCreateConfigGroupId(
-        $this->configGroupTitle,
-        'Configuration settings for the AbuseIPDB plugin.',
-         null
-         );
-			
-	    // Delete and reinsert the problematic configuration key
-	    $db->Execute(
-	    "DELETE FROM " . TABLE_CONFIGURATION . " 
-	    WHERE configuration_key = 'ABUSEIPDB_VERSION'"
-	    );
-
-		
-        // Insert configuration settings
-        $this->executeInstallerSql(
-			"INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
-			(configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
-			VALUES
-			('Plugin Version', 'ABUSEIPDB_VERSION', '0.0.0', 'The <em>AbuseIPDB</em> installed version.<br>', $this->configurationGroupId, NOW(), 10, NULL, NULL),
-			('Total Settings', 'ABUSEIPDB_SETTINGS_COUNT', '0', 'There should be <strong>XX entries</strong> within the AbuseIPDB Configuration settings screen (including this one).<br><br>If any settings are missing, uninstall and reinstall the plugin to resolve.<br>', $this->configurationGroupId, NOW(), 25, NULL, NULL),
-			('Enable Admin Widget?', 'ABUSEIPDB_WIDGET_ENABLED', 'false', 'Enable Admin Widget?<br><br>(This is an <strong>optional setting</strong>. You must install it separately. Please refer to the module <strong>README</strong> for detailed instructions.)<br>', $this->configurationGroupId, NOW(), 245, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),');
-			"
-        );
-
-	    
-	    // Update the plugin version and settings count in the configuration table
-		$this->updatePluginMetadata($db);
-
-
-        return true;
-    } catch (Exception $e) {
-        // Log errors during the upgrade process
-        error_log('Error upgrading AbuseIPDB plugin to version ' . self::ABUSEIPDB_CURRENT_VERSION . ': ' . $e->getMessage());
-        return false;
-		}
-	}
-
-
-
-    /**
      * Uninstall Logic
      */
     protected function executeUninstall(): bool
@@ -246,6 +223,9 @@ class ScriptedInstaller extends ScriptedInstallBase
             if (!defined('TABLE_ABUSEIPDB_MAINTENANCE')) {
                 define('TABLE_ABUSEIPDB_MAINTENANCE', 'abuseipdb_maintenance');
             }
+			if (!defined('TABLE_ABUSEIPDB_FLOOD')) {
+            define('TABLE_ABUSEIPDB_FLOOD', 'abuseipdb_flood');
+			}
 
             // Deregister admin page
             zen_deregister_admin_pages('configAbuseIPDB');
@@ -256,6 +236,7 @@ class ScriptedInstaller extends ScriptedInstallBase
             // Drop tables
             $this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_CACHE);
             $this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_MAINTENANCE);
+			$this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_FLOOD);
 
             return true;
         } catch (Exception $e) {

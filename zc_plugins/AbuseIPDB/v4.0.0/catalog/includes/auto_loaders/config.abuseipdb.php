@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     3.0.0
- * @updated     1-19-2025
+ * @version     4.0.0
+ * @updated     4-26-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -18,6 +18,10 @@ if (!defined('TABLE_ABUSEIPDB_CACHE')) {
 
 if (!defined('TABLE_ABUSEIPDB_MAINTENANCE')) {
     define('TABLE_ABUSEIPDB_MAINTENANCE', 'abuseipdb_maintenance');
+}
+
+if (!defined('TABLE_ABUSEIPDB_FLOOD')) {
+    define('TABLE_ABUSEIPDB_FLOOD', 'abuseipdb_flood');
 }
 
 // Register the observer class
