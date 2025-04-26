@@ -12,7 +12,7 @@ This module is an AbuseIPDB integration for Zen Cart, designed to help protect y
 The module supports caching to reduce the number of API calls, test mode for debugging, logging for monitoring blocked IPs, and a range of new flood protection features based on IP prefixes and country-level analysis.
 Additionally, it allows manual whitelisting, blacklisting, and country blocking to give you even greater control over access to your site.
 
-Major Update Notice:
+**Major Update Notice:**
 If you are upgrading from v3.0.4 or earlier, you must uninstall the previous module before installing v4.0.0.
 ⚡ Important: Be sure to screen-capture your existing settings before uninstalling AbuseIPDB **v3.0.4 or lower** to preserve your configuration.
 
