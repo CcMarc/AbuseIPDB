@@ -173,17 +173,26 @@ This section provides an understanding of the logic steps involved in checking a
     - b. If the IP is not found in the cache or the cache has expired: - An API call is made to AbuseIPDB to fetch the abuse score for the IP. - The database cache is then updated with the new abuse score and timestamp.  
     - c. Skip IP check for known spiders: If the IP is identified as a known spider and the ABUSEIPDB_SPIDER_ALLOW setting is enabled, the IP check and logging steps are skipped for spiders.  
     - d. Spider Logging: If Spider logging is enabled, a separate log file for spiders that bypassed an ip check is created.  
-4. **Flood Tracking and Flood Blocking (NEW!)**: After an IP is cached or updated, the system automatically tracks hits against:
-    - 2-octet prefixes (e.g., `192.168`)
-    - 3-octet prefixes (e.g., `192.168.1`)
-    - Country codes (e.g., `US`, `VN`)
+4. **Flood Tracking and Flood Blocking (NEW!)**: After an IP is cached or updated, the system automatically tracks hits against:  
+    - 2-octet prefixes (e.g., `192.168`)  
+    - 3-octet prefixes (e.g., `192.168.1`)  
+    - Country codes (e.g., `US`, `VN`)  
 
-    Additional behavior:
-    - If hits from a prefix or country exceed the configured thresholds, the visitor may be automatically blocked (even if their AbuseIPDB score is low).
-    - Separate Foreign Country Flood Detection monitors traffic from countries other than the store's Default Country.
-    - Manual Country Blocking allows specifying country codes (e.g., `VN,CN,RU`) that are always blocked without needing score checks.
-    - Score-Safe Rule: Even if a flood is detected, an IP will only be blocked if it meets the configured Minimum Score for Flood Blocking.
-    - API Fail-Safe: If AbuseIPDB API calls are exhausted and return `-1` scores, flood or country blocking will not trigger — ensuring legitimate traffic is not mistakenly locked out.
+    Additional behavior:  
+    - If the number of hits from a prefix or country exceeds its configured threshold **within the reset window**, the visitor is blocked.  
+    - Separate thresholds exist for foreign (non-default country) traffic and can trigger independent blocking.  
+    - Manual Country Blocking allows predefined country codes (e.g., `VN,CN,RU`) to be blocked **immediately once the country code is known**, either through cache or successful API response.  
+    - **Score-Safe Rule**: Even if a flood is detected, an IP is only blocked if its AbuseIPDB score meets or exceeds the configured **minimum score threshold**.  
+    - **API Fail-Safe**: IPs returning an AbuseIPDB score of `-1` (e.g., when the API limit is reached) are treated as **neutral** and will not trigger flood or country-based blocking.
+
+    **Flood Reset Logic:**  
+    - Each prefix or country has an individual timestamp.  
+    - If the **timestamp is older** than the reset window (e.g., 1 hour), the count is **reset to 1** and the timestamp is refreshed.  
+    - If the timestamp is **within** the reset window, the count is **incremented**.  
+    - Blocking only occurs if the threshold is met **within the same reset window**.  
+    - Example: If the threshold is set to 50 hits per hour for the 2-octet prefix `192.168`, once 50 visits are recorded within a single hour, that range will be **blocked immediately**.  
+      The block remains in place **until a full hour passes** with **no new visits** from that prefix.  
+      If even one additional hit occurs during that hour, the reset timer is extended — keeping the range blocked.  
 5. Database Cleanup: The script's function periodically removes old IP records from the database when triggered, if the cleanup feature is enabled. This operation is performed only once per day, as indicated by the update of the maintenance timestamp.  
 6. API Logging: If API logging is enabled, a separate log file for API calls is created. The log file creation details are as follows:  
     - File Name: `abuseipdb_api_call_date.log`
