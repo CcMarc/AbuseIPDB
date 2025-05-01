@@ -109,8 +109,15 @@ function updateFloodPrefix($prefix, $prefixType, $countryCode, $currentTime) {
         } elseif ($prefixType == '3') {
             $resetSeconds = (int)ABUSEIPDB_FLOOD_3OCTET_RESET;
 		} elseif ($prefixType == 'country') {
+		// Check if countryCode matches the default country
+		$default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
+		if (strcasecmp($countryCode, $default_country) === 0) {
 			$resetSeconds = (int)ABUSEIPDB_FLOOD_COUNTRY_RESET;
+		} else {
+			$resetSeconds = (int)ABUSEIPDB_FLOOD_FOREIGN_RESET;
 		}
+	}
+
 
         if (time() - $lastTimestamp > $resetSeconds) {
             // Reset counter

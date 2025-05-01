@@ -19,7 +19,7 @@ class ScriptedInstaller extends ScriptedInstallBase
 
     public const ABUSEIPDB_CURRENT_VERSION = '4.0.0';
 
-    private const SETTING_COUNT = 41;
+    private const SETTING_COUNT = 43;
     protected int $configurationGroupId;
 
     /**
@@ -94,10 +94,12 @@ class ScriptedInstaller extends ScriptedInstallBase
 				('Country Flood Minimum Score', 'ABUSEIPDB_FLOOD_COUNTRY_MIN_SCORE', '5', 'Minimum AbuseIPDB score required before a country-based block is enforced. (Set to 0 to block all if threshold is exceeded.)', {$this->configurationGroupId}, NOW(), 350, NULL, NULL),
 				('Enable Foreign Flood Detection?', 'ABUSEIPDB_FOREIGN_FLOOD_ENABLED', 'false', '', {$this->configurationGroupId}, NOW(), 360, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 				('Foreign Flood Threshold', 'ABUSEIPDB_FOREIGN_FLOOD_THRESHOLD', '50', 'Maximum allowed requests from a foreign country (non-local) before blocking occurs.', {$this->configurationGroupId}, NOW(), 370, NULL, NULL),
-				('Manually Blocked Country Codes', 'ABUSEIPDB_BLOCKED_COUNTRIES', '', 'Comma-separated list of ISO country codes to always block immediately, e.g., RU,CN,BR. (no spaces)', {$this->configurationGroupId}, NOW(), 380, NULL, NULL),
-				('Default Country Code', 'ABUSEIPDB_DEFAULT_COUNTRY', 'US', 'Store\'s default country code (e.g., US, CA, GB). Used for foreign flood detection.', $this->configurationGroupId, NOW(), 390, NULL, NULL),
-				('Enable Admin Widget?', 'ABUSEIPDB_WIDGET_ENABLED', 'false', 'Enable Admin Widget?<br><br>(This is an <strong>optional setting</strong>. You must install it separately. Please refer to the module <strong>README</strong> for detailed instructions.)<br>', $this->configurationGroupId, NOW(), 400, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
-				('Enable Debug?', 'ABUSEIPDB_DEBUG', 'false', '', $this->configurationGroupId, NOW(), 410, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),');
+				('Foreign Flood Reset (seconds)', 'ABUSEIPDB_FLOOD_FOREIGN_RESET', '3600', 'How often to reset foreign flood counters (in seconds).', {$this->configurationGroupId}, NOW(), 380, NULL, NULL),
+				('Foreign Flood Minimum Score', 'ABUSEIPDB_FLOOD_FOREIGN_MIN_SCORE', '5', 'Minimum AbuseIPDB score required before a foreign-based block is enforced. (Set to 0 to block all if threshold is exceeded.)', {$this->configurationGroupId}, NOW(), 390, NULL, NULL),
+				('Manually Blocked Country Codes', 'ABUSEIPDB_BLOCKED_COUNTRIES', '', 'Comma-separated list of ISO country codes to always block immediately, e.g., RU,CN,BR. (no spaces)', {$this->configurationGroupId}, NOW(), 400, NULL, NULL),
+				('Default Country Code', 'ABUSEIPDB_DEFAULT_COUNTRY', 'US', 'Store\'s default country code (e.g., US, CA, GB). Used for foreign flood detection.', $this->configurationGroupId, NOW(), 410, NULL, NULL),
+				('Enable Admin Widget?', 'ABUSEIPDB_WIDGET_ENABLED', 'false', 'Enable Admin Widget?<br><br>(This is an <strong>optional setting</strong>. You must install it separately. Please refer to the module <strong>README</strong> for detailed instructions.)<br>', $this->configurationGroupId, NOW(), 420, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+				('Enable Debug?', 'ABUSEIPDB_DEBUG', 'false', '', $this->configurationGroupId, NOW(), 430, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),');
 				"
             );
 			
