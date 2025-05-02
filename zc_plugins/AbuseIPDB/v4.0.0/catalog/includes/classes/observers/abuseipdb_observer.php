@@ -311,15 +311,16 @@ class abuseipdb_observer extends base {
                     $countryCode = '';
                 }
 
-                // If the IP is in the database, update the score and timestamp
-                if (!$ip_info->EOF) {
-                    $update_query = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET score = " . (int)$abuseScore . ", country_code = '" . zen_db_input($countryCode) . "', timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
-                    $db->Execute($update_query);
-                } else { // If the IP is not in the database, insert it
-                    $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, country_code, timestamp, flood_tracked) 
-                                     VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", '" . zen_db_input($countryCode) . "', NOW(), 0)";
-                    $db->Execute($insert_query);
-                }
+				// If the IP is in the database, update the score and timestamp
+				if (!$ip_info->EOF) {
+					$update_query = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET score = " . (int)$abuseScore . ", country_code = '" . zen_db_input($countryCode) . "', timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
+					$db->Execute($update_query);
+				} else { // If the IP is not in the database, insert it
+					$insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, country_code, timestamp, flood_tracked) 
+									 VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", '" . zen_db_input($countryCode) . "', NOW(), 0) 
+									 ON DUPLICATE KEY UPDATE score = VALUES(score), country_code = VALUES(country_code), timestamp = NOW()";
+					$db->Execute($insert_query);
+				}
 
                 $log_file_path_api = $log_file_path . $log_file_name_api;
                 $log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' API call. Score: ' . $abuseScore . PHP_EOL;
