@@ -8,9 +8,9 @@
 
 ## ABOUT THIS MODULE
 
-This module is an AbuseIPDB integration for Zen Cart, designed to help protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access to the site if the score exceeds a predefined threshold.
-The module supports caching to reduce the number of API calls, test mode for debugging, logging for monitoring blocked IPs, and a range of new flood protection features based on IP prefixes and country-level analysis.
-Additionally, it allows manual whitelisting, blacklisting, and country blocking to give you even greater control over access to your site.
+This module is an AbuseIPDB integration for Zen Cart, designed to protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access if the score exceeds a predefined threshold.
+The module supports caching with extended duration for high-scoring IPs to optimize API calls, test mode for debugging, logging for monitoring blocked IPs, and advanced flood protection based on IP prefixes and country-level analysis.
+Additionally, it offers manual whitelisting, blacklisting, and country blocking for precise control over site access.
 
 **Major Update Notice:**
 If you are upgrading from v3.0.4 or earlier, you must uninstall the previous module before installing v4.0.0.  
@@ -127,13 +127,9 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
     - Ensure the optional files `blacklist.txt` and `whos_online.php` are uploaded to activate these features.  
 
 11. **Flood Tracking and Flood Blocking (NEW!)**  
-    - The module now tracks IP hits based on:
-      - 2-octet prefixes (e.g., `192.168`)
-      - 3-octet prefixes (e.g., `192.168.1`)
-      - Country codes (e.g., `US`, `VN`)
-    - If the number of hits from a prefix or country exceeds a configurable threshold, automatic blocking will occur.
-    - Country and foreign (non-home country) floods are handled separately with their own thresholds for maximum flexibility.
-    - Administrators can now manually block entire countries via configuration settings.
+    - Tracks IP hits by 2-octet prefixes (e.g., `192.168`), 3-octet prefixes (e.g., `192.168.1`), and country codes (e.g., `US`, `VN`), blocking IPs if thresholds are exceeded within configurable reset windows (e.g., 1/2 hour).
+    - Country and foreign (non-home country) floods use separate thresholds and minimum score settings (`ABUSEIPDB_FLOOD_COUNTRY_MIN_SCORE`, `ABUSEIPDB_FLOOD_FOREIGN_MIN_SCORE`, default 5) to prevent blocking legitimate traffic.
+    - Administrators can manually block entire countries (e.g., `VN,CN,RU`) via configuration settings for immediate protection.
 
 12. **Foreign Country Flood Detection (NEW!)**  
     - You can separately monitor "foreign" traffic — meaning traffic originating outside your store’s configured home country.
@@ -145,11 +141,11 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
 
 14. **Score-Safe Flood Logic**  
     - Even if flood thresholds are crossed, an IP must meet a minimum AbuseIPDB score before blocking occurs.
-    - Ensures legitimate customers are not accidentally blocked during sudden spikes in real traffic (e.g., newsletters, sales).
-
+    - Ensures legitimate customers are not accidentally blocked during sudden spikes in real traffic (e.g., newsletters, sales). for your default country and foreign traffic.
+	
 15. **Automatic API Usage Failsafe**  
-    - If the AbuseIPDB API quota is exceeded, API calls will fail gracefully.
-    - IP scores of `-1` are treated as neutral and **will not** trigger flood or country blocking — keeping your site accessible even when the API is unavailable.
+    - If the AbuseIPDB API quota is exceeded, API calls fail gracefully, and cached -1 scores trigger retries to obtain valid scores.
+    - IPs with -1 scores are treated as neutral and **will not** trigger flood or country blocking, ensuring site accessibility during API unavailability.
 
 16. **Expanded Admin Settings**  
     - New settings added:
@@ -208,7 +204,7 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
-- **v4.0.0**: Major update with full flood tracking (2-octet, 3-octet, country), foreign flood detection, manual country blocking, and score-safe protection logic.
+- **v4.0.0**: Major update with full flood tracking (2-octet, 3-octet, country), foreign flood detection with minimum score, manual country blocking, score-safe protection, and high-score cache extension.
 - **v3.0.4**: Unified GitHub merges with minor updates for consistency.
 - **v3.0.3**: Transitioned the AbuseIPDB Widget to an observer class for improved modularity and encapsulation.
 - **v3.0.2**: Added total settings count display to ensure all settings are accounted for.

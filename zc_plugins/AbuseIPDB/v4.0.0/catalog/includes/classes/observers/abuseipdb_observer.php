@@ -7,7 +7,7 @@
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
  * @version     4.0.0
- * @updated     5-01-2025
+ * @updated     5-03-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -200,18 +200,34 @@ if (in_array($ip, $whitelisted_ips)) {
                 return 0; // Return 0 score for spiders or whatever default value you want
             }
 
-            // Look for the IP in the database
-            $ip_query = "SELECT * FROM " . TABLE_ABUSEIPDB_CACHE . " WHERE ip = '" . zen_db_input($ip) . "'";
-            $ip_info = $db->Execute($ip_query);
+// Look for the IP in the database
+$ip_query = "SELECT * FROM " . TABLE_ABUSEIPDB_CACHE . " WHERE ip = '" . zen_db_input($ip) . "'";
+$ip_info = $db->Execute($ip_query);
 
-            // If the IP is in the database and the cache has not expired
-            if (!$ip_info->EOF && (time() - strtotime($ip_info->fields['timestamp'])) < $cache_time) {
-                $abuseScore = $ip_info->fields['score'];
-                $countryCode = $ip_info->fields['country_code'] ?? '';
+if ($debug_mode == true) {
+    error_log("Cache check for IP: $ip, found: " . (!$ip_info->EOF ? 'yes' : 'no') . ", expired: " . (!$ip_info->EOF && (time() - strtotime($ip_info->fields['timestamp'])) >= $cache_time ? 'yes' : 'no') . ", score: " . (!$ip_info->EOF ? $ip_info->fields['score'] : 'none'));
+}
 
-                if ($debug_mode == true) {
-                    error_log('Used cache for IP: ' . $ip . ' with score: ' . $abuseScore);
-                }
+// If the IP is in the database and the cache has not expired, AND the score is valid
+if (
+    !$ip_info->EOF 
+    && (
+        // Use extended cache time for high-scoring IPs if enabled
+        (ABUSEIPDB_HIGH_SCORE_CACHE_ENABLED == 'true' 
+         && (int)$ip_info->fields['score'] >= (int)ABUSEIPDB_HIGH_SCORE_THRESHOLD 
+         && (time() - strtotime($ip_info->fields['timestamp'])) < (int)ABUSEIPDB_EXTENDED_CACHE_TIME)
+        ||
+        // Use standard cache time for other valid IPs
+        ((int)$ip_info->fields['score'] != -1 
+         && (time() - strtotime($ip_info->fields['timestamp'])) < $cache_time)
+    )
+) {
+    $abuseScore = $ip_info->fields['score'];
+    $countryCode = $ip_info->fields['country_code'] ?? '';
+
+    if ($debug_mode == true) {
+        error_log('Used cache for IP: ' . $ip . ' with score: ' . $abuseScore);
+    }
 
                 // Prepare prefixes for flood tracking
                 $ipParts = explode('.', $ip);
