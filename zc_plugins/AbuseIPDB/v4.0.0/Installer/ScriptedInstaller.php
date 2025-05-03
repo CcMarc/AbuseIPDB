@@ -19,7 +19,7 @@ class ScriptedInstaller extends ScriptedInstallBase
 
     public const ABUSEIPDB_CURRENT_VERSION = '4.0.0';
 
-    private const SETTING_COUNT = 46;
+    private const SETTING_COUNT = 47;
     protected int $configurationGroupId;
 
     /**
@@ -137,6 +137,14 @@ class ScriptedInstaller extends ScriptedInstallBase
                     timestamp DATETIME NOT NULL
                 ) ENGINE=InnoDB"
             );
+			
+			// Add timestamp indexes for efficient cleanup
+			$this->executeInstallerSql(
+				"CREATE INDEX IF NOT EXISTS idx_timestamp ON " . TABLE_ABUSEIPDB_CACHE . " (timestamp)"
+			);
+			$this->executeInstallerSql(
+				"CREATE INDEX IF NOT EXISTS idx_timestamp ON " . TABLE_ABUSEIPDB_FLOOD . " (timestamp)"
+			);
 
             // Register admin page
             $pageKey = 'configAbuseIPDB';
