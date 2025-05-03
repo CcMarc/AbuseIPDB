@@ -129,12 +129,20 @@ class abuseipdb_observer extends base {
 
             $abuseipdb_enabled = (int)ABUSEIPDB_ENABLED;
 
-            $ip = $_SERVER['REMOTE_ADDR'];
+$ip = $_SERVER['REMOTE_ADDR'];
 
-            // Check if the IP is whitelisted
-            if (in_array($ip, $whitelisted_ips)) {
-                return;
-            }
+// Validate IP address
+if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+    if ($debug_mode == true) {
+        error_log('Invalid IP address: ' . $ip . ' - Blocking request');
+    }
+    $ip_blocked = true;
+}
+
+// Check if the IP is whitelisted
+if (in_array($ip, $whitelisted_ips)) {
+    return;
+}
 
             // Define the path to your blacklist file, and if it exists and ABUSEIPDB_BLACKLIST_ENABLE is true, load its content into the $file_blocked_ips array
             $file_blocked_ips = array();
@@ -311,16 +319,16 @@ class abuseipdb_observer extends base {
                     $countryCode = '';
                 }
 
-				// If the IP is in the database, update the score and timestamp
-				if (!$ip_info->EOF) {
-					$update_query = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET score = " . (int)$abuseScore . ", country_code = '" . zen_db_input($countryCode) . "', timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
-					$db->Execute($update_query);
-				} else { // If the IP is not in the database, insert it
-					$insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, country_code, timestamp, flood_tracked) 
-									 VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", '" . zen_db_input($countryCode) . "', NOW(), 0) 
-									 ON DUPLICATE KEY UPDATE score = VALUES(score), country_code = VALUES(country_code), timestamp = NOW()";
-					$db->Execute($insert_query);
-				}
+// If the IP is in the database, update the score and timestamp
+if (!$ip_info->EOF) {
+    $update_query = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET score = " . (int)$abuseScore . ", country_code = '" . zen_db_input($countryCode) . "', timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
+    $db->Execute($update_query);
+} else { // If the IP is not in the database, insert it
+    $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, country_code, timestamp, flood_tracked) 
+                     VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", '" . zen_db_input($countryCode) . "', NOW(), 0) 
+                     ON DUPLICATE KEY UPDATE score = VALUES(score), country_code = VALUES(country_code), timestamp = NOW()";
+    $db->Execute($insert_query);
+}
 
                 $log_file_path_api = $log_file_path . $log_file_name_api;
                 $log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' API call. Score: ' . $abuseScore . PHP_EOL;
