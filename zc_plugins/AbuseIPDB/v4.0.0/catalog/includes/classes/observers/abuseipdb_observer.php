@@ -29,45 +29,51 @@ class abuseipdb_observer extends base {
         return realpath($baseDir) . '/catalog/';
     }
 
-    protected function runCleanup() {
-        global $db, $zcDate;
+protected function runCleanup() {
+    global $db, $zcDate;
 
-        $cleanup_enabled = ABUSEIPDB_CLEANUP_ENABLED;
-        $cleanup_period = ABUSEIPDB_CLEANUP_PERIOD;
-        $abuseipdb_enabled = ABUSEIPDB_ENABLED;
+    $cleanup_enabled = ABUSEIPDB_CLEANUP_ENABLED;
+    $cache_cleanup_period = ABUSEIPDB_CLEANUP_PERIOD;
+    $flood_cleanup_period = ABUSEIPDB_FLOOD_CLEANUP_PERIOD;
+    $abuseipdb_enabled = ABUSEIPDB_ENABLED;
 
-        if ($cleanup_enabled == 'true' && $abuseipdb_enabled == 'true') {
-            $maintenance_query = "SELECT last_cleanup, timestamp FROM " . TABLE_ABUSEIPDB_MAINTENANCE;
-            $maintenance_info = $db->Execute($maintenance_query);
+    if ($cleanup_enabled == 'true' && $abuseipdb_enabled == 'true') {
+        $maintenance_query = "SELECT last_cleanup, timestamp FROM " . TABLE_ABUSEIPDB_MAINTENANCE;
+        $maintenance_info = $db->Execute($maintenance_query);
 
-            $last_cleanup_date = $maintenance_info->fields['last_cleanup'] ?? null;
+        $last_cleanup_date = $maintenance_info->fields['last_cleanup'] ?? null;
 
-            // Validate and handle missing last_cleanup
-            if ($maintenance_info->RecordCount() > 0 && $last_cleanup_date) {
-                $formatted_date = $zcDate 
-                    ? (int)$zcDate->output($last_cleanup_date) 
-                    : strtotime($last_cleanup_date);
-                
-                if (date('Y-m-d') != date('Y-m-d', $formatted_date)) {
-                    // Cleanup old records
-                    $cleanup_query = "DELETE FROM " . TABLE_ABUSEIPDB_CACHE . 
-                                     " WHERE timestamp < DATE_SUB(NOW(), INTERVAL " . (int)$cleanup_period . " DAY)";
-                    $db->Execute($cleanup_query);
-                }
-            }
+        // Validate and handle missing last_cleanup
+        if ($maintenance_info->RecordCount() > 0 && $last_cleanup_date) {
+            $formatted_date = $zcDate 
+                ? (int)$zcDate->output($last_cleanup_date) 
+                : strtotime($last_cleanup_date);
+            
+            if (date('Y-m-d') != date('Y-m-d', $formatted_date)) {
+                // Cleanup old cache records
+                $cache_cleanup_query = "DELETE FROM " . TABLE_ABUSEIPDB_CACHE . 
+                                       " WHERE timestamp < DATE_SUB(NOW(), INTERVAL " . (int)$cache_cleanup_period . " DAY)";
+                $db->Execute($cache_cleanup_query);
 
-            // Update or insert the maintenance timestamp
-            if ($maintenance_info->RecordCount() > 0) {
-                $update_query = "UPDATE " . TABLE_ABUSEIPDB_MAINTENANCE . 
-                                " SET last_cleanup = NOW(), timestamp = NOW()";
-                $db->Execute($update_query);
-            } else {
-                $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_MAINTENANCE . 
-                                " (last_cleanup, timestamp) VALUES (NOW(), NOW())";
-                $db->Execute($insert_query);
+                // Cleanup old flood records
+                $flood_cleanup_query = "DELETE FROM " . TABLE_ABUSEIPDB_FLOOD . 
+                                       " WHERE timestamp < DATE_SUB(NOW(), INTERVAL " . (int)$flood_cleanup_period . " DAY)";
+                $db->Execute($flood_cleanup_query);
             }
         }
+
+        // Update or insert the maintenance timestamp
+        if ($maintenance_info->RecordCount() > 0) {
+            $update_query = "UPDATE " . TABLE_ABUSEIPDB_MAINTENANCE . 
+                            " SET last_cleanup = NOW(), timestamp = NOW()";
+            $db->Execute($update_query);
+        } else {
+            $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_MAINTENANCE . 
+                            " (last_cleanup, timestamp) VALUES (NOW(), NOW())";
+            $db->Execute($insert_query);
+        }
     }
+}
 
     protected function checkAbusiveIP() {
         global $current_page_base, $_SESSION, $db, $spider_flag;
