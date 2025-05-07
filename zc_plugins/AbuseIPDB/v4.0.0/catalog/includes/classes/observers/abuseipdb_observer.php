@@ -268,14 +268,19 @@ if (
                     }
                 }
 
-                if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $countryCode) {
-                    $resCountry = $db->Execute("SELECT count FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
-                    if (!$resCountry->EOF && $resCountry->fields['count'] >= (int)ABUSEIPDB_FLOOD_COUNTRY_THRESHOLD) {
-                        if ($abuseScore >= $country_min_score) {
-                            $flood_block = true;
-                        }
-                    }
-                }
+ 				if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $countryCode) {
+					$country_reset_minutes = defined('ABUSEIPDB_FLOOD_COUNTRY_RESET') ? (int) ABUSEIPDB_FLOOD_COUNTRY_RESET : 60;
+					$resCountry = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
+					if (
+						!$resCountry->EOF &&
+						$resCountry->fields['count'] >= (int) ABUSEIPDB_FLOOD_COUNTRY_THRESHOLD &&
+						strtotime($resCountry->fields['timestamp']) >= (time() - ($country_reset_minutes * 60))
+					) {
+						if ($abuseScore >= $country_min_score) {
+							$flood_block = true;
+						}
+					}
+				}
 
                 if (ABUSEIPDB_FOREIGN_FLOOD_ENABLED == 'true' && $countryCode) {
                     $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
@@ -394,14 +399,19 @@ if (!$ip_info->EOF) {
                     }
                 }
 
-                if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $countryCode) {
-                    $resCountry = $db->Execute("SELECT count FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
-                    if (!$resCountry->EOF && $resCountry->fields['count'] >= (int)ABUSEIPDB_FLOOD_COUNTRY_THRESHOLD) {
-                        if ($abuseScore >= $country_min_score) {
-                            $flood_block = true;
-                        }
-                    }
-                }
+ 				if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $countryCode) {
+					$country_reset_minutes = defined('ABUSEIPDB_FLOOD_COUNTRY_RESET') ? (int) ABUSEIPDB_FLOOD_COUNTRY_RESET : 60;
+					$resCountry = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
+					if (
+						!$resCountry->EOF &&
+						$resCountry->fields['count'] >= (int) ABUSEIPDB_FLOOD_COUNTRY_THRESHOLD &&
+						strtotime($resCountry->fields['timestamp']) >= (time() - ($country_reset_minutes * 60))
+					) {
+						if ($abuseScore >= $country_min_score) {
+							$flood_block = true;
+						}
+					}
+				}
 
                 if (ABUSEIPDB_FOREIGN_FLOOD_ENABLED == 'true' && $countryCode) {
                     $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
