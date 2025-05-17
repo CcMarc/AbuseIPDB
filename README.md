@@ -123,7 +123,8 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
     - 🛡️ **Blue Shield**: Indicates an IP blocked by its country (Manual Country Block, `MC`).  
     - 🛡️ **Orange Shield**: Indicates an IP blocked due to flood detection (Flood Block, `CF`, `FF`, `2F`, `3F`).  
     - 🚫 **Grey Circle with Slash**: Appears for unblocked IPs with a score greater than 0, allowing quick manual addition to the blacklist file directly from the "Who's Online" screen (requires `ABUSEIPDB_BLACKLIST_ENABLE` to be enabled).  
-  - A legend at the top of the "Who's Online" page explains the meaning of each shield color, helping admins quickly identify and manage threats.  
+  
+  A legend at the top of the "Who's Online" page explains the meaning of each shield color, helping admins quickly identify and manage threats.  
 
     **Requirements for "Who's Online" Features**  
     - The **"Enable IP Blacklist File"** setting must be set to **true** in the configuration.  
