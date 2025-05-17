@@ -115,12 +115,15 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
 8. Skipping IP Check for Known Spiders: If the "Allow Spiders?" setting (`ABUSEIPDB_SPIDER_ALLOW`) is enabled, known spiders will be skipped in the IP check and logging process, as they are not subject to AbuseIPDB scoring. This can be useful for avoiding unnecessary API calls and log entries for spider sessions.  
 9. Spider Detection: The script utilizes a file called `spiders.txt` provided by Zen Cart to identify known spiders, including search engine bots and web crawlers. It reads the user agent from the HTTP request and compares it against the entries in the spiders.txt file. If a match is found, indicating that the user agent corresponds to a known spider, the spider flag is set to true. This flag determines the script's behavior, enabling it to bypass certain checks or execute specific actions tailored for spider sessions.  
 
-10. **Enhanced "Who's Online" Page Features**  
-    - Real-Time Threat Assessment: Displays AbuseIPDB confidence scores for each visitor, enabling real-time assessment of potential threats. Clicking on a score redirects to the AbuseIPDB website for detailed information about the IP address.  
-    - Interactive IP Status Icons:  
-        - 🛡️ **Red Shield**: Indicates a blocked IP.  
-        - 🚫 **Grey Circle with Slash**: Indicates an unblocked IP.  
-      These icons allow quick manual addition of IPs to the blacklist file directly from the "Who's Online" screen.  
+10. **Enhanced "Who's Online" Page Features**
+- **Real-Time Threat Assessment**: Displays AbuseIPDB confidence scores for each visitor, enabling real-time assessment of potential threats. Clicking on a score redirects to the AbuseIPDB website for detailed information about the IP address.  
+- **Interactive IP Status Icons**:  
+    - 🛡️ **Red Shield**: Indicates an IP blocked due to a high AbuseIPDB score (Score Block, `SB`).  
+    - 🛡️ **Purple Shield**: Indicates an IP blocked by the blacklist (IP Blacklist, `IB`).  
+    - 🛡️ **Blue Shield**: Indicates an IP blocked by its country (Manual Country Block, `MC`).  
+    - 🛡️ **Orange Shield**: Indicates an IP blocked due to flood detection (Flood Block, `CF`, `FF`, `2F`, `3F`).  
+    - 🚫 **Grey Circle with Slash**: Appears for unblocked IPs with a score greater than 0, allowing quick manual addition to the blacklist file directly from the "Who's Online" screen (requires `ABUSEIPDB_BLACKLIST_ENABLE` to be enabled).  
+  A legend at the top of the "Who's Online" page explains the meaning of each shield color, helping admins quickly identify and manage threats.  
 
     **Requirements for "Who's Online" Features**  
     - The **"Enable IP Blacklist File"** setting must be set to **true** in the configuration.  
