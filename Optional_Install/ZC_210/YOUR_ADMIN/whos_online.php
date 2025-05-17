@@ -112,6 +112,9 @@ $listingURL = zen_href_link(FILENAME_WHOS_ONLINE, zen_get_all_get_params(['q', '
             WHOS_ONLINE_INACTIVE_LAST_CLICK_TEXT . '&nbsp;' . (int)$wo->getTimerInactive() . 's' . '&nbsp;||&nbsp;' .
             WHOS_ONLINE_INACTIVE_ARRIVAL_TEXT . '&nbsp;' . (int)$wo->getTimerDead() . 's&nbsp;' . WHOS_ONLINE_REMOVED_TEXT;
             ?>
+    <?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
+      <br><?php echo getAbuseIPDBShieldLegend(); ?><br><br>
+    <?php endif; ?>
         </div>
 
         <div class="col-sm-6" id="wo-filters">
@@ -241,104 +244,53 @@ $listingURL = zen_href_link(FILENAME_WHOS_ONLINE, zen_get_all_get_params(['q', '
                 <td>&nbsp;</td>
                 <td class="dataTableContentWhois text-center align-top"><?php echo date('H:i:s', $item['time_entry']); ?></td>
                 <td class="dataTableContentWhois text-center align-top"><?php echo date('H:i:s', $item['time_last_click']); ?></td>
-		<td class="dataTableContentWhois align-top" colspan="<?php echo (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') ? 1 : 2; ?>">&nbsp;</td>
-		<!-- BOF - AbuseIPDB -->
-		<?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
 		<td class="dataTableContentWhois text-center align-top">
-		<?php
-		// Fetch the current IP address in the loop
-		$ip_address = $item['ip_address'];
-        
-		// Query the AbuseIPDB cache for the current IP address
-		$ip_query = "SELECT score FROM " . TABLE_ABUSEIPDB_CACHE . " WHERE ip = '" . zen_db_input($ip_address) . "'";
-		$ip_result = $db->Execute($ip_query);
-        
-		// Check if a score was found for this IP
-		if ($ip_result->RecordCount() > 0) {
-		$ip_score = $ip_result->fields['score'];
-            
-	    	// Display the score as a clickable link if greater than 0, red, bold, and larger font size
-		if ($ip_score > 0) {
-                echo '<a href="https://www.abuseipdb.com/check/' . $ip_address . '" target="_blank" style="color: red; font-weight: bold; font-size: larger;">' . $ip_score . '</a>';
+<?php
+    $lastURLlink = '<a href="' . zen_output_string_protected($item['last_page_url']) . '" rel="noopener" target="_blank">' . '<u>' . zen_output_string_protected($item['last_page_url']) . '</u>' . '</a>';
+    if (preg_match('/^(.*)' . zen_session_name() . '=[a-f,0-9]+[&]*(.*)/i', $item['last_page_url'], $array)) {
+        $lastURLlink = zen_output_string_protected($array[1] . $array[2]);
+    }
+    echo '<div class="last-url-link">' . $lastURLlink . '</div>';
+?>
+</td>
+<!-- BOF - Display IP Address with AbuseIPDB Score and Block Button -->
+<?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
+<?php echo getAbuseIPDBBlockStatus($item['ip_address'], $item, $db); ?>
+<?php endif; ?>
+<!-- EOF - Display IP Address with AbuseIPDB Score and Block Button -->
+</tr>
 
-                // Check if the score meets or exceeds the threshold for automatic blocking
-                if (defined('ABUSEIPDB_THRESHOLD') && $ip_score >= ABUSEIPDB_THRESHOLD) {
-                    // Display a "Blocked" label styled like a button with a shield icon
-                    echo '<span style="background-color: red; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 10px; display: inline-block;">';
-                    echo '<i class="fas fa-shield-alt"></i>';
-                    echo '</span>';
-                } else {
-                    // Display the Blacklist button for manual blocking with a ban icon
-                    if (defined('ABUSEIPDB_BLACKLIST_ENABLE') && ABUSEIPDB_BLACKLIST_ENABLE === 'true') {
-                        // Handle blocking the IP address directly
-                        if (isset($_POST['block_ip']) && $_POST['block_ip'] == $ip_address) {
-                            $blacklist_file = DIR_FS_CATALOG . ABUSEIPDB_BLACKLIST_FILE_PATH;
-
-                            // Ensure the IP address is not already in the blacklist
-                            if (file_exists($blacklist_file)) {
-                                $blacklist = file($blacklist_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-                                if (!in_array($ip_address, $blacklist)) {
-                                    file_put_contents($blacklist_file, $ip_address . PHP_EOL, FILE_APPEND);
-                                    echo '<p style="color: green;">IP ' . $ip_address . ' has been blacklisted</p>';
-                                } else {
-                                    echo '<p style="color: orange;">IP ' . $ip_address . ' is already blacklisted</p>';
-                                }
-                            } else {
-                                echo '<p style="color: red;">Blacklist file not found. Please check the path.</p>';
-                            }
-                        }
-
-                        // Display the Blacklist button
-                        echo '<form method="post" style="display:inline;">
-                                <input type="hidden" name="block_ip" value="' . $ip_address . '">
-                                <button type="submit" style="background-color: grey; color: white; border: none; padding: 5px 10px; border-radius: 5px; margin-left: 10px;">';
-                        echo '<i class="fas fa-ban"></i>';
-                        echo '</button></form>';
-					}
-				}
-			} else {
-			echo '<span style="font-weight: normal;">' . $ip_score . '</span>';
-			}
-				} else {
-			echo '<span style="font-weight: normal;">0</span>';
-			}
-			?>
-		</td>
-		<?php endif; ?>
-		<!-- EOF - AbuseIPDB -->
-                </tr>
-                <?php
-                // show host name
-                if (WHOIS_SHOW_HOST == '1') {
-                  if ($item['session_id'] == $selectedSession) {
-                    echo '              <tr class="' . ($item['is_a_bot'] ? 'dataTableRowSelectedBot' : 'dataTableRowSelectedWhois') .'">' . "\n";
-                  } else {
-                    echo '              <tr class="' . ($item['is_a_bot'] ? 'dataTableRowBot' : 'dataTableRowWhois') .' whois-listing-row" data-sid="' . $item['session_id'] .'">' . "\n";
-                  }
-                  ?>
+<?php
+// show host name
+if (WHOIS_SHOW_HOST == '1') {
+    if ($item['session_id'] == $selectedSession) {
+        echo '              <tr class="' . ($item['is_a_bot'] ? 'dataTableRowSelectedBot' : 'dataTableRowSelectedWhois') .'">' . "\n";
+    } else {
+        echo '              <tr class="' . ($item['is_a_bot'] ? 'dataTableRowBot' : 'dataTableRowWhois') .' whois-listing-row" data-sid="' . $item['session_id'] .'">' . "\n";
+    }
+?>
                   <td class="dataTableContentWhois align-top" colspan=3>&nbsp;&nbsp;<?php echo TIME_PASSED_LAST_CLICKED . '<br>&nbsp;&nbsp;&nbsp;&nbsp;' . $item['time_since_last_click']; ?> ago</td>
-                  <td class="dataTableContentWhois dataTableButtonCell" colspan=5 valign="top">
-                      <?php
-                      echo TEXT_SESSION_ID . zen_output_string_protected($item['session_id']) . '<br>' .
-                      TEXT_HOST . zen_output_string_protected($item['host_address']) . '<br>' .
-                      TEXT_USER_AGENT . zen_output_string_protected($item['user_agent']) . '<br>';
+<td class="dataTableContentWhois dataTableButtonCell" colspan="<?php echo (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') ? 4 : 5; ?>" valign="top">
+    <?php
+    echo TEXT_SESSION_ID . zen_output_string_protected($item['session_id']) . '<br>' .
+    TEXT_HOST . zen_output_string_protected($item['host_address']) . '<br>' .
+    TEXT_USER_AGENT . zen_output_string_protected($item['user_agent']) . '<br>';
 
-                      $lastURLlink = '<a href="' . zen_output_string_protected($item['last_page_url']) . '" rel="noopener" target="_blank">' . '<u>' . zen_output_string_protected($item['last_page_url']) . '</u>' . '</a>';
-                      if (preg_match('/^(.*)' . zen_session_name() . '=[a-f,0-9]+[&]*(.*)/i', $item['last_page_url'], $array)) {
-                        $lastURLlink = zen_output_string_protected($array[1] . $array[2]);
-                      }
-                      echo '<div class="last-url-link">' . $lastURLlink . '</div>';
-                      ?>
-                  </td>
-		<?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
+    $lastURLlink = '<a href="' . zen_output_string_protected($item['last_page_url']) . '" rel="noopener" target="_blank">' . '<u>' . zen_output_string_protected($item['last_page_url']) . '</u>' . '</a>';
+    if (preg_match('/^(.*)' . zen_session_name() . '=[a-f,0-9]+[&]*(.*)/i', $item['last_page_url'], $array)) {
+        $lastURLlink = zen_output_string_protected($array[1] . $array[2]);
+    }
+    echo '<div class="last-url-link">' . $lastURLlink . '</div>';
+    ?>
+</td>
+<?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
   		<td class="dataTableContentWhois align-top" colspan=3>&nbsp;&nbsp;</td>
-		<?php else : ?>
-		<?php endif; ?>
+<?php endif; ?>
+</tr>
+<?php
+} // show host
+?>
 
-                  </tr>
-                  <?php
-                } // show host
-                ?>
                 <tr>
                   <td colspan="8"></td>
                 </tr>
