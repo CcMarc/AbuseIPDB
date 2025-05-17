@@ -26,8 +26,10 @@ If you are an advanced user and do not want to lose your cache database when uni
 2. Locate the `executeUninstall()` method near the end of the file.
 3. Delete the following lines to prevent dropping the tables during uninstallation:
 
-- $this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_CACHE);
-- $this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_MAINTENANCE);
+``` text
+$this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_CACHE);
+$this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_MAINTENANCE);
+```
 
 4. Save the file and proceed with the uninstallation via the Zen Cart admin panel. This will remove the plugin settings but leave the tables intact.
 5. When you install the new version, the installer will skip creating these tables if they already exist, preserving your data.
