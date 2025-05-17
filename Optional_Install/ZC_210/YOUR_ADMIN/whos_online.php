@@ -112,9 +112,10 @@ $listingURL = zen_href_link(FILENAME_WHOS_ONLINE, zen_get_all_get_params(['q', '
             WHOS_ONLINE_INACTIVE_LAST_CLICK_TEXT . '&nbsp;' . (int)$wo->getTimerInactive() . 's' . '&nbsp;||&nbsp;' .
             WHOS_ONLINE_INACTIVE_ARRIVAL_TEXT . '&nbsp;' . (int)$wo->getTimerDead() . 's&nbsp;' . WHOS_ONLINE_REMOVED_TEXT;
             ?>
-    <?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
-      <br><?php echo getAbuseIPDBShieldLegend(); ?><br><br>
-    <?php endif; ?>
+    	    
+	    <?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
+      		<br><?php echo getAbuseIPDBShieldLegend(); ?><br><br>
+    	    <?php endif; ?>
         </div>
 
         <div class="col-sm-6" id="wo-filters">
@@ -245,52 +246,51 @@ $listingURL = zen_href_link(FILENAME_WHOS_ONLINE, zen_get_all_get_params(['q', '
                 <td class="dataTableContentWhois text-center align-top"><?php echo date('H:i:s', $item['time_entry']); ?></td>
                 <td class="dataTableContentWhois text-center align-top"><?php echo date('H:i:s', $item['time_last_click']); ?></td>
 		<td class="dataTableContentWhois text-center align-top">
-<?php
-    $lastURLlink = '<a href="' . zen_output_string_protected($item['last_page_url']) . '" rel="noopener" target="_blank">' . '<u>' . zen_output_string_protected($item['last_page_url']) . '</u>' . '</a>';
-    if (preg_match('/^(.*)' . zen_session_name() . '=[a-f,0-9]+[&]*(.*)/i', $item['last_page_url'], $array)) {
-        $lastURLlink = zen_output_string_protected($array[1] . $array[2]);
-    }
-    echo '<div class="last-url-link">' . $lastURLlink . '</div>';
-?>
-</td>
-<!-- BOF - Display IP Address with AbuseIPDB Score and Block Button -->
-<?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
-<?php echo getAbuseIPDBBlockStatus($item['ip_address'], $item, $db); ?>
-<?php endif; ?>
-<!-- EOF - Display IP Address with AbuseIPDB Score and Block Button -->
-</tr>
 
-<?php
-// show host name
-if (WHOIS_SHOW_HOST == '1') {
-    if ($item['session_id'] == $selectedSession) {
-        echo '              <tr class="' . ($item['is_a_bot'] ? 'dataTableRowSelectedBot' : 'dataTableRowSelectedWhois') .'">' . "\n";
-    } else {
-        echo '              <tr class="' . ($item['is_a_bot'] ? 'dataTableRowBot' : 'dataTableRowWhois') .' whois-listing-row" data-sid="' . $item['session_id'] .'">' . "\n";
-    }
-?>
+		<?php
+    		$lastURLlink = '<a href="' . zen_output_string_protected($item['last_page_url']) . '" rel="noopener" target="_blank">' . '<u>' . zen_output_string_protected($item['last_page_url']) . '</u>' . '</a>';
+    		if (preg_match('/^(.*)' . zen_session_name() . '=[a-f,0-9]+[&]*(.*)/i', $item['last_page_url'], $array)) {
+        	$lastURLlink = zen_output_string_protected($array[1] . $array[2]);
+    		}
+    		echo '<div class="last-url-link">' . $lastURLlink . '</div>';
+		?>
+		</td>
+		<!-- BOF - Display IP Address with AbuseIPDB Score and Block Button -->
+		<?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
+		<?php echo getAbuseIPDBBlockStatus($item['ip_address'], $item, $db); ?>
+		<?php endif; ?>
+		<!-- EOF - Display IP Address with AbuseIPDB Score and Block Button -->
+                </tr>
+                <?php
+                // show host name
+                if (WHOIS_SHOW_HOST == '1') {
+                  if ($item['session_id'] == $selectedSession) {
+                    echo '              <tr class="' . ($item['is_a_bot'] ? 'dataTableRowSelectedBot' : 'dataTableRowSelectedWhois') .'">' . "\n";
+                  } else {
+                    echo '              <tr class="' . ($item['is_a_bot'] ? 'dataTableRowBot' : 'dataTableRowWhois') .' whois-listing-row" data-sid="' . $item['session_id'] .'">' . "\n";
+                  }
+                  ?>
                   <td class="dataTableContentWhois align-top" colspan=3>&nbsp;&nbsp;<?php echo TIME_PASSED_LAST_CLICKED . '<br>&nbsp;&nbsp;&nbsp;&nbsp;' . $item['time_since_last_click']; ?> ago</td>
-<td class="dataTableContentWhois dataTableButtonCell" colspan="<?php echo (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') ? 4 : 5; ?>" valign="top">
-    <?php
-    echo TEXT_SESSION_ID . zen_output_string_protected($item['session_id']) . '<br>' .
-    TEXT_HOST . zen_output_string_protected($item['host_address']) . '<br>' .
-    TEXT_USER_AGENT . zen_output_string_protected($item['user_agent']) . '<br>';
+		  <td class="dataTableContentWhois dataTableButtonCell" colspan="<?php echo (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') ? 4 : 5; ?>" valign="top">
+                      <?php
+                      echo TEXT_SESSION_ID . zen_output_string_protected($item['session_id']) . '<br>' .
+                      TEXT_HOST . zen_output_string_protected($item['host_address']) . '<br>' .
+                      TEXT_USER_AGENT . zen_output_string_protected($item['user_agent']) . '<br>';
 
-    $lastURLlink = '<a href="' . zen_output_string_protected($item['last_page_url']) . '" rel="noopener" target="_blank">' . '<u>' . zen_output_string_protected($item['last_page_url']) . '</u>' . '</a>';
-    if (preg_match('/^(.*)' . zen_session_name() . '=[a-f,0-9]+[&]*(.*)/i', $item['last_page_url'], $array)) {
-        $lastURLlink = zen_output_string_protected($array[1] . $array[2]);
-    }
-    echo '<div class="last-url-link">' . $lastURLlink . '</div>';
-    ?>
-</td>
-<?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
+                      $lastURLlink = '<a href="' . zen_output_string_protected($item['last_page_url']) . '" rel="noopener" target="_blank">' . '<u>' . zen_output_string_protected($item['last_page_url']) . '</u>' . '</a>';
+                      if (preg_match('/^(.*)' . zen_session_name() . '=[a-f,0-9]+[&]*(.*)/i', $item['last_page_url'], $array)) {
+                        $lastURLlink = zen_output_string_protected($array[1] . $array[2]);
+                      }
+                      echo '<div class="last-url-link">' . $lastURLlink . '</div>';
+                      ?>
+                  </td>
+		<?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
   		<td class="dataTableContentWhois align-top" colspan=3>&nbsp;&nbsp;</td>
-<?php endif; ?>
-</tr>
-<?php
-} // show host
-?>
-
+		<?php endif; ?>
+                  </tr>
+                  <?php
+                } // show host
+                ?>
                 <tr>
                   <td colspan="8"></td>
                 </tr>
