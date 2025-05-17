@@ -18,22 +18,6 @@ Additionally, it offers manual whitelisting, blacklisting, and country blocking 
 If you are upgrading from v3.0.4 or earlier, you must uninstall the previous module before installing v4.0.0.  
 ⚡ Important: Be sure to screen-capture your existing settings before uninstalling AbuseIPDB **v3.0.4 or lower** to preserve your configuration.
 
-### Advanced Uninstallation: Preserving Cache Database
-
-If you are an advanced user and do not want to lose your cache database when uninstalling the plugin, you can modify the installer to preserve the database tables (`abuseipdb_cache`, `abuseipdb_maintenance`, and `abuseipdb_flood`). Follow these steps:
-
-1. Open the installer file for your current version (e.g., `ScriptedInstaller.php`) in a text editor.
-2. Locate the `executeUninstall()` method near the end of the file.
-3. Delete the following lines to prevent dropping the tables during uninstallation:
-
-``` text
-$this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_CACHE);
-$this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_MAINTENANCE);
-```
-
-4. Save the file and proceed with the uninstallation via the Zen Cart admin panel. This will remove the plugin settings but leave the tables intact.
-5. When you install the new version, the installer will skip creating these tables if they already exist, preserving your data.
-
 Before you start …
 
 If you are upgrading from a version below v3.0.0, please note that earlier versions of this plugin did not use Zen Cart's Encapsulated Plugins system. Starting with v3.0.0, the plugin has been fully transitioned to this modern framework, and outdated files from earlier versions will be automatically removed during installation.
