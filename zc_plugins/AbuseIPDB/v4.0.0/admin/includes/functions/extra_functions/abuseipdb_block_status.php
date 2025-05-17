@@ -225,9 +225,9 @@ function getAbuseIPDBShieldLegend() {
     }
 
     $html = '<br>AbuseIPDB Shield Legend: ';
-    $html .= '<span style="background-color: red; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Score (SB)"><i class="fas fa-shield-alt"></i></span> Score Block (SB)   ';
-    $html .= '<span style="background-color: purple; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by IP Blacklist (IB)"><i class="fas fa-shield-alt"></i></span> IP Blacklist (IB)   ';
-    $html .= '<span style="background-color: blue; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Country (MC)"><i class="fas fa-shield-alt"></i></span> Country Block (MC)   ';
+    $html .= '<span style="background-color: red; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Score (SB)"><i class="fas fa-shield-alt"></i></span> Score Block (SB)&nbsp;';
+    $html .= '<span style="background-color: purple; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by IP Blacklist (IB)"><i class="fas fa-shield-alt"></i></span> IP Blacklist (IB)&nbsp;';
+    $html .= '<span style="background-color: blue; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Country (MC)"><i class="fas fa-shield-alt"></i></span> Country Block (MC)&nbsp;';
     $html .= '<span style="background-color: orange; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Flood (CF,FF,2F,3F)"><i class="fas fa-shield-alt"></i></span> Flood Block (CF,FF,2F,3F)';
     return $html;
 }
