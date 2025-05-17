@@ -4,7 +4,7 @@
  * @copyright Portions Copyright 2003 osCommerce
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
  * @version $Id: Scott Wilson 2024 May 24 Modified in v2.1.0-alpha1 $
- * @modified Marcopolo - 1-19-2025 - Added logic for AbuseIPDB integration in Who's Online
+ * @modified Marcopolo - 5-17-2025 - Added logic for AbuseIPDB integration in Who's Online
  */
 // Default refresh interval (0=off).  NOTE: Using automated refresh may put you in breach of PCI Compliance
 $defaultRefreshInterval = 0;
