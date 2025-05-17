@@ -112,7 +112,6 @@ $listingURL = zen_href_link(FILENAME_WHOS_ONLINE, zen_get_all_get_params(['q', '
             WHOS_ONLINE_INACTIVE_LAST_CLICK_TEXT . '&nbsp;' . (int)$wo->getTimerInactive() . 's' . '&nbsp;||&nbsp;' .
             WHOS_ONLINE_INACTIVE_ARRIVAL_TEXT . '&nbsp;' . (int)$wo->getTimerDead() . 's&nbsp;' . WHOS_ONLINE_REMOVED_TEXT;
             ?>
-    	    
 	    <?php if (defined('ABUSEIPDB_ENABLED') && ABUSEIPDB_ENABLED === 'true') : ?>
       		<br><?php echo getAbuseIPDBShieldLegend(); ?><br><br>
     	    <?php endif; ?>
@@ -246,7 +245,6 @@ $listingURL = zen_href_link(FILENAME_WHOS_ONLINE, zen_get_all_get_params(['q', '
                 <td class="dataTableContentWhois text-center align-top"><?php echo date('H:i:s', $item['time_entry']); ?></td>
                 <td class="dataTableContentWhois text-center align-top"><?php echo date('H:i:s', $item['time_last_click']); ?></td>
 		<td class="dataTableContentWhois text-center align-top">
-
 		<?php
     		$lastURLlink = '<a href="' . zen_output_string_protected($item['last_page_url']) . '" rel="noopener" target="_blank">' . '<u>' . zen_output_string_protected($item['last_page_url']) . '</u>' . '</a>';
     		if (preg_match('/^(.*)' . zen_session_name() . '=[a-f,0-9]+[&]*(.*)/i', $item['last_page_url'], $array)) {
