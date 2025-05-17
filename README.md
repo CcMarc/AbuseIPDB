@@ -62,7 +62,8 @@ To install or upgrade the AbuseIPDB plugin, upload the following files to your Z
 ``` text
 zc_plugins/AbuseIPDB/vX.X.X/manifest.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/includes/auto_loaders/config.abuseipdb.php
-zc_plugins/AbuseIPDB/vX.X.X/admin/includes/classes//observers/auto.abuseipdbwidget.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/classes/observers/auto.abuseipdbwidget.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/functions/extra_functions/abuseipdb_block_status.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/includes/languages/english/extra_definitions/lang.abuseipdb_admin_names.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/includes/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/abuseipdb_settings.php
