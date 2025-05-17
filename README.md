@@ -128,7 +128,7 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
 
     **Requirements for "Who's Online" Features**  
 	- Ensure the optional files `whos_online.php` and `blacklist.txt` are uploaded to your Zen Cart admin directory.  
-	- To display the Grey Circle with Slash (blacklist button), the **"Enable IP Blacklist File"** setting must be set to `true` in the configuration.  
+	- To display the 🚫 **Grey Circle with Slash** (blacklist button), the **"Enable IP Blacklist File"** setting must be set to `true` in the configuration.  
 
 11. **Flood Tracking and Flood Blocking (NEW!)**  
     - Tracks IP hits by 2-octet prefixes (e.g., `192.168`), 3-octet prefixes (e.g., `192.168.1`), and country codes (e.g., `US`, `VN`), blocking IPs if thresholds are exceeded within configurable reset windows (e.g., 1/2 hour).
