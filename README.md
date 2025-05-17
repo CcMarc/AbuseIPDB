@@ -208,7 +208,7 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
-- **v4.0.0**: Major update with full flood tracking (2-octet, 3-octet, country), foreign flood detection with minimum score, manual country blocking, score-safe protection, and high-score cache extension.
+- **v4.0.0**: Major update with full flood tracking (2-octet, 3-octet, country, foreign) flood detection with minimum score-safe protection, manual country blocking, and high-score cache extension.
 - **v3.0.4**: Unified GitHub merges with minor updates for consistency.
 - **v3.0.3**: Transitioned the AbuseIPDB Widget to an observer class for improved modularity and encapsulation.
 - **v3.0.2**: Added total settings count display to ensure all settings are accounted for.
