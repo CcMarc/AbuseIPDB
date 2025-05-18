@@ -1,5 +1,5 @@
 
-# AbuseIPDB v4.0.0 for Zen Cart 2.1.0 or later
+# AbuseIPDB v4.0.1 for Zen Cart 2.1.0 or later
 
 ## Prerequisites
 
@@ -13,10 +13,6 @@ The module supports caching with extended duration for high-scoring IPs to optim
 Additionally, it offers manual whitelisting, blacklisting, and country blocking for precise control over site access.
 
 ## INSTALLATION AND UPGRADE
-
-**Major Update Notice:**
-If you are upgrading from v3.0.4 or earlier, you must uninstall the previous module before installing v4.0.0.  
-⚡ Important: Be sure to screen-capture your existing settings before uninstalling AbuseIPDB **v3.0.4 or lower** to preserve your configuration.
 
 Before you start …
 
@@ -209,6 +205,7 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
+- **v4.0.1**: Added upgrade support. You can now upgrade cleanly from earlier versions without uninstalling.
 - **v4.0.0**: Major update with full flood tracking (2-octet, 3-octet, country, foreign) flood detection with minimum score-safe protection, manual country blocking, and high-score cache extension.
 - **v3.0.4**: Unified GitHub merges with minor updates for consistency.
 - **v3.0.3**: Transitioned the AbuseIPDB Widget to an observer class for improved modularity and encapsulation.
@@ -233,6 +230,16 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 - **v2.0.1**: Updated table name reference to `TABLE_ABUSEIPDB_CACHE` for compatibility.  
 - **v2.0.0**: Switched from session caching to database caching for improved performance and reliability.  
 - **v1.0.2**: Fixed a typo in the admin installation and corrected the license type.  
+
+## CONTRIBUTORS
+
+This module has benefited from the contributions and feedback of the Zen Cart and GitHub community. Special thanks to:
+
+- [@ * @piloujp](https://github.com/piloujp) — Contributed the initial upgrade logic for v4.0.1, including table and column validation. His work helped ensure compatibility and minimize disruption for users upgrading from earlier versions. Portions of his code were integrated and refined in the final release.  
+- [@ * @piloujp](https://github.com/retched) — Added a new verification badge to the Admin Area in v2.1.2, enabling qualification for increased API call limits.
+
+Want to contribute? Submit a pull request or open an issue on [GitHub](https://github.com/CcMarc/AbuseIPDB).
+
 
 ## LICENSE
 
