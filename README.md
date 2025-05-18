@@ -236,7 +236,7 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 This module has benefited from the contributions and feedback of the Zen Cart and GitHub community. Special thanks to:
 
 - [@piloujp](https://github.com/piloujp) — Contributed the initial upgrade logic for v4.0.1, including table and column validation. His work helped ensure compatibility and minimize disruption for users upgrading from earlier versions. Portions of his code were integrated and refined in the final release.  
-- [@piloujp](https://github.com/retched) — Added a new verification badge to the Admin Area in v2.1.2, enabling qualification for increased API call limits.
+- [@retched](https://github.com/retched) — Added a new verification badge to the Admin Area in v2.1.2, enabling qualification for increased API call limits.
 
 Want to contribute? Submit a pull request or open an issue on [GitHub](https://github.com/CcMarc/AbuseIPDB).
 
