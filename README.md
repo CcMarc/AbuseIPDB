@@ -187,7 +187,7 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
       - To unblock an IP, manually edit the `.htaccess` file and remove the corresponding `Deny from <IP>` line from the AbuseIPDB session blocks section.  
       - Save the file, and the IP will be able to access the site again.  
     - **Log File**:  
-      - All session rate limit blocks are logged to `logs/abuseipdb_session_blocks.log`, regardless of the general logging setting (`ABUSEIPDB_ENABLE_LOGGING`).  
+      - All session rate limit blocks are logged to `[log_path]/abuseipdb_session_blocks.log`, regardless of the general logging setting (`ABUSEIPDB_ENABLE_LOGGING`).  
       - Check this log to review blocked IPs and their session counts (e.g., "2025-05-24 19:05:00 - IP xxx.xxx.xxx.xxx blocked: 101 sessions in 30 seconds").  
     - **Configuration Settings**:  
       - **Enable Session Rate Limiting?**: Toggle to enable/disable the feature (default: `false`).  
