@@ -218,11 +218,15 @@ This section provides an understanding of the logic steps involved in checking a
     - 3-octet prefixes (e.g., `192.168.1`)  
     - Country codes (e.g., `US`, `VN`)  
 
+	The following checks are performed in sequence:  
+    - **a. Manual Country Blocking**: If the IP’s country code (retrieved from the cache or API) matches a manually blocked country code (e.g., `VN,CN,RU`) specified in `ABUSEIPDB_BLOCKED_COUNTRIES`, the IP is blocked immediately.  
+    - **b. 2-Octet Flood Detection**: If enabled (`ABUSEIPDB_FLOOD_2OCTET_ENABLED`), tracks hits from the IP’s 2-octet prefix (e.g., `192.168`). If the count exceeds the threshold (`ABUSEIPDB_FLOOD_2OCTET_THRESHOLD`) within the reset window (`ABUSEIPDB_FLOOD_2OCTET_RESET`), the IP is blocked.  
+    - **c. 3-Octet Flood Detection**: If enabled (`ABUSEIPDB_FLOOD_3OCTET_ENABLED`), tracks hits from the IP’s 3-octet prefix (e.g., `192.168.1`). If the count exceeds the threshold (`ABUSEIPDB_FLOOD_3OCTET_THRESHOLD`) within the reset window (`ABUSEIPDB_FLOOD_3OCTET_RESET`), the IP is blocked.  
+    - **d. Country Flood Detection**: If enabled (`ABUSEIPDB_FLOOD_COUNTRY_ENABLED`), tracks hits from the IP’s country code (e.g., `US`). If the count exceeds the threshold (`ABUSEIPDB_FLOOD_COUNTRY_THRESHOLD`) within the reset window (`ABUSEIPDB_FLOOD_COUNTRY_RESET`), and the IP’s AbuseIPDB score meets the minimum score requirement (`ABUSEIPDB_FLOOD_COUNTRY_MIN_SCORE`, default 5), the IP is blocked.  
+    - **e. Foreign Flood Detection**: If enabled (`ABUSEIPDB_FOREIGN_FLOOD_ENABLED`), and the IP’s country code does not match the store’s default country (`ABUSEIPDB_DEFAULT_COUNTRY`), tracks hits from the foreign country. If the count exceeds the foreign threshold (`ABUSEIPDB_FLOOD_FOREIGN_THRESHOLD`) within the reset window (`ABUSEIPDB_FLOOD_FOREIGN_RESET`), and the IP’s AbuseIPDB score meets the minimum score requirement (`ABUSEIPDB_FLOOD_FOREIGN_MIN_SCORE`, default 5), the IP is blocked.  
+
     Additional behavior:  
-    - If the number of hits from a prefix or country exceeds its configured threshold **within the reset window**, the visitor is blocked.  
-    - Separate thresholds exist for foreign (non-default country) traffic and can trigger independent blocking.  
-    - Manual Country Blocking allows predefined country codes (e.g., `VN,CN,RU`) to be blocked **immediately once the country code is known**, either through cache or successful API response.  
-    - **Score-Safe Rule**: Even if a flood is detected, an IP is only blocked if its AbuseIPDB score meets or exceeds the configured **minimum score threshold**.  
+    - **Score-Safe Rule**: Even if a flood is detected, an IP is only blocked if its AbuseIPDB score meets or exceeds the configured **minimum score threshold** (applies to country and foreign flood detection).  
     - **API Fail-Safe**: IPs returning an AbuseIPDB score of `-1` (e.g., when the API limit is reached) are treated as **neutral** and will not trigger flood or country-based blocking.  
 
     **Flood Reset Logic:**  
@@ -232,7 +236,7 @@ This section provides an understanding of the logic steps involved in checking a
     - Blocking only occurs if the threshold is met **within the same reset window**.  
     - Example: If the threshold is set to 50 hits per hour for the 2-octet prefix `192.168`, once 50 visits are recorded within a single hour, that range will be **blocked immediately**.  
       The block remains in place **until a full hour passes** with **no new visits** from that prefix.  
-      If even one additional hit occurs during that hour, the reset timer is extended — keeping the range blocked.  
+      If even one additional hit occurs during that hour, the reset timer is extended — keeping the range blocked.
 6. Database Cleanup: The script's function periodically removes old IP records from the database when triggered, if the cleanup feature is enabled. This operation is performed only once per day, as indicated by the update of the maintenance timestamp.  
 7. API Logging: If API logging is enabled, a separate log file for API calls is created. The log file creation details are as follows:  
     - File Name: `abuseipdb_api_call_date.log`  
