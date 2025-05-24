@@ -6,7 +6,7 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.2
+ * @version     4.0.3
  * @updated     5-24-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
@@ -148,6 +148,11 @@ class abuseipdb_observer extends base {
             // Check if the IP is whitelisted
             if (in_array($ip, $whitelisted_ips)) {
                 return;
+            }
+
+            // Check session rate limiting
+            if (ABUSEIPDB_SESSION_RATE_LIMIT_ENABLED == 'true') {
+                checkSessionRateLimit($ip);
             }
 
             // Define the path to your blacklist file, and if it exists and ABUSEIPDB_BLACKLIST_ENABLE is true, load its content into the $file_blocked_ips array
@@ -374,8 +379,8 @@ class abuseipdb_observer extends base {
                     $update_query = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET score = " . (int)$abuseScore . ", country_code = '" . zen_db_input($countryCode) . "', timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
                     $db->Execute($update_query);
                 } else { // If the IP is not in the database, insert it
-                    $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, country_code, timestamp, flood_tracked, flood_tracked_reset_2octet, flood_tracked_reset_3octet, flood_tracked_reset_country, flood_tracked_reset_foreign) 
-                                     VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", '" . zen_db_input($countryCode) . "', NOW(), 0, 0, 0, 0, 0) 
+                    $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, country_code, timestamp, flood_tracked, flood_tracked_reset_2octet, flood_tracked_reset_3octet, flood_tracked_reset_country, flood_tracked_reset_foreign, session_count, session_window_start) 
+                                     VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", '" . zen_db_input($countryCode) . "', NOW(), 0, 0, 0, 0, 0, 0, 0) 
                                      ON DUPLICATE KEY UPDATE score = VALUES(score), country_code = VALUES(country_code), timestamp = NOW()";
                     $db->Execute($insert_query);
                 }

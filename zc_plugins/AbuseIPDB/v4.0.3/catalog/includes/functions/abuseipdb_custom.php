@@ -6,7 +6,7 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.2
+ * @version     4.0.3
  * @updated     5-24-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
@@ -201,5 +201,106 @@ function updateFloodPrefix($prefix, $prefixType, $countryCode, $currentTime) {
             VALUES
             ('{$prefix}', '{$prefixType}', 1, '{$currentTime}')"
         );
+    }
+}
+
+// Function to check session rate limiting for an IP
+function checkSessionRateLimit($ip) {
+    global $db;
+
+    $threshold = (int)ABUSEIPDB_SESSION_RATE_LIMIT_THRESHOLD;
+    $window = (int)ABUSEIPDB_SESSION_RATE_LIMIT_WINDOW;
+    $reset_window = (int)ABUSEIPDB_SESSION_RATE_LIMIT_RESET_WINDOW;
+    $log_file_path = ABUSEIPDB_LOG_FILE_PATH . 'abuseipdb_session_blocks.log';
+    $current_time = time();
+
+    // Look for the IP in the database
+    $ip_query = "SELECT session_count, session_window_start FROM " . TABLE_ABUSEIPDB_CACHE . " WHERE ip = '" . zen_db_input($ip) . "'";
+    $ip_info = $db->Execute($ip_query);
+
+    $session_count = 0;
+    $session_window_start = 0;
+
+    if (!$ip_info->EOF) {
+        $session_count = (int)$ip_info->fields['session_count'];
+        $session_window_start = (int)$ip_info->fields['session_window_start'];
+    }
+
+    // Check if the session window has expired for reset
+    if ($session_window_start > 0 && ($current_time - $session_window_start) > $reset_window) {
+        $session_count = 0;
+        $session_window_start = $current_time;
+    }
+
+    // If no window exists, start a new one
+    if ($session_window_start == 0) {
+        $session_window_start = $current_time;
+    }
+
+    // Increment session count
+    $session_count++;
+
+    // Update the database with the new session count and window start
+    if (!$ip_info->EOF) {
+        $db->Execute(
+            "UPDATE " . TABLE_ABUSEIPDB_CACHE . "
+             SET session_count = $session_count, session_window_start = $session_window_start
+             WHERE ip = '" . zen_db_input($ip) . "'"
+        );
+    } else {
+        $db->Execute(
+            "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . "
+            (ip, score, country_code, timestamp, flood_tracked, flood_tracked_reset_2octet, flood_tracked_reset_3octet, flood_tracked_reset_country, flood_tracked_reset_foreign, session_count, session_window_start)
+            VALUES
+            ('" . zen_db_input($ip) . "', 0, '', NOW(), 0, 0, 0, 0, 0, $session_count, $session_window_start)
+            ON DUPLICATE KEY UPDATE session_count = VALUES(session_count), session_window_start = VALUES(session_window_start)"
+        );
+    }
+
+    // Check if the session count exceeds the threshold within the window
+    if ($session_count >= $threshold && ($current_time - $session_window_start) <= $window) {
+        // Block the IP by adding to .htaccess
+        $htaccess_file = DIR_FS_CATALOG . '.htaccess';
+        $htaccess_content = file_get_contents($htaccess_file);
+        
+        $start_marker = "# AbuseIPDB Session Blocks Start\n";
+        $end_marker = "# AbuseIPDB Session Blocks End\n";
+        $block_rule = "Deny from $ip\n";
+        
+        // Check if the section exists
+        $start_pos = strpos($htaccess_content, $start_marker);
+        $end_pos = strpos($htaccess_content, $end_marker);
+        
+        if ($start_pos === false || $end_pos === false) {
+            // Section doesn't exist, create it after RewriteEngine on
+            $rewrite_pos = strpos($htaccess_content, "RewriteEngine on\n");
+            if ($rewrite_pos !== false) {
+                $insert_pos = $rewrite_pos + strlen("RewriteEngine on\n");
+                $new_section = "\n" . $start_marker . $block_rule . $end_marker;
+                $htaccess_content = substr($htaccess_content, 0, $insert_pos) . $new_section . substr($htaccess_content, $insert_pos);
+            } else {
+                // Fallback: append to the end
+                $htaccess_content .= "\n" . $start_marker . $block_rule . $end_marker;
+            }
+        } else {
+            // Section exists, update it
+            $section_content = substr($htaccess_content, $start_pos + strlen($start_marker), $end_pos - $start_pos - strlen($start_marker));
+            if (strpos($section_content, $block_rule) === false) {
+                // IP not in section, add it
+                $section_content .= $block_rule;
+                $htaccess_content = substr($htaccess_content, 0, $start_pos + strlen($start_marker)) . $section_content . substr($htaccess_content, $end_pos);
+            }
+        }
+        
+        // Write back to .htaccess
+        file_put_contents($htaccess_file, $htaccess_content);
+
+        // Log the block
+        $log_message = date('Y-m-d H:i:s') . " - IP $ip blocked: $session_count sessions in " . ($current_time - $session_window_start) . " seconds\n";
+        file_put_contents($log_file_path, $log_message, FILE_APPEND);
+
+        // Block the request
+        header('HTTP/1.0 403 Forbidden');
+        exit();
     }
 }

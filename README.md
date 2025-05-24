@@ -1,5 +1,4 @@
-
-# AbuseIPDB v4.0.2 for Zen Cart 2.1.0 or later
+# AbuseIPDB v4.0.3 for Zen Cart 2.1.0 or later
 
 ## Prerequisites
 
@@ -10,7 +9,7 @@
 
 This module is an AbuseIPDB integration for Zen Cart, designed to protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access if the score exceeds a predefined threshold.
 The module supports caching with extended duration for high-scoring IPs to optimize API calls, test mode for debugging, logging for monitoring blocked IPs, and advanced flood protection based on IP prefixes and country-level analysis.
-Additionally, it offers manual whitelisting, blacklisting, and country blocking for precise control over site access.
+Additionally, it offers manual whitelisting, blacklisting, country blocking, and session rate limiting for precise control over site access.
 
 ## INSTALLATION AND UPGRADE
 
@@ -112,15 +111,15 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
 8. Skipping IP Check for Known Spiders: If the "Allow Spiders?" setting (`ABUSEIPDB_SPIDER_ALLOW`) is enabled, known spiders will be skipped in the IP check and logging process, as they are not subject to AbuseIPDB scoring. This can be useful for avoiding unnecessary API calls and log entries for spider sessions.  
 9. Spider Detection: The script utilizes a file called `spiders.txt` provided by Zen Cart to identify known spiders, including search engine bots and web crawlers. It reads the user agent from the HTTP request and compares it against the entries in the spiders.txt file. If a match is found, indicating that the user agent corresponds to a known spider, the spider flag is set to true. This flag determines the script's behavior, enabling it to bypass certain checks or execute specific actions tailored for spider sessions.  
 
-10. **Enhanced "Who's Online" Page Features**
+10. **Enhanced "Who's Online" Page Features**  
 - **Real-Time Threat Assessment**: Displays AbuseIPDB confidence scores for each visitor, enabling real-time assessment of potential threats. Clicking on a score redirects to the AbuseIPDB website for detailed information about the IP address.  
 - **Interactive IP Status Icons**:  
     - 🛡️ **Red Shield**: Indicates an IP blocked due to a high AbuseIPDB score (Score Block, `SB`).  
     - 🛡️ **Purple Shield**: Indicates an IP blocked by the blacklist (IP Blacklist, `IB`).  
     - 🛡️ **Blue Shield**: Indicates an IP blocked by its country (Manual Country Block, `MC`).  
-    - 🛡️ **Teal Shield**: Indicates an IP blocked due to a domestic flood (Country Flood, CF).
-    - 🛡️ **Brown Shield**: Indicates an IP blocked due to a foreign flood (Foreign Flood, FF).
-    - 🛡️ **Orange Shield**: Indicates an IP blocked due to flood detection (2-octet Flood 2F or 3-octet Flood 3F), with a superscript "2" for 2F or "3" for 3F to distinguish the flood type.
+    - 🛡️ **Teal Shield**: Indicates an IP blocked due to a domestic flood (Country Flood, CF).  
+    - 🛡️ **Brown Shield**: Indicates an IP blocked due to a foreign flood (Foreign Flood, FF).  
+    - 🛡️ **Orange Shield**: Indicates an IP blocked due to flood detection (2-octet Flood 2F or 3-octet Flood 3F), with a superscript "2" for 2F or "3" for 3F to distinguish the flood type.  
     - 🚫 **Grey Circle with Slash**: Appears for unblocked IPs with a score greater than 0, allowing quick manual addition to the blacklist file directly from the "Who's Online" screen.  
   
   A legend at the top of the "Who's Online" page explains the meaning of each shield color, helping admins quickly identify and manage threats.  
@@ -130,49 +129,91 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
 	- To display the 🚫 **Grey Circle with Slash** (blacklist button), the **"Enable IP Blacklist File"** setting must be set to `true` in the configuration.  
 
 11. **Flood Tracking and Flood Blocking (NEW!)**  
-    - Tracks IP hits by 2-octet prefixes (e.g., `192.168`), 3-octet prefixes (e.g., `192.168.1`), and country codes (e.g., `US`, `VN`), blocking IPs if thresholds are exceeded within configurable reset windows (e.g., 1/2 hour).
-    - Country and foreign (non-home country) floods use separate thresholds and minimum score settings (`ABUSEIPDB_FLOOD_COUNTRY_MIN_SCORE`, `ABUSEIPDB_FLOOD_FOREIGN_MIN_SCORE`, default 5) to prevent blocking legitimate traffic.
-    - Administrators can manually block entire countries (e.g., `VN,CN,RU`) via configuration settings for immediate protection.
+    - Tracks IP hits by 2-octet prefixes (e.g., `192.168`), 3-octet prefixes (e.g., `192.168.1`), and country codes (e.g., `US`, `VN`), blocking IPs if thresholds are exceeded within configurable reset windows (e.g., 1/2 hour).  
+    - Country and foreign (non-home country) floods use separate thresholds and minimum score settings (`ABUSEIPDB_FLOOD_COUNTRY_MIN_SCORE`, `ABUSEIPDB_FLOOD_FOREIGN_MIN_SCORE`, default 5) to prevent blocking legitimate traffic.  
+    - Administrators can manually block entire countries (e.g., `VN,CN,RU`) via configuration settings for immediate protection.  
 
 12. **Foreign Country Flood Detection (NEW!)**  
-    - You can separately monitor "foreign" traffic — meaning traffic originating outside your store’s configured home country.
-    - If hits from a foreign country exceed the configured threshold, blocking will occur automatically.
+    - You can separately monitor "foreign" traffic — meaning traffic originating outside your store’s configured home country.  
+    - If hits from a foreign country exceed the configured threshold, blocking will occur automatically.  
 
 13. **Manual Country Blocking (NEW!)**  
-    - Administrators can manually specify a list of country codes to instantly block (e.g., `VN,CN,RU`) without waiting for AbuseIPDB scores or flood detection to trigger.
-    - Supports both proactive (manual) and reactive (automatic) defense strategies.
+    - Administrators can manually specify a list of country codes to instantly block (e.g., `VN,CN,RU`) without waiting for AbuseIPDB scores or flood detection to trigger.  
+    - Supports both proactive (manual) and reactive (automatic) defense strategies.  
 
 14. **Score-Safe Flood Logic**  
-    - Even if flood thresholds are crossed, an IP must meet a minimum AbuseIPDB score before blocking occurs.
-    - Ensures legitimate customers are not accidentally blocked during sudden spikes in real traffic (e.g., newsletters, sales). for your default country and foreign traffic.
-	
+    - Even if flood thresholds are crossed, an IP must meet a minimum AbuseIPDB score before blocking occurs.  
+    - Ensures legitimate customers are not accidentally blocked during sudden spikes in real traffic (e.g., newsletters, sales) for your default country and foreign traffic.  
+
 15. **Automatic API Usage Failsafe**  
-    - If the AbuseIPDB API quota is exceeded, API calls fail gracefully, and cached -1 scores trigger retries to obtain valid scores.
-    - IPs with -1 scores are treated as neutral and **will not** trigger flood or country blocking, ensuring site accessibility during API unavailability.
+    - If the AbuseIPDB API quota is exceeded, API calls fail gracefully, and cached -1 scores trigger retries to obtain valid scores.  
+    - IPs with -1 scores are treated as neutral and **will not** trigger flood or country blocking, ensuring site accessibility during API unavailability.  
 
 16. **Expanded Admin Settings**  
-    - New settings added:
-      - Foreign Flood Threshold
-      - Minimum Score for Country Flood Blocking
-      - Manual Blocked Country List
-    - Provides fine-grained control over flood detection, country-level blocking, and API safety margins.
+    - New settings added:  
+      - Foreign Flood Threshold  
+      - Minimum Score for Country Flood Blocking  
+      - Manual Blocked Country List  
+    - Provides fine-grained control over flood detection, country-level blocking, and API safety margins.  
+
+17. **Session Rate Limiting (NEW!)**  
+    - **Purpose**: Protects your site from bots that rapidly create sessions (e.g., 1000+ in a short time), which can overload the server.  
+    - **How It Works**:  
+      - Tracks the number of sessions an IP creates within a configurable time window (default: 100 sessions in 60 seconds).  
+      - If the threshold is exceeded, the IP is blocked by adding a `Deny from <IP>` rule to a dedicated section in your `.htaccess` file, marked by `# AbuseIPDB Session Blocks Start` and `# AbuseIPDB Session Blocks End`.  
+      - The block is permanent until the admin manually removes the IP from `.htaccess`.  
+      - A log entry is always generated in `logs/abuseipdb_session_blocks.log` (e.g., "2025-05-24 19:05:00 - IP 75.181.71.80 blocked: 101 sessions in 30 seconds"), regardless of whether general logging is enabled.  
+    - **Server Requirements**:  
+      - This feature is designed for Apache2 servers, as it relies on modifying the `.htaccess` file to block IPs.  
+      - For non-Apache servers (e.g., Nginx), you’ll need to implement equivalent rate-limiting mechanisms manually (e.g., using Nginx rate limiting or server-level firewalls like fail2ban).  
+    - **File Permission Requirements**:  
+      - The `.htaccess` file must be writable by the web server user (e.g., `www-data` or `apache`).  
+      - Set the correct permissions before enabling this feature:  
+        ```bash
+        chmod 664 /path/to/zen-cart/.htaccess
+        chmod 775 /path/to/zen-cart
+        ```
+      - Ensure the directory containing `.htaccess` (e.g., `/var/www/html/`) is also writable by the web server user.  
+    - **Adding IPs to `.htaccess`**:  
+      - The plugin automatically adds blocked IPs to a dedicated section in `.htaccess`, marked by:  
+        ```
+        # AbuseIPDB Session Blocks Start
+        Deny from <IP>
+        # AbuseIPDB Session Blocks End
+        ```
+      - This section is created after the `RewriteEngine on` directive but before other rewrite rules to ensure block rules are processed early.  
+      - If the section doesn’t exist, the plugin will create it during the first block event.  
+    - **Manual IP Removal**:  
+      - To unblock an IP, manually edit the `.htaccess` file and remove the corresponding `Deny from <IP>` line from the AbuseIPDB session blocks section.  
+      - Save the file, and the IP will be able to access the site again.  
+    - **Log File**:  
+      - All session rate limit blocks are logged to `logs/abuseipdb_session_blocks.log`, regardless of the general logging setting (`ABUSEIPDB_ENABLE_LOGGING`).  
+      - Check this log to review blocked IPs and their session counts (e.g., "2025-05-24 19:05:00 - IP 75.181.71.80 blocked: 101 sessions in 30 seconds").  
+    - **Configuration Settings**:  
+      - **Enable Session Rate Limiting?**: Toggle to enable/disable the feature (default: `false`).  
+      - **Session Rate Limit Threshold**: Maximum sessions allowed in the time window (default: 100).  
+      - **Session Rate Limit Window (seconds)**: Time window for counting sessions (default: 60 seconds).  
+      - **Session Rate Limit Reset Window (seconds)**: Time after which the session count resets if no new sessions are created (default: 300 seconds = 5 minutes).  
 
 ## SCRIPT LOGIC
 
 This section provides an understanding of the logic steps involved in checking an IP and creating the corresponding log files:  
 
 1. IP Whitelisting: The script first checks if the IP is whitelisted. If it is, the IP is permitted without further processing.  
-2. Manual IP Blocking: If the IP is not whitelisted, the script checks if the IP is manually blocked. If it is, the IP address is logged as blocked in the cache and a corresponding log file is generated. The log file creation details are as follows:  
-    - File Name: `abuseipdb_blocked_cache_<date>.log`
-    - Location: `ABUSEIPDB_LOG_FILE_PATH`
-3. IP Cache Lookup: If the IP is neither whitelisted nor manually blocked, the script then looks for the IP in the database cache.  
-    - a. If the IP is found in the cache and the cache has not expired: 
-      - The abuse score is retrieved from the cache. 
-      - If the abuse score is above the threshold or the IP is in test mode, the IP is logged as blocked in the cache and a log file is created with the same details as described above.
-    - b. If the IP is not found in the cache or the cache has expired: - An API call is made to AbuseIPDB to fetch the abuse score for the IP. - The database cache is then updated with the new abuse score and timestamp.  
+2. Session Rate Limiting: If enabled, the script tracks the number of sessions created by the IP within a configurable time window (default: 100 sessions in 60 seconds). If the threshold is exceeded, the IP is blocked via `.htaccess`, and a log entry is created in `abuseipdb_session_blocks.log`.  
+3. Manual IP Blocking: If the IP is not whitelisted or blocked by session rate limiting, the script checks if the IP is manually blocked. If it is, the IP address is logged as blocked in the cache and a corresponding log file is generated. The log file creation details are as follows:  
+    - File Name: `abuseipdb_blocked_cache_<date>.log`  
+    - Location: `ABUSEIPDB_LOG_FILE_PATH`  
+4. IP Cache Lookup: If the IP is neither whitelisted nor manually blocked, the script then looks for the IP in the database cache.  
+    - a. If the IP is found in the cache and the cache has not expired:  
+      - The abuse score is retrieved from the cache.  
+      - If the abuse score is above the threshold or the IP is in test mode, the IP is logged as blocked in the cache and a log file is created with the same details as described above.  
+    - b. If the IP is not found in the cache or the cache has expired:  
+      - An API call is made to AbuseIPDB to fetch the abuse score for the IP.  
+      - The database cache is then updated with the new abuse score and timestamp.  
     - c. Skip IP check for known spiders: If the IP is identified as a known spider and the ABUSEIPDB_SPIDER_ALLOW setting is enabled, the IP check and logging steps are skipped for spiders.  
-    - d. Spider Logging: If Spider logging is enabled, a separate log file for spiders that bypassed an ip check is created.  
-4. **Flood Tracking and Flood Blocking (NEW!)**: After an IP is cached or updated, the system automatically tracks hits against:  
+    - d. Spider Logging: If Spider logging is enabled, a separate log file for spiders that bypassed an IP check is created.  
+5. **Flood Tracking and Flood Blocking (NEW!)**: After an IP is cached or updated, the system automatically tracks hits against:  
     - 2-octet prefixes (e.g., `192.168`)  
     - 3-octet prefixes (e.g., `192.168.1`)  
     - Country codes (e.g., `US`, `VN`)  
@@ -182,7 +223,7 @@ This section provides an understanding of the logic steps involved in checking a
     - Separate thresholds exist for foreign (non-default country) traffic and can trigger independent blocking.  
     - Manual Country Blocking allows predefined country codes (e.g., `VN,CN,RU`) to be blocked **immediately once the country code is known**, either through cache or successful API response.  
     - **Score-Safe Rule**: Even if a flood is detected, an IP is only blocked if its AbuseIPDB score meets or exceeds the configured **minimum score threshold**.  
-    - **API Fail-Safe**: IPs returning an AbuseIPDB score of `-1` (e.g., when the API limit is reached) are treated as **neutral** and will not trigger flood or country-based blocking.
+    - **API Fail-Safe**: IPs returning an AbuseIPDB score of `-1` (e.g., when the API limit is reached) are treated as **neutral** and will not trigger flood or country-based blocking.  
 
     **Flood Reset Logic:**  
     - Each prefix or country has an individual timestamp.  
@@ -192,14 +233,14 @@ This section provides an understanding of the logic steps involved in checking a
     - Example: If the threshold is set to 50 hits per hour for the 2-octet prefix `192.168`, once 50 visits are recorded within a single hour, that range will be **blocked immediately**.  
       The block remains in place **until a full hour passes** with **no new visits** from that prefix.  
       If even one additional hit occurs during that hour, the reset timer is extended — keeping the range blocked.  
-5. Database Cleanup: The script's function periodically removes old IP records from the database when triggered, if the cleanup feature is enabled. This operation is performed only once per day, as indicated by the update of the maintenance timestamp.  
-6. API Logging: If API logging is enabled, a separate log file for API calls is created. The log file creation details are as follows:  
-    - File Name: `abuseipdb_api_call_date.log`
+6. Database Cleanup: The script's function periodically removes old IP records from the database when triggered, if the cleanup feature is enabled. This operation is performed only once per day, as indicated by the update of the maintenance timestamp.  
+7. API Logging: If API logging is enabled, a separate log file for API calls is created. The log file creation details are as follows:  
+    - File Name: `abuseipdb_api_call_date.log`  
     - Location: `ABUSEIPDB_LOG_FILE_PATH`  
-7. IP Blocking: If the abuse score is above the threshold or the IP is in test mode, the IP address is logged as blocked (either from the API call or from the cache) and a corresponding log file is created. The log file creation details are as follows:  
-    - File Name: `abuseipdb_blocked_date.log`
-    - Location: `ABUSEIPDB_LOG_FILE_PATH`
-8. Safe IP: If none of the above conditions trigger a block, the IP is considered safe, and the script proceeds without further action.  
+8. IP Blocking: If the abuse score is above the threshold or the IP is in test mode, the IP address is logged as blocked (either from the API call or from the cache) and a corresponding log file is created. The log file creation details are as follows:  
+    - File Name: `abuseipdb_blocked_date.log`  
+    - Location: `ABUSEIPDB_LOG_FILE_PATH`  
+9. Safe IP: If none of the above conditions trigger a block, the IP is considered safe, and the script proceeds without further action.  
 
 ## SUPPORT
 
@@ -207,13 +248,14 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
-- **v4.0.2**  Added logic to reset flood tracking per flood type after reset period, ensuring previously tracked IPs are recounted if returned. Enhanced Who's Online shields with additional colors for flood blocks and superscripts for 2F/3F.
-- **v4.0.1**: Added upgrade support. You can now upgrade cleanly from earlier versions without uninstalling.
-- **v4.0.0**: Major update with full flood tracking (2-octet, 3-octet, country, foreign) flood detection with minimum score-safe protection, manual country blocking, and high-score cache extension.
-- **v3.0.4**: Unified GitHub merges with minor updates for consistency.
-- **v3.0.3**: Transitioned the AbuseIPDB Widget to an observer class for improved modularity and encapsulation.
-- **v3.0.2**: Added total settings count display to ensure all settings are accounted for.
-- **v3.0.1**: Bug Fix - resolved an issue with undefined constants.
+- **v4.0.3**: Added session rate limiting to block IPs creating sessions too rapidly, with configurable threshold, time window, and reset period. IPs are blocked via `.htaccess` (Apache2 only), logged in `abuseipdb_session_blocks.log`, and require manual removal by the admin.  
+- **v4.0.2**: Added logic to reset flood tracking per flood type after reset period, ensuring previously tracked IPs are recounted if returned. Enhanced Who's Online shields with additional colors for flood blocks and superscripts for 2F/3F.  
+- **v4.0.1**: Added upgrade support. You can now upgrade cleanly from earlier versions without uninstalling.  
+- **v4.0.0**: Major update with full flood tracking (2-octet, 3-octet, country, foreign) flood detection with minimum score-safe protection, manual country blocking, and high-score cache extension.  
+- **v3.0.4**: Unified GitHub merges with minor updates for consistency.  
+- **v3.0.3**: Transitioned the AbuseIPDB Widget to an observer class for improved modularity and encapsulation.  
+- **v3.0.2**: Added total settings count display to ensure all settings are accounted for.  
+- **v3.0.1**: Bug Fix - resolved an issue with undefined constants.  
 - **v3.0.0**: Migrated to Encapsulated Plugin Architecture.  
 - **v2.1.6**: Minor code optimizations for maintainability.  
 - **v2.1.5**: Improved consistency in date handling across the module.  
@@ -242,7 +284,6 @@ This module has benefited from the contributions and feedback of the Zen Cart an
 - [@retched](https://github.com/retched) — Added a new verification badge to the Admin Area in v2.1.2, enabling qualification for increased API call limits.
 
 Want to contribute? Submit a pull request or open an issue on [GitHub](https://github.com/CcMarc/AbuseIPDB).
-
 
 ## LICENSE
 
