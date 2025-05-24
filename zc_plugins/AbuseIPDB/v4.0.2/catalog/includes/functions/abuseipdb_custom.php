@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.0
- * @updated     4-26-2025
+ * @version     4.0.2
+ * @updated     5-24-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -43,14 +43,13 @@ function getAbuseConfidenceScore($ip, $api_key) {
         // Decode the JSON response
         $data = json_decode($response, true);
 
-    // Check if the abuse confidence score exists
-	if (isset($data['data']['abuseConfidenceScore'])) {
-		$abuseScore = (int)$data['data']['abuseConfidenceScore'];
-		$countryCode = $data['data']['countryCode'] ?? ''; // Default to empty string if missing
-    return [$abuseScore, $countryCode];
+        // Check if the abuse confidence score exists
+        if (isset($data['data']['abuseConfidenceScore'])) {
+            $abuseScore = (int)$data['data']['abuseConfidenceScore'];
+            $countryCode = $data['data']['countryCode'] ?? ''; // Default to empty string if missing
+            return [$abuseScore, $countryCode];
         }
     }
-
 
     // Return -1 if there was an issue retrieving the abuse confidence score
     return -1;
@@ -60,6 +59,59 @@ function getAbuseConfidenceScore($ip, $api_key) {
 function formatLogFileName($fileNameFormat) {
     // Replace the placeholders with the current date elements
     return str_replace(array('%Y', '%m', '%d'), array(date('Y'), date('m'), date('d')), $fileNameFormat);
+}
+
+// Function to reset flood tracking columns in the cache table for a given prefix and type
+function resetFloodTrackingColumns($prefix, $prefixType, $standardCacheTime, $extendedCacheTime, $highScoreThreshold) {
+    global $db;
+
+    $prefix = zen_db_input($prefix);
+    $prefixType = zen_db_input($prefixType);
+    $standardCacheTime = (int)$standardCacheTime;
+    $extendedCacheTime = (int)$extendedCacheTime;
+    $highScoreThreshold = (int)$highScoreThreshold;
+
+    $columnToReset = '';
+    $likePattern = '';
+
+    // Determine the column to reset and the LIKE pattern based on prefix type
+    if ($prefixType == '2') {
+        $columnToReset = 'flood_tracked_reset_2octet';
+        $likePattern = "$prefix.%.%";
+    } elseif ($prefixType == '3') {
+        $columnToReset = 'flood_tracked_reset_3octet';
+        $likePattern = "$prefix.%";
+    } elseif ($prefixType == 'country') {
+        // Check if country matches the default country
+        $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
+        if (strcasecmp($prefix, $default_country) === 0) {
+            $columnToReset = 'flood_tracked_reset_country';
+        } else {
+            $columnToReset = 'flood_tracked_reset_foreign';
+        }
+        // For country type, match on country_code instead of ip
+        $db->Execute(
+            "UPDATE " . TABLE_ABUSEIPDB_CACHE . "
+             SET $columnToReset = 0
+             WHERE country_code = '$prefix'
+             AND (
+                 (score < $highScoreThreshold AND timestamp >= DATE_SUB(NOW(), INTERVAL $standardCacheTime SECOND))
+                 OR (score >= $highScoreThreshold AND timestamp >= DATE_SUB(NOW(), INTERVAL $extendedCacheTime SECOND))
+             )"
+        );
+        return; // Exit since country uses a different matching condition
+    }
+
+    // For 2-octet and 3-octet, match on ip using LIKE
+    $db->Execute(
+        "UPDATE " . TABLE_ABUSEIPDB_CACHE . "
+         SET $columnToReset = 0
+         WHERE ip LIKE '$likePattern'
+         AND (
+             (score < $highScoreThreshold AND timestamp >= DATE_SUB(NOW(), INTERVAL $standardCacheTime SECOND))
+             OR (score >= $highScoreThreshold AND timestamp >= DATE_SUB(NOW(), INTERVAL $extendedCacheTime SECOND))
+         )"
+    );
 }
 
 function updateFloodTracking($ip, $countryCode = null) {
@@ -108,16 +160,15 @@ function updateFloodPrefix($prefix, $prefixType, $countryCode, $currentTime) {
             $resetSeconds = (int)ABUSEIPDB_FLOOD_2OCTET_RESET;
         } elseif ($prefixType == '3') {
             $resetSeconds = (int)ABUSEIPDB_FLOOD_3OCTET_RESET;
-		} elseif ($prefixType == 'country') {
-		// Check if countryCode matches the default country
-		$default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
-		if (strcasecmp($countryCode, $default_country) === 0) {
-			$resetSeconds = (int)ABUSEIPDB_FLOOD_COUNTRY_RESET;
-		} else {
-			$resetSeconds = (int)ABUSEIPDB_FLOOD_FOREIGN_RESET;
-		}
-	}
-
+        } elseif ($prefixType == 'country') {
+            // Check if countryCode matches the default country
+            $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
+            if (strcasecmp($countryCode, $default_country) === 0) {
+                $resetSeconds = (int)ABUSEIPDB_FLOOD_COUNTRY_RESET;
+            } else {
+                $resetSeconds = (int)ABUSEIPDB_FLOOD_FOREIGN_RESET;
+            }
+        }
 
         if (time() - $lastTimestamp > $resetSeconds) {
             // Reset counter
@@ -125,6 +176,14 @@ function updateFloodPrefix($prefix, $prefixType, $countryCode, $currentTime) {
                 "UPDATE " . TABLE_ABUSEIPDB_FLOOD . "
                  SET count = 1, timestamp = '{$currentTime}'
                  WHERE id = " . (int)$result->fields['id']
+            );
+            // Call the new function to reset flood tracking columns
+            resetFloodTrackingColumns(
+                $prefix,
+                $prefixType,
+                ABUSEIPDB_CACHE_TIME,
+                ABUSEIPDB_EXTENDED_CACHE_TIME,
+                ABUSEIPDB_HIGH_SCORE_THRESHOLD
             );
         } else {
             // Increment counter
@@ -138,9 +197,9 @@ function updateFloodPrefix($prefix, $prefixType, $countryCode, $currentTime) {
         // New record
         $db->Execute(
             "INSERT INTO " . TABLE_ABUSEIPDB_FLOOD . "
-            (prefix, prefix_type, country_code, count, timestamp)
+            (prefix, prefix_type, count, timestamp)
             VALUES
-            ('{$prefix}', '{$prefixType}', '{$countryCode}', 1, '{$currentTime}')"
+            ('{$prefix}', '{$prefixType}', 1, '{$currentTime}')"
         );
     }
 }

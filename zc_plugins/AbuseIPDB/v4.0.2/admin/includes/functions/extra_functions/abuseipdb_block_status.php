@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.0
- * @updated     5-17-2025
+ * @version     4.0.2
+ * @updated     5-24-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -19,6 +19,8 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
 
     $ip_score = 0;
     $country_code = '';
+    $block_flags = array();
+    $show_shield = false;
 
     // Step 1: Lookup score and country
     $ip_query = $db->Execute("SELECT score, country_code FROM " . TABLE_ABUSEIPDB_CACHE . " WHERE ip = '" . zen_db_input($ip_address) . "'");
@@ -40,12 +42,10 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
     $blocked_ips = defined('ABUSEIPDB_BLOCKED_IPS') ? explode(',', ABUSEIPDB_BLOCKED_IPS) : array();
     $blocked_countries = defined('ABUSEIPDB_BLOCKED_COUNTRIES') && !empty(ABUSEIPDB_BLOCKED_COUNTRIES) ? array_map('trim', explode(',', ABUSEIPDB_BLOCKED_COUNTRIES)) : array();
 
-    $block_flags = array();
-    $show_shield = false;
-
     // Score-based block (SB)
     if ($ip_score >= $threshold) {
-        $block_flags[] = 'SB';
+        $block_flags[] = 'SB'; // Score Block
+        $show_shield = true;
     }
 
     // IP blacklist block (IB)
@@ -57,12 +57,14 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
         $in_blacklist_file = in_array($ip_address, $blacklist);
     }
     if (in_array($ip_address, $blocked_ips) || $in_blacklist_file) {
-        $block_flags[] = 'IB';
+        $block_flags[] = 'IB'; // IP Blacklist
+        $show_shield = true;
     }
 
     // Manual country block (MC)
     if (!empty($country_code) && in_array(strtoupper($country_code), $blocked_countries)) {
-        $block_flags[] = 'MC';
+        $block_flags[] = 'MC'; // Manual Country
+        $show_shield = true;
     }
 
     // Flood blocks
@@ -107,10 +109,11 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
             !$res_c->EOF &&
             !empty($res_c->fields['timestamp']) &&
             (int)$res_c->fields['count'] >= $country_flood_threshold &&
-            (time() - strtotime($res_c->fields['timestamp'])) < $country_reset &&
+            (time() - strtotime($res_c->fields['timestamp'])) <= ($country_reset * 60) &&
             $ip_score >= $country_min_score
         ) {
             $block_flags[] = 'CF';
+            $show_shield = true;
         }
     }
 
@@ -125,10 +128,11 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
             !$res_f->EOF &&
             !empty($res_f->fields['timestamp']) &&
             (int)$res_f->fields['count'] >= $foreign_flood_threshold &&
-            (time() - strtotime($res_f->fields['timestamp'])) < $foreign_reset &&
+            (time() - strtotime($res_f->fields['timestamp'])) <= ($foreign_reset * 60) &&
             $ip_score >= $foreign_min_score
         ) {
             $block_flags[] = 'FF';
+            $show_shield = true;
         }
     }
 
@@ -145,9 +149,10 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
             !$res_2->EOF &&
             !empty($res_2->fields['timestamp']) &&
             (int)$res_2->fields['count'] >= $two_octet_threshold &&
-            (time() - strtotime($res_2->fields['timestamp'])) < $two_octet_reset
+            (time() - strtotime($res_2->fields['timestamp'])) <= ($two_octet_reset * 60)
         ) {
             $block_flags[] = '2F';
+            $show_shield = true;
         }
     }
 
@@ -163,9 +168,10 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
             !$res_3->EOF &&
             !empty($res_3->fields['timestamp']) &&
             (int)$res_3->fields['count'] >= $three_octet_threshold &&
-            (time() - strtotime($res_3->fields['timestamp'])) < $three_octet_reset
+            (time() - strtotime($res_3->fields['timestamp'])) <= ($three_octet_reset * 60)
         ) {
             $block_flags[] = '3F';
+            $show_shield = true;
         }
     }
 
@@ -182,14 +188,28 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
         $html .= '<span style="background-color: blue; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 10px;" title="Blocked by Country (MC)"><i class="fas fa-shield-alt"></i></span>';
         $show_shield = true;
     }
-    if (in_array('CF', $block_flags) || in_array('FF', $block_flags) || in_array('2F', $block_flags) || in_array('3F', $block_flags)) {
+    if (in_array('CF', $block_flags)) {
+        $html .= '<span style="background-color: teal; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 10px;" title="Blocked by Country Flood (CF)"><i class="fas fa-shield-alt"></i></span>';
+        $show_shield = true;
+    }
+    if (in_array('FF', $block_flags)) {
+        $html .= '<span style="background-color: brown; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 10px;" title="Blocked by Foreign Flood (FF)"><i class="fas fa-shield-alt"></i></span>';
+        $show_shield = true;
+    }
+    if (in_array('2F', $block_flags) || in_array('3F', $block_flags)) {
         $flood_label = array();
-        if (in_array('CF', $block_flags)) $flood_label[] = 'CF';
-        if (in_array('FF', $block_flags)) $flood_label[] = 'FF';
-        if (in_array('2F', $block_flags)) $flood_label[] = '2F';
-        if (in_array('3F', $block_flags)) $flood_label[] = '3F';
+        $superscripts = array();
+        if (in_array('2F', $block_flags)) {
+            $flood_label[] = '2F';
+            $superscripts[] = '<sup>2</sup>';
+        }
+        if (in_array('3F', $block_flags)) {
+            $flood_label[] = '3F';
+            $superscripts[] = '<sup>3</sup>';
+        }
         $label = implode(',', $flood_label);
-        $html .= '<span style="background-color: orange; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 10px;" title="Blocked by Flood (' . $label . ')"><i class="fas fa-shield-alt"></i></span>';
+        $superscript_text = implode(',', $superscripts);
+        $html .= '<span style="background-color: orange; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 10px;" title="Blocked by Flood (' . $label . ')"><i class="fas fa-shield-alt"></i>' . $superscript_text . '</span>';
         $show_shield = true;
     }
 
@@ -219,6 +239,7 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
     return $html;
 }
 
+// Display the AbuseIPDB shield color legend
 function getAbuseIPDBShieldLegend() {
     if (!defined('ABUSEIPDB_ENABLED') || ABUSEIPDB_ENABLED !== 'true') {
         return '';
@@ -228,7 +249,9 @@ function getAbuseIPDBShieldLegend() {
     $html .= '<span style="background-color: red; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Score (SB)"><i class="fas fa-shield-alt"></i></span> Score Block (SB)&nbsp;';
     $html .= '<span style="background-color: purple; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by IP Blacklist (IB)"><i class="fas fa-shield-alt"></i></span> IP Blacklist (IB)&nbsp;';
     $html .= '<span style="background-color: blue; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Country (MC)"><i class="fas fa-shield-alt"></i></span> Country Block (MC)&nbsp;';
-    $html .= '<span style="background-color: orange; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Flood (CF,FF,2F,3F)"><i class="fas fa-shield-alt"></i></span> Flood Block (CF,FF,2F,3F)';
+    $html .= '<span style="background-color: teal; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Country Flood (CF)"><i class="fas fa-shield-alt"></i></span> Country Flood (CF)&nbsp;';
+    $html .= '<span style="background-color: brown; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Foreign Flood (FF)"><i class="fas fa-shield-alt"></i></span> Foreign Flood (FF)&nbsp;';
+    $html .= '<span style="background-color: orange; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Flood (2F,3F)"><i class="fas fa-shield-alt"></i></span> Flood Block (2F,3F)';
     return $html;
 }
 ?>

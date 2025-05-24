@@ -1,5 +1,5 @@
 
-# AbuseIPDB v4.0.1 for Zen Cart 2.1.0 or later
+# AbuseIPDB v4.0.2 for Zen Cart 2.1.0 or later
 
 ## Prerequisites
 
@@ -118,7 +118,9 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
     - 🛡️ **Red Shield**: Indicates an IP blocked due to a high AbuseIPDB score (Score Block, `SB`).  
     - 🛡️ **Purple Shield**: Indicates an IP blocked by the blacklist (IP Blacklist, `IB`).  
     - 🛡️ **Blue Shield**: Indicates an IP blocked by its country (Manual Country Block, `MC`).  
-    - 🛡️ **Orange Shield**: Indicates an IP blocked due to flood detection (Flood Block, `CF`, `FF`, `2F`, `3F`).  
+    - 🛡️ **Teal Shield**: Indicates an IP blocked due to a domestic flood (Country Flood, CF).
+    - 🛡️ **Brown Shield**: Indicates an IP blocked due to a foreign flood (Foreign Flood, FF).
+    - 🛡️ **Orange Shield**: Indicates an IP blocked due to flood detection (2-octet Flood 2F or 3-octet Flood 3F), with a superscript "2" for 2F or "3" for 3F to distinguish the flood type.
     - 🚫 **Grey Circle with Slash**: Appears for unblocked IPs with a score greater than 0, allowing quick manual addition to the blacklist file directly from the "Who's Online" screen.  
   
   A legend at the top of the "Who's Online" page explains the meaning of each shield color, helping admins quickly identify and manage threats.  
@@ -205,6 +207,7 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
+- **v4.0.2**  Added logic to reset flood tracking per flood type after reset period, ensuring previously tracked IPs are recounted if returned. Enhanced Who's Online shields with additional colors for flood blocks and superscripts for 2F/3F.
 - **v4.0.1**: Added upgrade support. You can now upgrade cleanly from earlier versions without uninstalling.
 - **v4.0.0**: Major update with full flood tracking (2-octet, 3-octet, country, foreign) flood detection with minimum score-safe protection, manual country blocking, and high-score cache extension.
 - **v3.0.4**: Unified GitHub merges with minor updates for consistency.

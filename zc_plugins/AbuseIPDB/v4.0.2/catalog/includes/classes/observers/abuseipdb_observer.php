@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.0
- * @updated     5-03-2025
+ * @version     4.0.2
+ * @updated     5-24-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -29,51 +29,51 @@ class abuseipdb_observer extends base {
         return realpath($baseDir) . '/catalog/';
     }
 
-protected function runCleanup() {
-    global $db, $zcDate;
+    protected function runCleanup() {
+        global $db, $zcDate;
 
-    $cleanup_enabled = ABUSEIPDB_CLEANUP_ENABLED;
-    $cache_cleanup_period = ABUSEIPDB_CLEANUP_PERIOD;
-    $flood_cleanup_period = ABUSEIPDB_FLOOD_CLEANUP_PERIOD;
-    $abuseipdb_enabled = ABUSEIPDB_ENABLED;
+        $cleanup_enabled = ABUSEIPDB_CLEANUP_ENABLED;
+        $cache_cleanup_period = ABUSEIPDB_CLEANUP_PERIOD;
+        $flood_cleanup_period = ABUSEIPDB_FLOOD_CLEANUP_PERIOD;
+        $abuseipdb_enabled = ABUSEIPDB_ENABLED;
 
-    if ($cleanup_enabled == 'true' && $abuseipdb_enabled == 'true') {
-        $maintenance_query = "SELECT last_cleanup, timestamp FROM " . TABLE_ABUSEIPDB_MAINTENANCE;
-        $maintenance_info = $db->Execute($maintenance_query);
+        if ($cleanup_enabled == 'true' && $abuseipdb_enabled == 'true') {
+            $maintenance_query = "SELECT last_cleanup, timestamp FROM " . TABLE_ABUSEIPDB_MAINTENANCE;
+            $maintenance_info = $db->Execute($maintenance_query);
 
-        $last_cleanup_date = $maintenance_info->fields['last_cleanup'] ?? null;
+            $last_cleanup_date = $maintenance_info->fields['last_cleanup'] ?? null;
 
-        // Validate and handle missing last_cleanup
-        if ($maintenance_info->RecordCount() > 0 && $last_cleanup_date) {
-            $formatted_date = $zcDate 
-                ? (int)$zcDate->output($last_cleanup_date) 
-                : strtotime($last_cleanup_date);
-            
-            if (date('Y-m-d') != date('Y-m-d', $formatted_date)) {
-                // Cleanup old cache records
-                $cache_cleanup_query = "DELETE FROM " . TABLE_ABUSEIPDB_CACHE . 
-                                       " WHERE timestamp < DATE_SUB(NOW(), INTERVAL " . (int)$cache_cleanup_period . " DAY)";
-                $db->Execute($cache_cleanup_query);
+            // Validate and handle missing last_cleanup
+            if ($maintenance_info->RecordCount() > 0 && $last_cleanup_date) {
+                $formatted_date = $zcDate 
+                    ? (int)$zcDate->output($last_cleanup_date) 
+                    : strtotime($last_cleanup_date);
+                
+                if (date('Y-m-d') != date('Y-m-d', $formatted_date)) {
+                    // Cleanup old cache records
+                    $cache_cleanup_query = "DELETE FROM " . TABLE_ABUSEIPDB_CACHE . 
+                                           " WHERE timestamp < DATE_SUB(NOW(), INTERVAL " . (int)$cache_cleanup_period . " DAY)";
+                    $db->Execute($cache_cleanup_query);
 
-                // Cleanup old flood records
-                $flood_cleanup_query = "DELETE FROM " . TABLE_ABUSEIPDB_FLOOD . 
-                                       " WHERE timestamp < DATE_SUB(NOW(), INTERVAL " . (int)$flood_cleanup_period . " DAY)";
-                $db->Execute($flood_cleanup_query);
+                    // Cleanup old flood records
+                    $flood_cleanup_query = "DELETE FROM " . TABLE_ABUSEIPDB_FLOOD . 
+                                           " WHERE timestamp < DATE_SUB(NOW(), INTERVAL " . (int)$flood_cleanup_period . " DAY)";
+                    $db->Execute($flood_cleanup_query);
+                }
+            }
+
+            // Update or insert the maintenance timestamp
+            if ($maintenance_info->RecordCount() > 0) {
+                $update_query = "UPDATE " . TABLE_ABUSEIPDB_MAINTENANCE . 
+                                " SET last_cleanup = NOW(), timestamp = NOW()";
+                $db->Execute($update_query);
+            } else {
+                $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_MAINTENANCE . 
+                                " (last_cleanup, timestamp) VALUES (NOW(), NOW())";
+                $db->Execute($insert_query);
             }
         }
-
-        // Update or insert the maintenance timestamp
-        if ($maintenance_info->RecordCount() > 0) {
-            $update_query = "UPDATE " . TABLE_ABUSEIPDB_MAINTENANCE . 
-                            " SET last_cleanup = NOW(), timestamp = NOW()";
-            $db->Execute($update_query);
-        } else {
-            $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_MAINTENANCE . 
-                            " (last_cleanup, timestamp) VALUES (NOW(), NOW())";
-            $db->Execute($insert_query);
-        }
     }
-}
 
     protected function checkAbusiveIP() {
         global $current_page_base, $_SESSION, $db, $spider_flag;
@@ -135,20 +135,20 @@ protected function runCleanup() {
 
             $abuseipdb_enabled = (int)ABUSEIPDB_ENABLED;
 
-$ip = $_SERVER['REMOTE_ADDR'];
+            $ip = $_SERVER['REMOTE_ADDR'];
 
-// Validate IP address
-if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-    if ($debug_mode == true) {
-        error_log('Invalid IP address: ' . $ip . ' - Blocking request');
-    }
-    $ip_blocked = true;
-}
+            // Validate IP address
+            if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+                if ($debug_mode == true) {
+                    error_log('Invalid IP address: ' . $ip . ' - Blocking request');
+                }
+                $ip_blocked = true;
+            }
 
-// Check if the IP is whitelisted
-if (in_array($ip, $whitelisted_ips)) {
-    return;
-}
+            // Check if the IP is whitelisted
+            if (in_array($ip, $whitelisted_ips)) {
+                return;
+            }
 
             // Define the path to your blacklist file, and if it exists and ABUSEIPDB_BLACKLIST_ENABLE is true, load its content into the $file_blocked_ips array
             $file_blocked_ips = array();
@@ -206,34 +206,34 @@ if (in_array($ip, $whitelisted_ips)) {
                 return 0; // Return 0 score for spiders or whatever default value you want
             }
 
-// Look for the IP in the database
-$ip_query = "SELECT * FROM " . TABLE_ABUSEIPDB_CACHE . " WHERE ip = '" . zen_db_input($ip) . "'";
-$ip_info = $db->Execute($ip_query);
+            // Look for the IP in the database
+            $ip_query = "SELECT * FROM " . TABLE_ABUSEIPDB_CACHE . " WHERE ip = '" . zen_db_input($ip) . "'";
+            $ip_info = $db->Execute($ip_query);
 
-if ($debug_mode == true) {
-    error_log("Cache check for IP: $ip, found: " . (!$ip_info->EOF ? 'yes' : 'no') . ", expired: " . (!$ip_info->EOF && (time() - strtotime($ip_info->fields['timestamp'])) >= $cache_time ? 'yes' : 'no') . ", score: " . (!$ip_info->EOF ? $ip_info->fields['score'] : 'none'));
-}
+            if ($debug_mode == true) {
+                error_log("Cache check for IP: $ip, found: " . (!$ip_info->EOF ? 'yes' : 'no') . ", expired: " . (!$ip_info->EOF && (time() - strtotime($ip_info->fields['timestamp'])) >= $cache_time ? 'yes' : 'no') . ", score: " . (!$ip_info->EOF ? $ip_info->fields['score'] : 'none'));
+            }
 
-// If the IP is in the database and the cache has not expired, AND the score is valid
-if (
-    !$ip_info->EOF 
-    && (
-        // Use extended cache time for high-scoring IPs if enabled
-        (ABUSEIPDB_HIGH_SCORE_CACHE_ENABLED == 'true' 
-         && (int)$ip_info->fields['score'] >= (int)ABUSEIPDB_HIGH_SCORE_THRESHOLD 
-         && (time() - strtotime($ip_info->fields['timestamp'])) < (int)ABUSEIPDB_EXTENDED_CACHE_TIME)
-        ||
-        // Use standard cache time for other valid IPs
-        ((int)$ip_info->fields['score'] != -1 
-         && (time() - strtotime($ip_info->fields['timestamp'])) < $cache_time)
-    )
-) {
-    $abuseScore = $ip_info->fields['score'];
-    $countryCode = $ip_info->fields['country_code'] ?? '';
+            // If the IP is in the database and the cache has not expired, AND the score is valid
+            if (
+                !$ip_info->EOF 
+                && (
+                    // Use extended cache time for high-scoring IPs if enabled
+                    (ABUSEIPDB_HIGH_SCORE_CACHE_ENABLED == 'true' 
+                     && (int)$ip_info->fields['score'] >= (int)ABUSEIPDB_HIGH_SCORE_THRESHOLD 
+                     && (time() - strtotime($ip_info->fields['timestamp'])) < (int)ABUSEIPDB_EXTENDED_CACHE_TIME)
+                    ||
+                    // Use standard cache time for other valid IPs
+                    ((int)$ip_info->fields['score'] != -1 
+                     && (time() - strtotime($ip_info->fields['timestamp'])) < $cache_time)
+                )
+            ) {
+                $abuseScore = $ip_info->fields['score'];
+                $countryCode = $ip_info->fields['country_code'] ?? '';
 
-    if ($debug_mode == true) {
-        error_log('Used cache for IP: ' . $ip . ' with score: ' . $abuseScore);
-    }
+                if ($debug_mode == true) {
+                    error_log('Used cache for IP: ' . $ip . ' with score: ' . $abuseScore);
+                }
 
                 // Prepare prefixes for flood tracking
                 $ipParts = explode('.', $ip);
@@ -243,10 +243,34 @@ if (
                     $prefix3 = $prefix2 . '.' . $ipParts[2];
                 }
 
-                // Flood tracking
-                if (isset($ip_info->fields['flood_tracked']) && (int)$ip_info->fields['flood_tracked'] === 0) {
-                    updateFloodTracking($ip, $countryCode, $prefix2, $prefix3);
-                    $db->Execute("UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET flood_tracked = 1 WHERE ip = '" . zen_db_input($ip) . "'");
+                // Flood tracking with reset logic
+                $shouldFloodTrack2Octet = !isset($ip_info->fields['flood_tracked_reset_2octet']) || (int)$ip_info->fields['flood_tracked_reset_2octet'] === 0;
+                $shouldFloodTrack3Octet = !isset($ip_info->fields['flood_tracked_reset_3octet']) || (int)$ip_info->fields['flood_tracked_reset_3octet'] === 0;
+                $shouldFloodTrackCountry = !isset($ip_info->fields['flood_tracked_reset_country']) || (int)$ip_info->fields['flood_tracked_reset_country'] === 0;
+                $shouldFloodTrackForeign = !isset($ip_info->fields['flood_tracked_reset_foreign']) || (int)$ip_info->fields['flood_tracked_reset_foreign'] === 0;
+
+                // Update flood tracking if needed
+                if ($shouldFloodTrack2Octet || $shouldFloodTrack3Octet || $shouldFloodTrackCountry || $shouldFloodTrackForeign) {
+                    updateFloodTracking($ip, $countryCode);
+                    // Update the reset columns for the flood types that were tracked
+                    $updateFields = [];
+                    if ($shouldFloodTrack2Octet) {
+                        $updateFields[] = "flood_tracked_reset_2octet = 1";
+                    }
+                    if ($shouldFloodTrack3Octet) {
+                        $updateFields[] = "flood_tracked_reset_3octet = 1";
+                    }
+                    if ($shouldFloodTrackCountry) {
+                        $updateFields[] = "flood_tracked_reset_country = 1";
+                    }
+                    if ($shouldFloodTrackForeign) {
+                        $updateFields[] = "flood_tracked_reset_foreign = 1";
+                    }
+                    // Always set flood_tracked to 1 on first tracking
+                    $updateFields[] = "flood_tracked = 1";
+
+                    $updateQuery = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET " . implode(', ', $updateFields) . " WHERE ip = '" . zen_db_input($ip) . "'";
+                    $db->Execute($updateQuery);
                 }
 
                 // Flood blocking
@@ -268,23 +292,22 @@ if (
                     }
                 }
 
- 				if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $countryCode) {
-					$country_reset_minutes = defined('ABUSEIPDB_FLOOD_COUNTRY_RESET') ? (int) ABUSEIPDB_FLOOD_COUNTRY_RESET : 60;
-					$resCountry = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
-					if (
-						!$resCountry->EOF &&
-						$resCountry->fields['count'] >= (int) ABUSEIPDB_FLOOD_COUNTRY_THRESHOLD &&
-						strtotime($resCountry->fields['timestamp']) >= (time() - ($country_reset_minutes * 60))
-					) {
-						if ($abuseScore >= $country_min_score) {
-							$flood_block = true;
-						}
-					}
-				}
+                if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $countryCode) {
+                    $country_reset_minutes = defined('ABUSEIPDB_FLOOD_COUNTRY_RESET') ? (int) ABUSEIPDB_FLOOD_COUNTRY_RESET : 60;
+                    $resCountry = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
+                    if (
+                        !$resCountry->EOF &&
+                        $resCountry->fields['count'] >= (int) ABUSEIPDB_FLOOD_COUNTRY_THRESHOLD &&
+                        strtotime($resCountry->fields['timestamp']) >= (time() - ($country_reset_minutes * 60))
+                    ) {
+                        if ($abuseScore >= $country_min_score) {
+                            $flood_block = true;
+                        }
+                    }
+                }
 
                 if (ABUSEIPDB_FOREIGN_FLOOD_ENABLED == 'true' && $countryCode) {
                     $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
-
                     $foreign_reset_minutes = defined('ABUSEIPDB_FLOOD_FOREIGN_RESET') ? (int)ABUSEIPDB_FLOOD_FOREIGN_RESET : 60;
                     if (strcasecmp($countryCode, $default_country) !== 0) {
                         $resForeign = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
@@ -346,16 +369,16 @@ if (
                     $countryCode = '';
                 }
 
-// If the IP is in the database, update the score and timestamp
-if (!$ip_info->EOF) {
-    $update_query = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET score = " . (int)$abuseScore . ", country_code = '" . zen_db_input($countryCode) . "', timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
-    $db->Execute($update_query);
-} else { // If the IP is not in the database, insert it
-    $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, country_code, timestamp, flood_tracked) 
-                     VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", '" . zen_db_input($countryCode) . "', NOW(), 0) 
-                     ON DUPLICATE KEY UPDATE score = VALUES(score), country_code = VALUES(country_code), timestamp = NOW()";
-    $db->Execute($insert_query);
-}
+                // If the IP is in the database, update the score and timestamp
+                if (!$ip_info->EOF) {
+                    $update_query = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET score = " . (int)$abuseScore . ", country_code = '" . zen_db_input($countryCode) . "', timestamp = NOW() WHERE ip = '" . zen_db_input($ip) . "'";
+                    $db->Execute($update_query);
+                } else { // If the IP is not in the database, insert it
+                    $insert_query = "INSERT INTO " . TABLE_ABUSEIPDB_CACHE . " (ip, score, country_code, timestamp, flood_tracked, flood_tracked_reset_2octet, flood_tracked_reset_3octet, flood_tracked_reset_country, flood_tracked_reset_foreign) 
+                                     VALUES ('" . zen_db_input($ip) . "', " . (int)$abuseScore . ", '" . zen_db_input($countryCode) . "', NOW(), 0, 0, 0, 0, 0) 
+                                     ON DUPLICATE KEY UPDATE score = VALUES(score), country_code = VALUES(country_code), timestamp = NOW()";
+                    $db->Execute($insert_query);
+                }
 
                 $log_file_path_api = $log_file_path . $log_file_name_api;
                 $log_message = date('Y-m-d H:i:s') . ' IP address ' . $ip . ' API call. Score: ' . $abuseScore . PHP_EOL;
@@ -377,8 +400,16 @@ if (!$ip_info->EOF) {
                 }
 
                 // Flood tracking
-                updateFloodTracking($ip, $countryCode, $prefix2, $prefix3);
-                $db->Execute("UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET flood_tracked = 1 WHERE ip = '" . zen_db_input($ip) . "'");
+                updateFloodTracking($ip, $countryCode);
+                $db->Execute(
+                    "UPDATE " . TABLE_ABUSEIPDB_CACHE . " 
+                     SET flood_tracked = 1, 
+                         flood_tracked_reset_2octet = 1, 
+                         flood_tracked_reset_3octet = 1, 
+                         flood_tracked_reset_country = 1, 
+                         flood_tracked_reset_foreign = 1 
+                     WHERE ip = '" . zen_db_input($ip) . "'"
+                );
 
                 // Flood blocking
                 $flood_block = false;
@@ -399,19 +430,19 @@ if (!$ip_info->EOF) {
                     }
                 }
 
- 				if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $countryCode) {
-					$country_reset_minutes = defined('ABUSEIPDB_FLOOD_COUNTRY_RESET') ? (int) ABUSEIPDB_FLOOD_COUNTRY_RESET : 60;
-					$resCountry = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
-					if (
-						!$resCountry->EOF &&
-						$resCountry->fields['count'] >= (int) ABUSEIPDB_FLOOD_COUNTRY_THRESHOLD &&
-						strtotime($resCountry->fields['timestamp']) >= (time() - ($country_reset_minutes * 60))
-					) {
-						if ($abuseScore >= $country_min_score) {
-							$flood_block = true;
-						}
-					}
-				}
+                if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $countryCode) {
+                    $country_reset_minutes = defined('ABUSEIPDB_FLOOD_COUNTRY_RESET') ? (int) ABUSEIPDB_FLOOD_COUNTRY_RESET : 60;
+                    $resCountry = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
+                    if (
+                        !$resCountry->EOF &&
+                        $resCountry->fields['count'] >= (int) ABUSEIPDB_FLOOD_COUNTRY_THRESHOLD &&
+                        strtotime($resCountry->fields['timestamp']) >= (time() - ($country_reset_minutes * 60))
+                    ) {
+                        if ($abuseScore >= $country_min_score) {
+                            $flood_block = true;
+                        }
+                    }
+                }
 
                 if (ABUSEIPDB_FOREIGN_FLOOD_ENABLED == 'true' && $countryCode) {
                     $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
