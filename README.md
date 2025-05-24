@@ -162,7 +162,7 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
       - Tracks the number of sessions an IP creates within a configurable time window (default: 100 sessions in 60 seconds).  
       - If the threshold is exceeded, the IP is blocked by adding a `Deny from <IP>` rule to a dedicated section in your `.htaccess` file, marked by `# AbuseIPDB Session Blocks Start` and `# AbuseIPDB Session Blocks End`.  
       - The block is permanent until the admin manually removes the IP from `.htaccess`.  
-      - A log entry is always generated in `logs/abuseipdb_session_blocks.log` (e.g., "2025-05-24 19:05:00 - IP xx.xx.xx.xx blocked: 101 sessions in 30 seconds"), regardless of whether general logging is enabled.  
+      - A log entry is always generated in `logs/abuseipdb_session_blocks.log` (e.g., "2025-05-24 19:05:00 - IP xxx.xxx.xxx.xxx blocked: 101 sessions in 30 seconds"), regardless of whether general logging is enabled.  
     - **Server Requirements**:  
       - This feature is designed for Apache2 servers, as it relies on modifying the `.htaccess` file to block IPs.  
       - For non-Apache servers (e.g., Nginx), you’ll need to implement equivalent rate-limiting mechanisms manually (e.g., using Nginx rate limiting or server-level firewalls like fail2ban).  
@@ -188,7 +188,7 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
       - Save the file, and the IP will be able to access the site again.  
     - **Log File**:  
       - All session rate limit blocks are logged to `logs/abuseipdb_session_blocks.log`, regardless of the general logging setting (`ABUSEIPDB_ENABLE_LOGGING`).  
-      - Check this log to review blocked IPs and their session counts (e.g., "2025-05-24 19:05:00 - IP 75.181.71.80 blocked: 101 sessions in 30 seconds").  
+      - Check this log to review blocked IPs and their session counts (e.g., "2025-05-24 19:05:00 - IP xxx.xxx.xxx.xxx blocked: 101 sessions in 30 seconds").  
     - **Configuration Settings**:  
       - **Enable Session Rate Limiting?**: Toggle to enable/disable the feature (default: `false`).  
       - **Session Rate Limit Threshold**: Maximum sessions allowed in the time window (default: 100).  
