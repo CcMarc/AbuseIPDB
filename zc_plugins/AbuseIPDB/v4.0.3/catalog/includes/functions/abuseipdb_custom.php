@@ -1,13 +1,13 @@
 <?php
- /**
+/**
  * Module: AbuseIPDB
  *
  * @requires    Zen Cart 2.1.0 or later, PHP 7.4+ (recommended: PHP 8.x)
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.3
- * @updated     5-24-2025
+ * @version     4.0.4
+ * @updated     5-25-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -146,60 +146,34 @@ function updateFloodPrefix($prefix, $prefixType, $countryCode, $currentTime) {
     $prefixType = zen_db_input($prefixType);
     $countryCode = zen_db_input($countryCode);
 
+    // Attempt to insert or update the record atomically
+    $db->Execute(
+        "INSERT INTO " . TABLE_ABUSEIPDB_FLOOD . "
+        (prefix, prefix_type, count, timestamp)
+        VALUES
+        ('{$prefix}', '{$prefixType}', 1, '{$currentTime}')
+        ON DUPLICATE KEY UPDATE
+        count = CASE
+            WHEN (UNIX_TIMESTAMP('{$currentTime}') - UNIX_TIMESTAMP(timestamp)) > " . (int)($prefixType == '2' ? ABUSEIPDB_FLOOD_2OCTET_RESET : ($prefixType == '3' ? ABUSEIPDB_FLOOD_3OCTET_RESET : (strcasecmp($countryCode, defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '') === 0 ? ABUSEIPDB_FLOOD_COUNTRY_RESET : ABUSEIPDB_FLOOD_FOREIGN_RESET))) . "
+            THEN 1
+            ELSE count + 1
+        END,
+        timestamp = '{$currentTime}'"
+    );
+
+    // Reset flood tracking columns if the counter was reset
     $result = $db->Execute(
-        "SELECT * FROM " . TABLE_ABUSEIPDB_FLOOD . " 
+        "SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " 
          WHERE prefix = '{$prefix}' AND prefix_type = '{$prefixType}'"
     );
 
-    if (!$result->EOF) {
-        // Existing record: check if reset needed
-        $lastTimestamp = strtotime($result->fields['timestamp']);
-        $resetSeconds = 3600; // Default reset if not set properly
-        
-        if ($prefixType == '2') {
-            $resetSeconds = (int)ABUSEIPDB_FLOOD_2OCTET_RESET;
-        } elseif ($prefixType == '3') {
-            $resetSeconds = (int)ABUSEIPDB_FLOOD_3OCTET_RESET;
-        } elseif ($prefixType == 'country') {
-            // Check if countryCode matches the default country
-            $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
-            if (strcasecmp($countryCode, $default_country) === 0) {
-                $resetSeconds = (int)ABUSEIPDB_FLOOD_COUNTRY_RESET;
-            } else {
-                $resetSeconds = (int)ABUSEIPDB_FLOOD_FOREIGN_RESET;
-            }
-        }
-
-        if (time() - $lastTimestamp > $resetSeconds) {
-            // Reset counter
-            $db->Execute(
-                "UPDATE " . TABLE_ABUSEIPDB_FLOOD . "
-                 SET count = 1, timestamp = '{$currentTime}'
-                 WHERE id = " . (int)$result->fields['id']
-            );
-            // Call the new function to reset flood tracking columns
-            resetFloodTrackingColumns(
-                $prefix,
-                $prefixType,
-                ABUSEIPDB_CACHE_TIME,
-                ABUSEIPDB_EXTENDED_CACHE_TIME,
-                ABUSEIPDB_HIGH_SCORE_THRESHOLD
-            );
-        } else {
-            // Increment counter
-            $db->Execute(
-                "UPDATE " . TABLE_ABUSEIPDB_FLOOD . "
-                 SET count = count + 1, timestamp = '{$currentTime}'
-                 WHERE id = " . (int)$result->fields['id']
-            );
-        }
-    } else {
-        // New record
-        $db->Execute(
-            "INSERT INTO " . TABLE_ABUSEIPDB_FLOOD . "
-            (prefix, prefix_type, count, timestamp)
-            VALUES
-            ('{$prefix}', '{$prefixType}', 1, '{$currentTime}')"
+    if (!$result->EOF && (time() - strtotime($result->fields['timestamp'])) > ($prefixType == '2' ? ABUSEIPDB_FLOOD_2OCTET_RESET : ($prefixType == '3' ? ABUSEIPDB_FLOOD_3OCTET_RESET : (strcasecmp($countryCode, defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '') === 0 ? ABUSEIPDB_FLOOD_COUNTRY_RESET : ABUSEIPDB_FLOOD_FOREIGN_RESET)))) {
+        resetFloodTrackingColumns(
+            $prefix,
+            $prefixType,
+            ABUSEIPDB_CACHE_TIME,
+            ABUSEIPDB_EXTENDED_CACHE_TIME,
+            ABUSEIPDB_HIGH_SCORE_THRESHOLD
         );
     }
 }
