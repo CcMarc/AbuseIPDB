@@ -120,10 +120,10 @@ class ScriptedInstaller extends ScriptedInstallBase
                     country_code CHAR(2) DEFAULT NULL,
                     timestamp DATETIME NOT NULL,
                     flood_tracked TINYINT(1) NOT NULL DEFAULT 0,
-                    flood_tracked_reset_2octet TINYINT(1) NOT NULL DEFAULT 0,
-                    flood_tracked_reset_3octet TINYINT(1) NOT NULL DEFAULT 0,
-                    flood_tracked_reset_country TINYINT(1) NOT NULL DEFAULT 0,
-                    flood_tracked_reset_foreign TINYINT(1) NOT NULL DEFAULT 0,
+                    flood_tracked_reset_2octet TINYINT(1) NOT NULL DEFAULT 1,
+                    flood_tracked_reset_3octet TINYINT(1) NOT NULL DEFAULT 1,
+                    flood_tracked_reset_country TINYINT(1) NOT NULL DEFAULT 1,
+                    flood_tracked_reset_foreign TINYINT(1) NOT NULL DEFAULT 1,
                     session_count INT NOT NULL DEFAULT 0,
                     session_window_start INT NOT NULL DEFAULT 0,
                     PRIMARY KEY (ip),
@@ -272,10 +272,10 @@ class ScriptedInstaller extends ScriptedInstallBase
 
                 // Add new flood_tracked_reset_* columns if they don't exist
                 $columnsToAdd = [
-                    'flood_tracked_reset_2octet' => "ADD COLUMN flood_tracked_reset_2octet TINYINT(1) NOT NULL DEFAULT 0 AFTER flood_tracked",
-                    'flood_tracked_reset_3octet' => "ADD COLUMN flood_tracked_reset_3octet TINYINT(1) NOT NULL DEFAULT 0 AFTER flood_tracked_reset_2octet",
-                    'flood_tracked_reset_country' => "ADD COLUMN flood_tracked_reset_country TINYINT(1) NOT NULL DEFAULT 0 AFTER flood_tracked_reset_3octet",
-                    'flood_tracked_reset_foreign' => "ADD COLUMN flood_tracked_reset_foreign TINYINT(1) NOT NULL DEFAULT 0 AFTER flood_tracked_reset_country",
+                    'flood_tracked_reset_2octet' => "ADD COLUMN flood_tracked_reset_2octet TINYINT(1) NOT NULL DEFAULT 1 AFTER flood_tracked",
+                    'flood_tracked_reset_3octet' => "ADD COLUMN flood_tracked_reset_3octet TINYINT(1) NOT NULL DEFAULT 1 AFTER flood_tracked_reset_2octet",
+                    'flood_tracked_reset_country' => "ADD COLUMN flood_tracked_reset_country TINYINT(1) NOT NULL DEFAULT 1 AFTER flood_tracked_reset_3octet",
+                    'flood_tracked_reset_foreign' => "ADD COLUMN flood_tracked_reset_foreign TINYINT(1) NOT NULL DEFAULT 1 AFTER flood_tracked_reset_country",
                     'session_count' => "ADD COLUMN session_count INT NOT NULL DEFAULT 0 AFTER flood_tracked_reset_foreign",
                     'session_window_start' => "ADD COLUMN session_window_start INT NOT NULL DEFAULT 0 AFTER session_count",
                 ];
