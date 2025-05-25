@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.3
- * @updated     5-24-2025
+ * @version     4.0.4
+ * @updated     5-25-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -17,7 +17,7 @@ class ScriptedInstaller extends ScriptedInstallBase
 {
     protected string $configGroupTitle = 'AbuseIPDB Configuration';
 
-    public const ABUSEIPDB_CURRENT_VERSION = '4.0.3';
+    public const ABUSEIPDB_CURRENT_VERSION = '4.0.4';
 
     private const SETTING_COUNT = 51;
     protected int $configurationGroupId;
@@ -59,12 +59,12 @@ class ScriptedInstaller extends ScriptedInstallBase
                 VALUES
 				('Plugin Version', 'ABUSEIPDB_VERSION', '0.0.0', 'The <em>AbuseIPDB</em> installed version.<br>', $this->configurationGroupId, NOW(), 10, NULL, NULL),
 				('Enable AbuseIPDB?', 'ABUSEIPDB_ENABLED', 'false', '', $this->configurationGroupId, NOW(), 20, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
-				('Total Settings', 'ABUSEIPDB_SETTINGS_COUNT', '0', 'There should be <strong>XX entries</strong> within the AbuseIPDB Configuration settings screen (including this one).<br><br>If any settings are missing, uninstall and reinstall the plugin to resolve.<br>', $this->configurationGroupId, NOW(), 25, NULL, NULL),
+				('Total Settings', 'ABUSEIPDB_SETTINGS_COUNT', '0', 'There should be <strong>51 entries</strong> within the AbuseIPDB Configuration settings screen (including this one).<br><br>If any settings are missing, uninstall and reinstall the plugin to resolve.<br>', $this->configurationGroupId, NOW(), 25, NULL, NULL),
 				('AbuseIPDB: API Key', 'ABUSEIPDB_API_KEY', '', 'This is the API key that you created during the set up of this plugin. You can find it on the AbuseIPDB webmaster/API section, <a href=\"https://www.abuseipdb.com/account/api\" target=\"_blank\">here</a> after logging in to AbuseIPDB.<br>', $this->configurationGroupId, NOW(), 30, NULL, NULL),
 				('AbuseIPDB: User ID', 'ABUSEIPDB_USERID', '', 'To find your AbuseIPDB User ID, visit <a href=\"https://www.abuseipdb.com/account/contributor\" target=\"_blank\">this page</a> and look in the \"HTML Markup\" section. Your User ID is the number at the end of the URL shown there — for example, <code>https://www.abuseipdb.com/user/XXXXXX</code>. Just enter the number (e.g., <code>XXXXXX</code>) here.<br>', $this->configurationGroupId, NOW(), 40, NULL, NULL),
 				('Score Threshold', 'ABUSEIPDB_THRESHOLD', '50', 'The minimum AbuseIPDB score to block an IP address.<br>', $this->configurationGroupId, NOW(), 50, NULL, NULL),
 				('Cache Time', 'ABUSEIPDB_CACHE_TIME', '86400', 'The time in seconds to cache AbuseIPDB results.<br>', $this->configurationGroupId, NOW(), 60, NULL, NULL),
-				('Enable High Score Cache Extension', 'ABUSEIPDB_HIGH_SCORE_CACHE_ENABLED', 'true', 'Enable extended cache time for IPs with high AbuseIPDB scores.', $this->configurationGroupId, NOW(), 61, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),				
+				('Enable High Score Cache Extension', 'ABUSEIPDB_HIGH_SCORE_CACHE_ENABLED', 'true', 'Enable extended cache time for IPs with high AbuseIPDB scores.', $this->configurationGroupId, NOW(), 61, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 				('High Score Threshold', 'ABUSEIPDB_HIGH_SCORE_THRESHOLD', '90', 'Minimum AbuseIPDB score to use extended cache time.', $this->configurationGroupId, NOW(), 62, NULL, NULL),
 				('Extended Cache Time', 'ABUSEIPDB_EXTENDED_CACHE_TIME', '604800', 'Time in seconds to cache high-scoring IPs (e.g., 604800 = 7 days).', $this->configurationGroupId, NOW(), 63, NULL, NULL),
 				('Allow Spiders?', 'ABUSEIPDB_SPIDER_ALLOW', 'true', 'Enable or disable allowing known spiders to bypass IP checks.<br>', $this->configurationGroupId, NOW(), 70, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
@@ -101,15 +101,14 @@ class ScriptedInstaller extends ScriptedInstallBase
 				('Foreign Flood Reset (seconds)', 'ABUSEIPDB_FLOOD_FOREIGN_RESET', '1800', 'How often to reset foreign flood counters (in seconds).', $this->configurationGroupId, NOW(), 380, NULL, NULL),
 				('Foreign Flood Minimum Score', 'ABUSEIPDB_FLOOD_FOREIGN_MIN_SCORE', '5', 'Minimum AbuseIPDB score required before a foreign-based block is enforced. (Set to 0 to block all if threshold is exceeded.)', $this->configurationGroupId, NOW(), 390, NULL, NULL),
 				('Manually Blocked Country Codes', 'ABUSEIPDB_BLOCKED_COUNTRIES', '', 'Comma-separated list of ISO country codes to always block immediately, e.g., RU,CN,BR. (no spaces)', $this->configurationGroupId, NOW(), 400, NULL, NULL),
-				('Default Country Code', 'ABUSEIPDB_DEFAULT_COUNTRY', 'US', 'Store\'s default country code (e.g., US, CA, GB). Used for foreign flood detection.', $this->configurationGroupId, NOW(), 410, NULL, NULL),				('Enable Session Rate Limiting?', 'ABUSEIPDB_SESSION_RATE_LIMIT_ENABLED', 'false', 'Enable or disable session rate limiting to block IPs creating sessions too rapidly.', $this->configurationGroupId, NOW(), 440, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
-                		('Enable Session Rate Limiting?', 'ABUSEIPDB_SESSION_RATE_LIMIT_ENABLED', 'false', 'Enable or disable session rate limiting to block IPs creating sessions too rapidly.', $this->configurationGroupId, NOW(), 420, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+				('Default Country Code', 'ABUSEIPDB_DEFAULT_COUNTRY', 'US', 'Store\'s default country code (e.g., US, CA, GB). Used for foreign flood detection.', $this->configurationGroupId, NOW(), 410, NULL, NULL),
+				('Enable Session Rate Limiting?', 'ABUSEIPDB_SESSION_RATE_LIMIT_ENABLED', 'false', 'Enable or disable session rate limiting to block IPs creating sessions too rapidly.', $this->configurationGroupId, NOW(), 420, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 				('Session Rate Limit Threshold', 'ABUSEIPDB_SESSION_RATE_LIMIT_THRESHOLD', '100', 'Maximum number of sessions allowed in the specified time window before blocking the IP.', $this->configurationGroupId, NOW(), 430, NULL, NULL),
 				('Session Rate Limit Window (seconds)', 'ABUSEIPDB_SESSION_RATE_LIMIT_WINDOW', '60', 'Time window in seconds for counting sessions (e.g., 60 seconds).', $this->configurationGroupId, NOW(), 440, NULL, NULL),
 				('Session Rate Limit Reset Window (seconds)', 'ABUSEIPDB_SESSION_RATE_LIMIT_RESET_WINDOW', '300', 'Time in seconds after which the session count resets if no new sessions are created (e.g., 300 seconds = 5 minutes).', $this->configurationGroupId, NOW(), 450, NULL, NULL),
 				('Enable Admin Widget?', 'ABUSEIPDB_WIDGET_ENABLED', 'false', 'Enable Admin Widget?<br><br>(This is an <strong>optional setting</strong>. You must install it separately. Please refer to the module <strong>README</strong> for detailed instructions.)<br>', $this->configurationGroupId, NOW(), 900, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 				('Enable Debug?', 'ABUSEIPDB_DEBUG', 'false', '', $this->configurationGroupId, NOW(), 910, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),');
-
-						"
+                "
             );
 
             // Create necessary tables
@@ -160,6 +159,7 @@ class ScriptedInstaller extends ScriptedInstallBase
                 'configuration',
                 'Y'
             );
+
             // Update the plugin version and settings count in the configuration table
             $this->updatePluginMetadata($db);
 
@@ -293,7 +293,7 @@ class ScriptedInstaller extends ScriptedInstallBase
             // Check if abuseipdb_flood table exists before altering
             $result = $db->Execute("SHOW TABLES LIKE '" . TABLE_ABUSEIPDB_FLOOD . "'");
             if ($result->RecordCount() > 0) {
-                // Check if country_code column exists and drop it
+                // Drop legacy country_code column from older versions (pre-4.0.3), as country codes are now stored in prefix for prefix_type = 'country'
                 $result = $db->Execute("SHOW COLUMNS FROM " . TABLE_ABUSEIPDB_FLOOD . " LIKE 'country_code'");
                 if ($result->RecordCount() > 0) {
                     $this->executeInstallerSql(
@@ -432,6 +432,13 @@ class ScriptedInstaller extends ScriptedInstallBase
                     use_function = NULL,
                     set_function = NULL
                 WHERE configuration_key = 'ABUSEIPDB_USERID'"
+            );
+			
+			$this->executeInstallerSql(
+                "UPDATE " . TABLE_CONFIGURATION . "
+                SET
+                    configuration_description = 'There should be <strong>51 entries</strong> within the AbuseIPDB Configuration settings screen (including this one).<br><br>If any settings are missing, uninstall and reinstall the plugin to resolve.<br>'
+                WHERE configuration_key = 'ABUSEIPDB_SETTINGS_COUNT'"
             );
 
             // Create new table

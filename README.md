@@ -1,4 +1,4 @@
-# AbuseIPDB v4.0.3 for Zen Cart 2.1.0 or later
+# AbuseIPDB v4.0.4 for Zen Cart 2.1.0 or later
 
 ## Prerequisites
 
@@ -252,6 +252,7 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
+- **v4.0.4**: Bug Fix - resolved country code population bug and removed duplicate config setting in installer.
 - **v4.0.3**: Added session rate limiting to block IPs creating sessions too rapidly, with configurable threshold, time window, and reset period. IPs are blocked via `.htaccess` (Apache2 only), logged in `abuseipdb_session_blocks.log`, and require manual removal by the admin.  
 - **v4.0.2**: Added logic to reset flood tracking per flood type after reset period, ensuring previously tracked IPs are recounted if returned. Enhanced Who's Online shields with additional colors for flood blocks and superscripts for 2F/3F.  
 - **v4.0.1**: Added upgrade support. You can now upgrade cleanly from earlier versions without uninstalling.  

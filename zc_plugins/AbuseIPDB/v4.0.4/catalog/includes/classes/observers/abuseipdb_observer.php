@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.3
- * @updated     5-24-2025
+ * @version     4.0.4
+ * @updated     5-25-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 

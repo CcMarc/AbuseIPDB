@@ -1,6 +1,6 @@
 <?php
 return [
-    'pluginVersion' => 'v4.0.3',
+    'pluginVersion' => 'v4.0.4',
     'pluginName' => "AbuseIPDB",
     'pluginDescription' => 'Protect your e-commerce website from abusive IP addresses',
     'pluginAuthor' => 'marcopolo',
