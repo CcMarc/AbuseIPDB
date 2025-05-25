@@ -150,11 +150,6 @@ class abuseipdb_observer extends base {
                 return;
             }
 
-            // Check session rate limiting
-            if (ABUSEIPDB_SESSION_RATE_LIMIT_ENABLED == 'true') {
-                checkSessionRateLimit($ip);
-            }
-
             // Define the path to your blacklist file, and if it exists and ABUSEIPDB_BLACKLIST_ENABLE is true, load its content into the $file_blocked_ips array
             $file_blocked_ips = array();
             if ($blacklist_enable && file_exists($blacklist_file_path)) {
@@ -276,6 +271,11 @@ class abuseipdb_observer extends base {
 
                     $updateQuery = "UPDATE " . TABLE_ABUSEIPDB_CACHE . " SET " . implode(', ', $updateFields) . " WHERE ip = '" . zen_db_input($ip) . "'";
                     $db->Execute($updateQuery);
+                }
+
+                // Check session rate limiting
+                if (ABUSEIPDB_SESSION_RATE_LIMIT_ENABLED == 'true') {
+                    checkSessionRateLimit($ip);
                 }
 
                 // Flood blocking
@@ -402,6 +402,11 @@ class abuseipdb_observer extends base {
                 if (count($ipParts) === 4) {
                     $prefix2 = $ipParts[0] . '.' . $ipParts[1];
                     $prefix3 = $prefix2 . '.' . $ipParts[2];
+                }
+
+                // Check session rate limiting
+                if (ABUSEIPDB_SESSION_RATE_LIMIT_ENABLED == 'true') {
+                    checkSessionRateLimit($ip);
                 }
 
                 // Flood tracking
