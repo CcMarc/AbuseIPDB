@@ -1,4 +1,4 @@
-# AbuseIPDB v4.0.4 for Zen Cart 2.1.0 or later
+# AbuseIPDB v4.0.5 for Zen Cart 2.1.0 or later
 
 ## Prerequisites
 
@@ -195,6 +195,9 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
       - **Session Rate Limit Window (seconds)**: Time window for counting sessions (default: 60 seconds).  
       - **Session Rate Limit Reset Window (seconds)**: Time after which the session count resets if no new sessions are created (default: 300 seconds = 5 minutes).  
 
+	- **Admin Dashboard Widget**:
+	  - When enabled, the widget displays the number of IPs blocked in `.htaccess` due to session rate limiting, along with a list of recent blocks.  
+      - This allows admins to quickly see if a block has occurred without manually checking logs or `.htaccess`.  
 ## SCRIPT LOGIC
 
 This section provides an understanding of the logic steps involved in checking an IP and creating the corresponding log files:  
@@ -252,7 +255,8 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
-- **v4.0.4**: Bug Fix - resolved country code population bug and removed duplicate config setting in installer.
+- **v4.0.5**: Updated admin dashboard widget to display Session Rate Limiting blocks in .htaccess for easy admin visibility when they occur.  
+- **v4.0.4**: Bug Fix - resolved country code population bug and removed duplicate config setting in installer.  
 - **v4.0.3**: Added session rate limiting to block IPs creating sessions too rapidly, with configurable threshold, time window, and reset period. IPs are blocked via `.htaccess` (Apache2 only), logged in `abuseipdb_session_blocks.log`, and require manual removal by the admin.  
 - **v4.0.2**: Added logic to reset flood tracking per flood type after reset period, ensuring previously tracked IPs are recounted if returned. Enhanced Who's Online shields with additional colors for flood blocks and superscripts for 2F/3F.  
 - **v4.0.1**: Added upgrade support. You can now upgrade cleanly from earlier versions without uninstalling.  
