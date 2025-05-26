@@ -245,13 +245,48 @@ function getAbuseIPDBShieldLegend() {
         return '';
     }
 
+    global $db;
+
+    // Initialize legend HTML
     $html = '<br>AbuseIPDB Shield Legend: ';
-    $html .= '<span style="background-color: red; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Score (SB)"><i class="fas fa-shield-alt"></i></span> Score Block (SB)&nbsp;';
-    $html .= '<span style="background-color: purple; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by IP Blacklist (IB)"><i class="fas fa-shield-alt"></i></span> IP Blacklist (IB)&nbsp;';
-    $html .= '<span style="background-color: blue; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Country (MC)"><i class="fas fa-shield-alt"></i></span> Country Block (MC)&nbsp;';
-    $html .= '<span style="background-color: teal; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Country Flood (CF)"><i class="fas fa-shield-alt"></i></span> Country Flood (CF)&nbsp;';
-    $html .= '<span style="background-color: brown; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Foreign Flood (FF)"><i class="fas fa-shield-alt"></i></span> Foreign Flood (FF)&nbsp;';
-    $html .= '<span style="background-color: orange; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Flood (2F,3F)"><i class="fas fa-shield-alt"></i></span> Flood Block (2F,3F)';
+
+    // Score Block (SB) - Always show if ABUSEIPDB_ENABLED is true
+    $html .= '<span style="background-color: red; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Score (SB)"><i class="fas fa-shield-alt"></i></span> Score Block (SB) ';
+
+    // IP Blacklist (IB) - Show if ABUSEIPDB_BLACKLIST_ENABLE is true
+    $blacklist_setting = $db->Execute("SELECT configuration_value FROM " . TABLE_CONFIGURATION . " WHERE configuration_key = 'ABUSEIPDB_BLACKLIST_ENABLE'");
+    if (!$blacklist_setting->EOF && $blacklist_setting->fields['configuration_value'] == 'true') {
+        $html .= '<span style="background-color: purple; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by IP Blacklist (IB)"><i class="fas fa-shield-alt"></i></span> IP Blacklist (IB) ';
+    }
+
+    // Country Block (MC) - Show if ABUSEIPDB_BLOCKED_COUNTRIES is not empty
+    $blocked_countries = $db->Execute("SELECT configuration_value FROM " . TABLE_CONFIGURATION . " WHERE configuration_key = 'ABUSEIPDB_BLOCKED_COUNTRIES'");
+    if (!$blocked_countries->EOF && !empty(trim($blocked_countries->fields['configuration_value']))) {
+        $html .= '<span style="background-color: blue; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Country (MC)"><i class="fas fa-shield-alt"></i></span> Country Block (MC) ';
+    }
+
+    // Country Flood (CF) - Show if ABUSEIPDB_FLOOD_COUNTRY_ENABLED is true
+    $country_flood_setting = $db->Execute("SELECT configuration_value FROM " . TABLE_CONFIGURATION . " WHERE configuration_key = 'ABUSEIPDB_FLOOD_COUNTRY_ENABLED'");
+    if (!$country_flood_setting->EOF && $country_flood_setting->fields['configuration_value'] == 'true') {
+        $html .= '<span style="background-color: teal; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Country Flood (CF)"><i class="fas fa-shield-alt"></i></span> Country Flood (CF) ';
+    }
+
+    // Foreign Flood (FF) - Show if ABUSEIPDB_FOREIGN_FLOOD_ENABLED is true
+    $foreign_flood_setting = $db->Execute("SELECT configuration_value FROM " . TABLE_CONFIGURATION . " WHERE configuration_key = 'ABUSEIPDB_FOREIGN_FLOOD_ENABLED'");
+    if (!$foreign_flood_setting->EOF && $foreign_flood_setting->fields['configuration_value'] == 'true') {
+        $html .= '<span style="background-color: brown; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Foreign Flood (FF)"><i class="fas fa-shield-alt"></i></span> Foreign Flood (FF) ';
+    }
+
+    // Flood Block (2F, 3F) - Show if either ABUSEIPDB_FLOOD_2OCTET_ENABLED or ABUSEIPDB_FLOOD_3OCTET_ENABLED is true
+    $flood_2octet_setting = $db->Execute("SELECT configuration_value FROM " . TABLE_CONFIGURATION . " WHERE configuration_key = 'ABUSEIPDB_FLOOD_2OCTET_ENABLED'");
+    $flood_3octet_setting = $db->Execute("SELECT configuration_value FROM " . TABLE_CONFIGURATION . " WHERE configuration_key = 'ABUSEIPDB_FLOOD_3OCTET_ENABLED'");
+    if (
+        (!$flood_2octet_setting->EOF && $flood_2octet_setting->fields['configuration_value'] == 'true') ||
+        (!$flood_3octet_setting->EOF && $flood_3octet_setting->fields['configuration_value'] == 'true')
+    ) {
+        $html .= '<span style="background-color: orange; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 5px;" title="Blocked by Flood (2F,3F)"><i class="fas fa-shield-alt"></i></span> Flood Block (2F,3F)';
+    }
+
     return $html;
 }
 ?>

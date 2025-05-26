@@ -122,7 +122,7 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
     - 🛡️ **Orange Shield**: Indicates an IP blocked due to flood detection (2-octet Flood 2F or 3-octet Flood 3F), with a superscript "2" for 2F or "3" for 3F to distinguish the flood type.  
     - 🚫 **Grey Circle with Slash**: Appears for unblocked IPs with a score greater than 0, allowing quick manual addition to the blacklist file directly from the "Who's Online" screen.  
   
-  A legend at the top of the "Who's Online" page explains the meaning of each shield color, helping admins quickly identify and manage threats.  
+  A legend at the top of the "Who's Online" page explains the meaning of each active shield color, showing only the colors for features that are currently enabled. This helps admins quickly identify and manage threats.    
 
     **Requirements for "Who's Online" Features**  
 	- Ensure the optional files `whos_online.php` and `blacklist.txt` are uploaded to your Zen Cart admin directory.  
