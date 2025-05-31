@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.0
- * @updated     5-17-2025
+ * @version     4.0.6
+ * @updated     5-31-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -22,4 +22,8 @@ if (!defined('TABLE_ABUSEIPDB_MAINTENANCE')) {
 
 if (!defined('TABLE_ABUSEIPDB_FLOOD')) {
     define('TABLE_ABUSEIPDB_FLOOD', DB_PREFIX . 'abuseipdb_flood');
+}
+
+if (!defined('TABLE_ABUSEIPDB_ACTIONS')) {
+    define('TABLE_ABUSEIPDB_ACTIONS', DB_PREFIX . 'abuseipdb_actions');
 }
