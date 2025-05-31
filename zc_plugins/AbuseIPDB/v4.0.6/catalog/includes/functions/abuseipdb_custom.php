@@ -192,8 +192,8 @@ function addIpToHtaccess($ip) {
 
     $htaccess_content = file_get_contents($htaccess_file);
     
-    $start_marker = "# AbuseIPDB Session Blocks Start\n";
-    $end_marker = "# AbuseIPDB Session Blocks End\n";
+    $start_marker = "<Files *>\n# AbuseIPDB Session Blocks Start\n";
+    $end_marker = "# AbuseIPDB Session Blocks End\n</Files>\n";
     $block_rule = "Deny from $ip\n";
     
     // Check if the section exists
