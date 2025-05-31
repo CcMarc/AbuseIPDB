@@ -179,9 +179,11 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
     - **Adding IPs to `.htaccess`**:  
       - The plugin automatically adds blocked IPs to a dedicated section in `.htaccess`, marked by:  
         ```
+		<Files *>
         # AbuseIPDB Session Blocks Start
         Deny from <IP>
         # AbuseIPDB Session Blocks End
+		</Files>
         ```
       - This section is created after the `RewriteEngine on` directive but before other rewrite rules to ensure block rules are processed early.  
       - If the section doesn’t exist, the plugin will create it during the first block event.  
