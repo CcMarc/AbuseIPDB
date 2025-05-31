@@ -262,6 +262,9 @@ function checkSessionRateLimit($ip) {
     if ($session_window_start > 0 && ($current_time - $session_window_start) > $reset_window) {
         $session_count = 0;
         $session_window_start = $current_time;
+    } elseif ($session_window_start > 0 && ($current_time - $session_window_start) > $window) {
+        $session_count = 0;
+        $session_window_start = $current_time;
     }
 
     // If no window exists, start a new one
