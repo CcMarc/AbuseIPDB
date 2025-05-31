@@ -56,8 +56,8 @@ function getAbuseConfidenceScore($ip, $api_key) {
         }
     }
 
-    // Return -1 if there was an issue retrieving the abuse confidence score
-    return -1;
+    // Return failure indicator with empty country code if there was an issue retrieving the abuse confidence score
+    return [-1, ''];
 }
 
 // Function to format the log file name
