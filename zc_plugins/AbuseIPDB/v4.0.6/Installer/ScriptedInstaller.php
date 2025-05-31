@@ -1,13 +1,13 @@
 <?php
- /**
+/**
  * Module: AbuseIPDB
  *
  * @requires    Zen Cart 2.1.0 or later, PHP 7.4+ (recommended: PHP 8.x)
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.5
- * @updated     5-25-2025
+ * @version     4.0.6
+ * @updated     5-31-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -17,7 +17,7 @@ class ScriptedInstaller extends ScriptedInstallBase
 {
     protected string $configGroupTitle = 'AbuseIPDB Configuration';
 
-    public const ABUSEIPDB_CURRENT_VERSION = '4.0.5';
+    public const ABUSEIPDB_CURRENT_VERSION = '4.0.6';
 
     private const SETTING_COUNT = 51;
     protected int $configurationGroupId;
@@ -43,6 +43,9 @@ class ScriptedInstaller extends ScriptedInstallBase
             }
             if (!defined('TABLE_ABUSEIPDB_FLOOD')) {
                 define('TABLE_ABUSEIPDB_FLOOD', 'abuseipdb_flood');
+            }
+            if (!defined('TABLE_ABUSEIPDB_ACTIONS')) {
+                define('TABLE_ABUSEIPDB_ACTIONS', 'abuseipdb_actions');
             }
 
             // Create or get configuration group ID
@@ -136,7 +139,6 @@ class ScriptedInstaller extends ScriptedInstallBase
                     PRIMARY KEY (last_cleanup)
                 ) ENGINE=InnoDB"
             );
-
             $this->executeInstallerSql(
                 "CREATE TABLE IF NOT EXISTS " . TABLE_ABUSEIPDB_FLOOD . " (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -146,6 +148,14 @@ class ScriptedInstaller extends ScriptedInstallBase
                     timestamp DATETIME NOT NULL,
                     UNIQUE KEY idx_prefix_type (prefix, prefix_type),
                     KEY idx_timestamp (timestamp)
+                ) ENGINE=InnoDB"
+            );
+            $this->executeInstallerSql(
+                "CREATE TABLE IF NOT EXISTS " . TABLE_ABUSEIPDB_ACTIONS . " (
+                    ip VARCHAR(45) NOT NULL,
+                    block_timestamp INT NOT NULL,
+                    PRIMARY KEY (ip),
+                    KEY idx_block_timestamp (block_timestamp)
                 ) ENGINE=InnoDB"
             );
 
@@ -241,6 +251,9 @@ class ScriptedInstaller extends ScriptedInstallBase
             if (!defined('TABLE_ABUSEIPDB_FLOOD')) {
                 define('TABLE_ABUSEIPDB_FLOOD', 'abuseipdb_flood');
             }
+            if (!defined('TABLE_ABUSEIPDB_ACTIONS')) {
+                define('TABLE_ABUSEIPDB_ACTIONS', 'abuseipdb_actions');
+            }
 
             // Get configuration group ID
             $this->configurationGroupId = $this->getOrCreateConfigGroupId(
@@ -325,6 +338,16 @@ class ScriptedInstaller extends ScriptedInstallBase
                     );
                 }
             }
+
+            // Create new table for session rate limiting actions
+            $this->executeInstallerSql(
+                "CREATE TABLE IF NOT EXISTS " . TABLE_ABUSEIPDB_ACTIONS . " (
+                    ip VARCHAR(45) NOT NULL,
+                    block_timestamp INT NOT NULL,
+                    PRIMARY KEY (ip),
+                    KEY idx_block_timestamp (block_timestamp)
+                ) ENGINE=InnoDB"
+            );
 
             // Insert new configuration settings
             $this->executeInstallerSql(
@@ -481,6 +504,9 @@ class ScriptedInstaller extends ScriptedInstallBase
             if (!defined('TABLE_ABUSEIPDB_FLOOD')) {
                 define('TABLE_ABUSEIPDB_FLOOD', 'abuseipdb_flood');
             }
+            if (!defined('TABLE_ABUSEIPDB_ACTIONS')) {
+                define('TABLE_ABUSEIPDB_ACTIONS', 'abuseipdb_actions');
+            }
 
             // Deregister admin page
             zen_deregister_admin_pages('configAbuseIPDB');
@@ -492,6 +518,7 @@ class ScriptedInstaller extends ScriptedInstallBase
             $this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_CACHE);
             $this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_MAINTENANCE);
             $this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_FLOOD);
+            $this->executeInstallerSql("DROP TABLE IF EXISTS " . TABLE_ABUSEIPDB_ACTIONS);
 
             return true;
         } catch (Exception $e) {

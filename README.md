@@ -1,4 +1,4 @@
-# AbuseIPDB v4.0.5 for Zen Cart 2.1.0 or later
+# AbuseIPDB v4.0.6 for Zen Cart 2.1.0 or later
 
 ## Prerequisites
 
@@ -7,9 +7,9 @@
 
 ## ABOUT THIS MODULE
 
-This module is an AbuseIPDB integration for Zen Cart, designed to protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access if the score exceeds a predefined threshold.
-The module supports caching with extended duration for high-scoring IPs to optimize API calls, test mode for debugging, logging for monitoring blocked IPs, and advanced flood protection based on IP prefixes and country-level analysis.
-Additionally, it offers manual whitelisting, blacklisting, country blocking, and session rate limiting for precise control over site access.
+This module is an AbuseIPDB integration for Zen Cart, designed to protect your e-commerce website from abusive IP addresses. It checks the confidence score of a visitor's IP address using the AbuseIPDB API and blocks access if the score exceeds a predefined threshold.  
+The module supports caching with extended duration for high-scoring IPs to optimize API calls, test mode for debugging, logging for monitoring blocked IPs, and advanced flood protection based on IP prefixes and country-level analysis.  
+Additionally, it offers manual whitelisting, blacklisting, country blocking, and session rate limiting—now enhanced with a queuing mechanism using the `abuseipdb_actions` table for improved reliability and reduced `.htaccess` write delays—providing precise control over site access.
 
 ## INSTALLATION AND UPGRADE
 
@@ -160,9 +160,11 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
     - **Purpose**: Protects your site from bots that rapidly create sessions (e.g., 1000+ in a short time), which can overload the server.  
     - **How It Works**:  
       - Tracks the number of sessions an IP creates within a configurable time window (default: 100 sessions in 60 seconds).  
-      - If the threshold is exceeded, the IP is blocked by adding a `Deny from <IP>` rule to a dedicated section in your `.htaccess` file, marked by `# AbuseIPDB Session Blocks Start` and `# AbuseIPDB Session Blocks End`.  
+      - If the threshold is exceeded, the IP is queued for blocking by adding it to the `abuseipdb_actions` table, and a log entry is generated in `logs/abuseipdb_session_blocks.log` (e.g., "2025-05-24 19:05:00 - IP xxx.xxx.xxx.xxx blocked: 101 sessions in 30 seconds").  
+      - The next request (from any IP) checks the `abuseipdb_actions` table, adds the queued IP to a dedicated section in your `.htaccess` file (marked by `# AbuseIPDB Session Blocks Start` and `# AbuseIPDB Session Blocks End`), removes the IP from the table, and denies the request.  
+      - This queuing mechanism reduces `.htaccess` write delays by decoupling the write operation from the bot's request, ensuring faster and more reliable blocking.  
       - The block is permanent until the admin manually removes the IP from `.htaccess`.  
-      - A log entry is always generated in `logs/abuseipdb_session_blocks.log` (e.g., "2025-05-24 19:05:00 - IP xxx.xxx.xxx.xxx blocked: 101 sessions in 30 seconds"), regardless of whether general logging is enabled.  
+      - Log entries are created only for the initial block event, preventing duplicates, and are always generated regardless of whether general logging is enabled.  
     - **Server Requirements**:  
       - This feature is designed for Apache2 servers, as it relies on modifying the `.htaccess` file to block IPs.  
       - For non-Apache servers (e.g., Nginx), you’ll need to implement equivalent rate-limiting mechanisms manually (e.g., using Nginx rate limiting or server-level firewalls like fail2ban).  
@@ -186,6 +188,7 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
     - **Manual IP Removal**:  
       - To unblock an IP, manually edit the `.htaccess` file and remove the corresponding `Deny from <IP>` line from the AbuseIPDB session blocks section.  
       - Save the file, and the IP will be able to access the site again.  
+      - Note: After unblocking, the session count will continue to increment until the reset window expires (default: 300 seconds of inactivity). To immediately allow a fresh evaluation, manually reset the `session_count` and `session_window_start` for the IP in the `abuseipdb_cache` table.  
     - **Log File**:  
       - All session rate limit blocks are logged to `[log_path]/abuseipdb_session_blocks.log`, regardless of the general logging setting (`ABUSEIPDB_ENABLE_LOGGING`).  
       - Check this log to review blocked IPs and their session counts (e.g., "2025-05-24 19:05:00 - IP xxx.xxx.xxx.xxx blocked: 101 sessions in 30 seconds").  
@@ -194,16 +197,16 @@ Optional_Install/ZC_210/YOUR_ADMIN/whos_online.php
       - **Session Rate Limit Threshold**: Maximum sessions allowed in the time window (default: 100).  
       - **Session Rate Limit Window (seconds)**: Time window for counting sessions (default: 60 seconds).  
       - **Session Rate Limit Reset Window (seconds)**: Time after which the session count resets if no new sessions are created (default: 300 seconds = 5 minutes).  
-
-	- **Admin Dashboard Widget**:
-	  - When enabled, the widget displays the number of IPs blocked in `.htaccess` due to session rate limiting, along with a list of recent blocks.  
+    - **Admin Dashboard Widget**:  
+      - When enabled, the widget displays the number of IPs blocked in `.htaccess` due to session rate limiting, along with a list of recent blocks.  
       - This allows admins to quickly see if a block has occurred without manually checking logs or `.htaccess`.  
+
 ## SCRIPT LOGIC
 
 This section provides an understanding of the logic steps involved in checking an IP and creating the corresponding log files:  
 
 1. IP Whitelisting: The script first checks if the IP is whitelisted. If it is, the IP is permitted without further processing.  
-2. Session Rate Limiting: If enabled, the script tracks the number of sessions created by the IP within a configurable time window (default: 100 sessions in 60 seconds). If the threshold is exceeded, the IP is blocked via `.htaccess`, and a log entry is created in `abuseipdb_session_blocks.log`.  
+2. Session Rate Limiting: If enabled, the script tracks the number of sessions created by the IP within a configurable time window (default: 100 sessions in 60 seconds). If the threshold is exceeded, the IP is queued for blocking by adding it to the `abuseipdb_actions` table, and a log entry is created in `abuseipdb_session_blocks.log`. The next request (from any IP) applies the block by adding the IP to `.htaccess`, removing it from the table, and denying the request, reducing write delays and preventing duplicate logs.  
 3. Manual IP Blocking: If the IP is not whitelisted or blocked by session rate limiting, the script checks if the IP is manually blocked. If it is, the IP address is logged as blocked in the cache and a corresponding log file is generated. The log file creation details are as follows:  
     - File Name: `abuseipdb_blocked_cache_<date>.log`  
     - Location: `ABUSEIPDB_LOG_FILE_PATH`  
@@ -226,7 +229,7 @@ This section provides an understanding of the logic steps involved in checking a
     - **2-Octet Flood Detection**: If enabled (`ABUSEIPDB_FLOOD_2OCTET_ENABLED`), tracks hits from the IP’s 2-octet prefix (e.g., `192.168`). If the count exceeds the threshold (`ABUSEIPDB_FLOOD_2OCTET_THRESHOLD`) within the reset window (`ABUSEIPDB_FLOOD_2OCTET_RESET`), the IP is blocked.  
     - **3-Octet Flood Detection**: If enabled (`ABUSEIPDB_FLOOD_3OCTET_ENABLED`), tracks hits from the IP’s 3-octet prefix (e.g., `192.168.1`). If the count exceeds the threshold (`ABUSEIPDB_FLOOD_3OCTET_THRESHOLD`) within the reset window (`ABUSEIPDB_FLOOD_3OCTET_RESET`), the IP is blocked.  
     - **Country Flood Detection**: If enabled (`ABUSEIPDB_FLOOD_COUNTRY_ENABLED`), tracks hits from the IP’s country code (e.g., `US`). If the count exceeds the threshold (`ABUSEIPDB_FLOOD_COUNTRY_THRESHOLD`) within the reset window (`ABUSEIPDB_FLOOD_COUNTRY_RESET`), and the IP’s AbuseIPDB score meets the minimum score requirement (`ABUSEIPDB_FLOOD_COUNTRY_MIN_SCORE`, default 5), the IP is blocked.  
-    - **Foreign Flood Detection**: If enabled (`ABUSEIPDB_FOREIGN_FLOOD_ENABLED`), and the IP’s country code does not match the store’s default country (`ABUSEIPDB_DEFAULT_COUNTRY`), tracks hits from the foreign country. If the count exceeds the foreign threshold (`ABUSEIPDB_FLOOD_FOREIGN_THRESHOLD`) within the reset window (`ABUSEIPDB_FLOOD_FOREIGN_RESET`), and the IP’s AbuseIPDB score meets the minimum score requirement (`ABUSEIPDB_FLOOD_FOREIGN_MIN_SCORE`, default 5), the IP is blocked.  
+    - **Foreign Flood Detection**: If enabled (`ABUSEIPDB_FOREIGN_FLOOD_ENABLED`), and the IP’s country code does not match the store’s default country (`ABUSEIPDB_DEFAULT_COUNTRY`), tracks hits from the foreign country. If the count exceeds the foreign threshold (`ABUSEIPDB_FOREIGN_FLOOD_THRESHOLD`) within the reset window (`ABUSEIPDB_FLOOD_FOREIGN_RESET`), and the IP’s AbuseIPDB score meets the minimum score requirement (`ABUSEIPDB_FLOOD_FOREIGN_MIN_SCORE`, default 5), the IP is blocked.  
 
     Additional behavior:  
     - **Score-Safe Rule**: Even if a flood is detected, an IP is only blocked if its AbuseIPDB score meets or exceeds the configured **minimum score threshold** (applies to country and foreign flood detection).  
@@ -242,10 +245,10 @@ This section provides an understanding of the logic steps involved in checking a
       If even one additional hit occurs during that hour, the reset timer is extended — keeping the range blocked.
 6. Database Cleanup: The script's function periodically removes old IP records from the database when triggered, if the cleanup feature is enabled. This operation is performed only once per day, as indicated by the update of the maintenance timestamp.  
 7. API Logging: If API logging is enabled, a separate log file for API calls is created. The log file creation details are as follows:  
-    - File Name: `abuseipdb_api_call_date.log`  
+    - File Name: `abuseipdb_api_call_<date>.log`  
     - Location: `ABUSEIPDB_LOG_FILE_PATH`  
 8. IP Blocking: If the abuse score is above the threshold or the IP is in test mode, the IP address is logged as blocked (either from the API call or from the cache) and a corresponding log file is created. The log file creation details are as follows:  
-    - File Name: `abuseipdb_blocked_date.log`  
+    - File Name: `abuseipdb_blocked_<date>.log`  
     - Location: `ABUSEIPDB_LOG_FILE_PATH`  
 9. Safe IP: If none of the above conditions trigger a block, the IP is considered safe, and the script proceeds without further action.  
 
@@ -255,6 +258,7 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
+- **v4.0.6**: Improved session rate limiting by using a new `abuseipdb_actions` table to queue IPs for blocking, reducing `.htaccess` write delays and preventing duplicate log entries.
 - **v4.0.5**: Updated admin dashboard widget to display Session Rate Limiting blocks in .htaccess for easy admin visibility when they occur.  
 - **v4.0.4**: Bug Fix - resolved country code population bug and removed duplicate config setting in installer.  
 - **v4.0.3**: Added session rate limiting to block IPs creating sessions too rapidly, with configurable threshold, time window, and reset period. IPs are blocked via `.htaccess` (Apache2 only), logged in `abuseipdb_session_blocks.log`, and require manual removal by the admin.  

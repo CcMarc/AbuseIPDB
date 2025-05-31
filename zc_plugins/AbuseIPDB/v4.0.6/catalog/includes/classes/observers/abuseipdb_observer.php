@@ -1,13 +1,13 @@
 <?php
- /**
+/**
  * Module: AbuseIPDB
  *
  * @requires    Zen Cart 2.1.0 or later, PHP 7.4+ (recommended: PHP 8.x)
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.4
- * @updated     5-25-2025
+ * @version     4.0.6
+ * @updated     5-31-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -82,6 +82,34 @@ class abuseipdb_observer extends base {
             $pluginDir = $this->getZcPluginDir();
             require_once $pluginDir . 'includes/functions/abuseipdb_custom.php';
 
+            // Fallback to define table constant if not already defined
+            if (!defined('TABLE_ABUSEIPDB_ACTIONS')) {
+                define('TABLE_ABUSEIPDB_ACTIONS', 'abuseipdb_actions');
+            }
+
+            // Early check for pending session rate limiting blocks
+            $ip = $_SERVER['REMOTE_ADDR'];
+            $action_query = "SELECT ip FROM " . TABLE_ABUSEIPDB_ACTIONS . " WHERE ip = '" . zen_db_input($ip) . "'";
+            $action_info = $db->Execute($action_query);
+            if (!$action_info->EOF) {
+                // IP is pending to be blocked, write to .htaccess and deny the request
+                addIpToHtaccess($ip);
+                // Remove the entry from the actions table
+                $db->Execute(
+                    "DELETE FROM " . TABLE_ABUSEIPDB_ACTIONS . "
+                     WHERE ip = '" . zen_db_input($ip) . "'"
+                );
+                // Deny the request using the configured redirect option
+                $redirect_option = ABUSEIPDB_REDIRECT_OPTION;
+                if ($redirect_option === 'page_not_found') {
+                    header('Location: /index.php?main_page=page_not_found');
+                    exit();
+                } elseif ($redirect_option === 'forbidden') {
+                    header('HTTP/1.0 403 Forbidden');
+                    exit();
+                }
+            }
+
             $api_key = ABUSEIPDB_API_KEY;
             $threshold = (int)ABUSEIPDB_THRESHOLD;
             $cache_time = (int)ABUSEIPDB_CACHE_TIME;
@@ -134,8 +162,6 @@ class abuseipdb_observer extends base {
             }
 
             $abuseipdb_enabled = (int)ABUSEIPDB_ENABLED;
-
-            $ip = $_SERVER['REMOTE_ADDR'];
 
             // Validate IP address
             if (!filter_var($ip, FILTER_VALIDATE_IP)) {
