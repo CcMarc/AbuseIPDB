@@ -68,7 +68,7 @@ class ScriptedInstaller extends ScriptedInstallBase
 				('Score Threshold', 'ABUSEIPDB_THRESHOLD', '50', 'The minimum AbuseIPDB score to block an IP address.<br>', $this->configurationGroupId, NOW(), 50, NULL, NULL),
 				('Cache Time', 'ABUSEIPDB_CACHE_TIME', '86400', 'The time in seconds to cache AbuseIPDB results.<br>', $this->configurationGroupId, NOW(), 60, NULL, NULL),
 				('Enable High Score Cache Extension', 'ABUSEIPDB_HIGH_SCORE_CACHE_ENABLED', 'true', 'Enable extended cache time for IPs with high AbuseIPDB scores.', $this->configurationGroupId, NOW(), 61, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
-				('High Score Threshold', 'ABUSEIPDB_HIGH_SCORE_THRESHOLD', '90', 'Minimum AbuseIPDB score to use extended cache time.', $this->configurationGroupId, NOW(), 62, NULL, NULL),
+				('High Score Threshold', 'ABUSEIPDB_HIGH_SCORE_THRESHOLD', '100', 'Minimum AbuseIPDB score to use extended cache time.', $this->configurationGroupId, NOW(), 62, NULL, NULL),
 				('Extended Cache Time', 'ABUSEIPDB_EXTENDED_CACHE_TIME', '604800', 'Time in seconds to cache high-scoring IPs (e.g., 604800 = 7 days).', $this->configurationGroupId, NOW(), 63, NULL, NULL),
 				('Allow Spiders?', 'ABUSEIPDB_SPIDER_ALLOW', 'true', 'Enable or disable allowing known spiders to bypass IP checks.<br>', $this->configurationGroupId, NOW(), 70, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 				('Redirect URL', 'ABUSEIPDB_REDIRECT_OPTION', 'forbidden', 'The option for redirecting the user if their IP is found to be abusive. <BR><BR><B>Option 1:</B> Page Not Found - If selected, the user will be redirected to the Page Not Found page on your website if their IP is found to be abusive. This is the default option and provides a generic error page to the user.<BR><BR><B>Option 2:</B> 403 Forbidden - If selected, the user will be shown a 403 Forbidden error message if their IP is found to be abusive. This option provides a more explicit message indicating that the user is forbidden from accessing the website due to their IP being flagged as abusive.<br>', $this->configurationGroupId, NOW(), 80, NULL, 'zen_cfg_select_option(array(\'page_not_found\', \'forbidden\'),'),
@@ -229,6 +229,51 @@ class ScriptedInstaller extends ScriptedInstallBase
     }
 
     /**
+     * Function to migrate old .htaccess session blocks to the new format with <Files *>
+     */
+    private function migrateHtaccessSessionBlocks(): bool
+    {
+        $htaccess_file = DIR_FS_CATALOG . '.htaccess';
+        if (!file_exists($htaccess_file) || !is_writable($htaccess_file)) {
+            error_log('Failed to migrate .htaccess session blocks to the new format: File does not exist or is not writable at ' . $htaccess_file);
+            return false;
+        }
+
+        $htaccess_content = file_get_contents($htaccess_file);
+        
+        // Old markers (without <Files *>)
+        $old_start_marker = "# AbuseIPDB Session Blocks Start\n";
+        $old_end_marker = "# AbuseIPDB Session Blocks End\n";
+        
+        // New markers (with <Files *>)
+        $new_start_marker = "<Files *>\n# AbuseIPDB Session Blocks Start\n";
+        $new_end_marker = "# AbuseIPDB Session Blocks End\n</Files>\n";
+        
+        // Check if the old-style section exists (not wrapped in <Files *>)
+        $start_pos = strpos($htaccess_content, $old_start_marker);
+        $end_pos = strpos($htaccess_content, $old_end_marker, $start_pos);
+        
+        if ($start_pos !== false && $end_pos !== false) {
+            // Extract the section content (the Deny from rules)
+            $section_content = substr($htaccess_content, $start_pos + strlen($old_start_marker), $end_pos - $start_pos - strlen($old_start_marker));
+            
+            // Check if the section is already wrapped in <Files *>
+            $before_start = substr($htaccess_content, max(0, $start_pos - 10), 10);
+            $after_end = substr($htaccess_content, $end_pos + strlen($old_end_marker), 10);
+            if (strpos($before_start, "<Files *>") === false && strpos($after_end, "</Files>") === false) {
+                // Replace the old section with the new format
+                $new_section = $new_start_marker . $section_content . $new_end_marker;
+                $htaccess_content = substr($htaccess_content, 0, $start_pos) . $new_section . substr($htaccess_content, $end_pos + strlen($old_end_marker));
+                
+                // Write back to .htaccess
+                return file_put_contents($htaccess_file, $htaccess_content);
+            }
+        }
+        
+        return true; // No migration needed or already in the correct format
+    }
+
+    /**
      * Upgrade Logic
      */
     protected function executeUpgrade($oldVersion): bool
@@ -355,7 +400,7 @@ class ScriptedInstaller extends ScriptedInstallBase
                 (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
                 VALUES
                 ('Enable High Score Cache Extension', 'ABUSEIPDB_HIGH_SCORE_CACHE_ENABLED', 'true', 'Enable extended cache time for IPs with high AbuseIPDB scores.', $this->configurationGroupId, NOW(), 61, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
-                ('High Score Threshold', 'ABUSEIPDB_HIGH_SCORE_THRESHOLD', '90', 'Minimum AbuseIPDB score to use extended cache time.', $this->configurationGroupId, NOW(), 62, NULL, NULL),
+                ('High Score Threshold', 'ABUSEIPDB_HIGH_SCORE_THRESHOLD', '100', 'Minimum AbuseIPDB score to use extended cache time.', $this->configurationGroupId, NOW(), 62, NULL, NULL),
                 ('Extended Cache Time', 'ABUSEIPDB_EXTENDED_CACHE_TIME', '604800', 'Time in seconds to cache high-scoring IPs (e.g., 604800 = 7 days).', $this->configurationGroupId, NOW(), 63, NULL, NULL),
                 ('Flood Cleanup Period (in days)', 'ABUSEIPDB_FLOOD_CLEANUP_PERIOD', '10', 'Expiration period in days for flood tracking records (2-octet, 3-octet, country prefixes).', $this->configurationGroupId, NOW(), 241, NULL, NULL),
                 ('Enable 2-Octet Flood Detection?', 'ABUSEIPDB_FLOOD_2OCTET_ENABLED', 'false', '', $this->configurationGroupId, NOW(), 260, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
@@ -475,7 +520,20 @@ class ScriptedInstaller extends ScriptedInstallBase
                     UNIQUE KEY idx_prefix_type (prefix, prefix_type),
                     KEY idx_timestamp (timestamp)
                 ) ENGINE=InnoDB"
-            );  
+            );
+
+            // Check if session rate limiting is enabled
+            $result = $db->Execute(
+                "SELECT configuration_value 
+                 FROM " . TABLE_CONFIGURATION . " 
+                 WHERE configuration_key = 'ABUSEIPDB_SESSION_RATE_LIMIT_ENABLED'"
+            );
+            $sessionRateLimitEnabled = (!$result->EOF && $result->fields['configuration_value'] === 'true');
+
+            // Migrate .htaccess session blocks to the new format if session rate limiting is enabled
+            if ($sessionRateLimitEnabled) {
+                $this->migrateHtaccessSessionBlocks();
+            }
             
             // Update the plugin version and settings count in the configuration table
             $this->updatePluginMetadata($db);
