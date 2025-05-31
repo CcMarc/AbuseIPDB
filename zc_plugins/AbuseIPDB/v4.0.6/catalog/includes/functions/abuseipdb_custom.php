@@ -11,11 +11,6 @@
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
-// Fallback to define table constant if not already defined
-if (!defined('TABLE_ABUSEIPDB_ACTIONS')) {
-    define('TABLE_ABUSEIPDB_ACTIONS', 'abuseipdb_actions');
-}
-
 // Function to get Abuse Confidence Score from AbuseIPDB
 function getAbuseConfidenceScore($ip, $api_key) {
     // Define the API URL
