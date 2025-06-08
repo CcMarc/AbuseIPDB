@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.6
- * @updated     5-31-2025
+ * @version     4.0.7
+ * @updated     6-8-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -181,43 +181,76 @@ function updateFloodPrefix($prefix, $prefixType, $countryCode, $currentTime) {
 // Function to add an IP to .htaccess
 function addIpToHtaccess($ip) {
     $htaccess_file = DIR_FS_CATALOG . '.htaccess';
+    
+    // Check if file exists and is writable
     if (!file_exists($htaccess_file) || !is_writable($htaccess_file)) {
         return false;
     }
-
+    
+    // Validate IP format (supports both IPv4 and IPv6)
+    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+        return false;
+    }
+    
+    // Read the current .htaccess content
     $htaccess_content = file_get_contents($htaccess_file);
+    if ($htaccess_content === false) {
+        return false;
+    }
     
-    $start_marker = "<Files *>\n# AbuseIPDB Session Blocks Start\n";
-    $end_marker = "# AbuseIPDB Session Blocks End\n</Files>\n";
-    $block_rule = "Deny from $ip\n";
+    // Check if IP already exists anywhere in the file (quick check)
+    if (strpos($htaccess_content, "Deny from $ip") !== false) {
+        return true; // IP already blocked
+    }
     
-    // Check if the section exists
-    $start_pos = strpos($htaccess_content, $start_marker);
-    $end_pos = strpos($htaccess_content, $end_marker);
+    // Define the regex pattern to match the AbuseIPDB block
+    // This matches the entire <Files *> block that contains the AbuseIPDB markers
+    // Made more flexible to handle varying whitespace and line breaks
+    $pattern = '/(<Files\s*\*>\s*)(.*?# AbuseIPDB Session Blocks Start\s*)(.*?)(# AbuseIPDB Session Blocks End\s*)(.*?)(<\/Files>\s*)/s';
     
-    if ($start_pos === false || $end_pos === false) {
-        // Section doesn't exist, create it after RewriteEngine on
-        $rewrite_pos = strpos($htaccess_content, "RewriteEngine on\n");
-        if ($rewrite_pos !== false) {
-            $insert_pos = $rewrite_pos + strlen("RewriteEngine on\n");
-            $new_section = "\n" . $start_marker . $block_rule . $end_marker;
-            $htaccess_content = substr($htaccess_content, 0, $insert_pos) . $new_section . substr($htaccess_content, $insert_pos);
-        } else {
-            // Fallback: append to the end
-            $htaccess_content .= "\n" . $start_marker . $block_rule . $end_marker;
+    if (preg_match($pattern, $htaccess_content, $matches)) {
+        // Block exists - add IP to the deny rules section
+        $files_open = $matches[1];           // <Files *>
+        $before_start = $matches[2];         // Content + start marker
+        $deny_rules = $matches[3];           // The deny rules section
+        $end_marker = $matches[4];           // End marker
+        $after_end = $matches[5];            // Content after end marker
+        $files_close = $matches[6];          // </Files>
+        
+        // Add the new IP to the deny rules section
+        // Ensure proper line breaks - add newline if deny_rules doesn't end with one
+        $new_deny_rules = $deny_rules;
+        if (!empty($deny_rules) && substr($deny_rules, -1) !== "\n") {
+            $new_deny_rules .= "\n";
         }
+        $new_deny_rules .= "Deny from $ip\n";
+        
+        // Reconstruct the block with proper spacing
+        $new_block = $files_open . $before_start . $new_deny_rules . $end_marker . $after_end . $files_close;
+        
+        // Replace the old block with the new one
+        $new_content = preg_replace($pattern, $new_block, $htaccess_content);
+        
     } else {
-        // Section exists, update it
-        $section_content = substr($htaccess_content, $start_pos + strlen($start_marker), $end_pos - $start_pos - strlen($start_marker));
-        if (strpos($section_content, $block_rule) === false) {
-            // IP not in section, add it
-            $section_content .= $block_rule;
-            $htaccess_content = substr($htaccess_content, 0, $start_pos + strlen($start_marker)) . $section_content . substr($htaccess_content, $end_pos);
+        // Block doesn't exist - create a new one
+        $new_block = "\n<Files *>\n# AbuseIPDB Session Blocks Start\nDeny from $ip\n# AbuseIPDB Session Blocks End\n</Files>\n";
+        
+        // Try to insert after RewriteEngine On (case insensitive), otherwise append to end
+        if (preg_match('/(RewriteEngine\s+[Oo]n\s*\n)/', $htaccess_content, $matches, PREG_OFFSET_CAPTURE)) {
+            $insert_pos = $matches[0][1] + strlen($matches[0][0]);
+            $new_content = substr($htaccess_content, 0, $insert_pos) . $new_block . substr($htaccess_content, $insert_pos);
+        } else {
+            // Append to the end
+            $new_content = rtrim($htaccess_content) . $new_block;
         }
     }
     
-    // Write back to .htaccess
-    return file_put_contents($htaccess_file, $htaccess_content);
+    // Write the updated content back to .htaccess
+    if (file_put_contents($htaccess_file, $new_content) === false) {
+        return false;
+    }
+    
+    return true;
 }
 
 // Function to check session rate limiting for an IP

@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.6
- * @updated     5-31-2025
+ * @version     4.0.7
+ * @updated     6-8-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -17,7 +17,7 @@ class ScriptedInstaller extends ScriptedInstallBase
 {
     protected string $configGroupTitle = 'AbuseIPDB Configuration';
 
-    public const ABUSEIPDB_CURRENT_VERSION = '4.0.6';
+    public const ABUSEIPDB_CURRENT_VERSION = '4.0.7';
 
     private const SETTING_COUNT = 51;
     protected int $configurationGroupId;

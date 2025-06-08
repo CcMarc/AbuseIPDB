@@ -1,4 +1,4 @@
-# AbuseIPDB v4.0.6 for Zen Cart 2.1.0 or later
+# AbuseIPDB v4.0.7 for Zen Cart 2.1.0 or later
 
 ## Prerequisites
 
@@ -260,6 +260,7 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
+- **v4.0.7**: Bug Fixes  
 - **v4.0.6**: Improved session rate limiting by using a new `abuseipdb_actions` table to queue IPs for blocking, reducing `.htaccess` write delays and preventing duplicate log entries.
 - **v4.0.5**: Updated admin dashboard widget to display Session Rate Limiting blocks in .htaccess for easy admin visibility when they occur.  
 - **v4.0.4**: Bug Fix - resolved country code population bug and removed duplicate config setting in installer.  

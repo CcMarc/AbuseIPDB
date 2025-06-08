@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.6
- * @updated     5-31-2025
+ * @version     4.0.7
+ * @updated     6-8-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -87,29 +87,25 @@ class abuseipdb_observer extends base {
                 define('TABLE_ABUSEIPDB_ACTIONS', 'abuseipdb_actions');
             }
 
-            // Early check for pending session rate limiting blocks
-            $ip = $_SERVER['REMOTE_ADDR'];
-            $action_query = "SELECT ip FROM " . TABLE_ABUSEIPDB_ACTIONS . " WHERE ip = '" . zen_db_input($ip) . "'";
+            // Early check for all pending session rate limiting blocks
+            $action_query = "SELECT ip FROM " . TABLE_ABUSEIPDB_ACTIONS;
             $action_info = $db->Execute($action_query);
-            if (!$action_info->EOF) {
-                // IP is pending to be blocked, write to .htaccess and deny the request
-                addIpToHtaccess($ip);
-                // Remove the entry from the actions table
-                $db->Execute(
-                    "DELETE FROM " . TABLE_ABUSEIPDB_ACTIONS . "
-                     WHERE ip = '" . zen_db_input($ip) . "'"
-                );
-                // Deny the request using the configured redirect option
-                $redirect_option = ABUSEIPDB_REDIRECT_OPTION;
-                if ($redirect_option === 'page_not_found') {
-                    header('Location: /index.php?main_page=page_not_found');
-                    exit();
-                } elseif ($redirect_option === 'forbidden') {
-                    header('HTTP/1.0 403 Forbidden');
-                    exit();
-                }
+            $ips_to_block = array();
+            while (!$action_info->EOF) {
+                $ips_to_block[] = $action_info->fields['ip'];
+                $action_info->MoveNext();
             }
 
+            if (!empty($ips_to_block)) {
+                foreach ($ips_to_block as $ip) {
+                    addIpToHtaccess($ip);
+                }
+                // Remove all processed IPs from the actions table
+                $db->Execute("DELETE FROM " . TABLE_ABUSEIPDB_ACTIONS . ";");
+            }
+
+            // Check the current visitor's IP for other blocking criteria
+            $ip = $_SERVER['REMOTE_ADDR'];
             $api_key = ABUSEIPDB_API_KEY;
             $threshold = (int)ABUSEIPDB_THRESHOLD;
             $cache_time = (int)ABUSEIPDB_CACHE_TIME;
@@ -337,6 +333,9 @@ class abuseipdb_observer extends base {
                     }
                 }
 
+                if ($debug_mode == true) {
+                    error_log("Checking foreign flood for IP: $ip, country: $countryCode, score: $abuseScore");
+                }
                 if (ABUSEIPDB_FOREIGN_FLOOD_ENABLED == 'true' && $countryCode) {
                     $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
                     $foreign_reset_minutes = defined('ABUSEIPDB_FLOOD_FOREIGN_RESET') ? (int)ABUSEIPDB_FLOOD_FOREIGN_RESET : 60;
@@ -394,6 +393,9 @@ class abuseipdb_observer extends base {
                 }
             } else {
                 // Make the API call
+                if ($debug_mode == true) {
+                    error_log("Entering API path for IP: $ip, cache found: " . (!$ip_info->EOF ? 'yes' : 'no'));
+                }
                 list($abuseScore, $countryCode) = getAbuseConfidenceScore($ip, $api_key);
 
                 if ($abuseScore === -1 || empty($countryCode)) {
@@ -480,6 +482,9 @@ class abuseipdb_observer extends base {
                     }
                 }
 
+                if ($debug_mode == true) {
+                    error_log("Checking foreign flood for IP: $ip, country: $countryCode, score: $abuseScore");
+                }
                 if (ABUSEIPDB_FOREIGN_FLOOD_ENABLED == 'true' && $countryCode) {
                     $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
                     $foreign_reset_minutes = defined('ABUSEIPDB_FLOOD_FOREIGN_RESET') ? (int)ABUSEIPDB_FLOOD_FOREIGN_RESET : 60;
