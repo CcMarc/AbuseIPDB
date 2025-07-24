@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2025
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.7
- * @updated     6-8-2025
+ * @version     4.0.8
+ * @updated     7-24-2025
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -17,7 +17,7 @@ class ScriptedInstaller extends ScriptedInstallBase
 {
     protected string $configGroupTitle = 'AbuseIPDB Configuration';
 
-    public const ABUSEIPDB_CURRENT_VERSION = '4.0.7';
+    public const ABUSEIPDB_CURRENT_VERSION = '4.0.8';
 
     private const SETTING_COUNT = 51;
     protected int $configurationGroupId;
@@ -60,9 +60,9 @@ class ScriptedInstaller extends ScriptedInstallBase
                 "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
                 (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
                 VALUES
-				('Plugin Version', 'ABUSEIPDB_VERSION', '0.0.0', 'The <em>AbuseIPDB</em> installed version.<br>', $this->configurationGroupId, NOW(), 10, NULL, NULL),
+				('Plugin Version', 'ABUSEIPDB_VERSION', '0.0.0', 'The <em>AbuseIPDB</em> installed version.<br>', $this->configurationGroupId, NOW(), 10, NULL, 'zen_cfg_read_only('),
 				('Enable AbuseIPDB?', 'ABUSEIPDB_ENABLED', 'false', '', $this->configurationGroupId, NOW(), 20, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
-				('Total Settings', 'ABUSEIPDB_SETTINGS_COUNT', '0', 'There should be <strong>51 entries</strong> within the AbuseIPDB Configuration settings screen (including this one).<br><br>If any settings are missing, uninstall and reinstall the plugin to resolve.<br>', $this->configurationGroupId, NOW(), 25, NULL, NULL),
+				('Total Settings', 'ABUSEIPDB_SETTINGS_COUNT', '0', 'There should be <strong>51 entries</strong> within the AbuseIPDB Configuration settings screen (including this one).<br><br>If any settings are missing, uninstall and reinstall the plugin to resolve.<br>', $this->configurationGroupId, NOW(), 25, NULL, 'zen_cfg_read_only('),
 				('AbuseIPDB: API Key', 'ABUSEIPDB_API_KEY', '', 'This is the API key that you created during the set up of this plugin. You can find it on the AbuseIPDB webmaster/API section, <a href=\"https://www.abuseipdb.com/account/api\" target=\"_blank\">here</a> after logging in to AbuseIPDB.<br>', $this->configurationGroupId, NOW(), 30, NULL, NULL),
 				('AbuseIPDB: User ID', 'ABUSEIPDB_USERID', '', 'To find your AbuseIPDB User ID, visit <a href=\"https://www.abuseipdb.com/account/contributor\" target=\"_blank\">this page</a> and look in the \"HTML Markup\" section. Your User ID is the number at the end of the URL shown there — for example, <code>https://www.abuseipdb.com/user/XXXXXX</code>. Just enter the number (e.g., <code>XXXXXX</code>) here.<br>', $this->configurationGroupId, NOW(), 40, NULL, NULL),
 				('Score Threshold', 'ABUSEIPDB_THRESHOLD', '50', 'The minimum AbuseIPDB score to block an IP address.<br>', $this->configurationGroupId, NOW(), 50, NULL, NULL),
@@ -501,6 +501,34 @@ class ScriptedInstaller extends ScriptedInstallBase
                     set_function = NULL
                 WHERE configuration_key = 'ABUSEIPDB_USERID'"
             );
+			
+			$this->executeInstallerSql(
+				"UPDATE " . TABLE_CONFIGURATION . "
+				SET
+					configuration_title = 'Plugin Version',
+					configuration_description = 'The <em>AbuseIPDB</em> installed version.<br>',
+					configuration_group_id = $this->configurationGroupId,
+					date_added = NOW(),
+					sort_order = 10,
+					use_function = NULL,
+					set_function = 'zen_cfg_read_only('
+				WHERE configuration_key = 'ABUSEIPDB_VERSION'"
+			);
+			
+			$this->executeInstallerSql(
+				"UPDATE " . TABLE_CONFIGURATION . "
+			SET
+				configuration_title = 'Total Settings',
+				configuration_description = 'There should be <strong>51 entries</strong> within the AbuseIPDB Configuration settings screen (including this one).<br><br>If any settings are missing, uninstall and reinstall the plugin to resolve.<br>',
+				configuration_group_id = $this->configurationGroupId,
+				date_added = NOW(),
+				sort_order = 25,
+				use_function = NULL,
+				set_function = 'zen_cfg_read_only('
+			WHERE configuration_key = 'ABUSEIPDB_SETTINGS_COUNT'"
+			);
+
+
 			
 			$this->executeInstallerSql(
                 "UPDATE " . TABLE_CONFIGURATION . "
