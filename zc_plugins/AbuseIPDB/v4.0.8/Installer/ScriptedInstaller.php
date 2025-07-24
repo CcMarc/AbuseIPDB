@@ -582,16 +582,16 @@ class ScriptedInstaller extends ScriptedInstallBase
         try {
             // Define constants if not already defined
             if (!defined('TABLE_ABUSEIPDB_CACHE')) {
-                define('TABLE_ABUSEIPDB_CACHE', 'abuseipdb_cache');
+                define('TABLE_ABUSEIPDB_CACHE', DB_PREFIX . 'abuseipdb_cache');
             }
             if (!defined('TABLE_ABUSEIPDB_MAINTENANCE')) {
-                define('TABLE_ABUSEIPDB_MAINTENANCE', 'abuseipdb_maintenance');
+                define('TABLE_ABUSEIPDB_MAINTENANCE', DB_PREFIX . 'abuseipdb_maintenance');
             }
             if (!defined('TABLE_ABUSEIPDB_FLOOD')) {
-                define('TABLE_ABUSEIPDB_FLOOD', 'abuseipdb_flood');
+                define('TABLE_ABUSEIPDB_FLOOD', DB_PREFIX . 'abuseipdb_flood');
             }
             if (!defined('TABLE_ABUSEIPDB_ACTIONS')) {
-                define('TABLE_ABUSEIPDB_ACTIONS', 'abuseipdb_actions');
+                define('TABLE_ABUSEIPDB_ACTIONS', DB_PREFIX . 'abuseipdb_actions');
             }
 
             // Deregister admin page
