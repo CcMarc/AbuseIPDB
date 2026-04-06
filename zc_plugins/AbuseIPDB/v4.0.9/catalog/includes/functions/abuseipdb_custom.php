@@ -35,9 +35,6 @@ function getAbuseConfidenceScore($ip, $api_key) {
     // Get the HTTP status code
     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-    // Close the cURL session
-    curl_close($curl);
-
     // Check the HTTP status code
     if ($http_code == 200) {
         // Decode the JSON response
