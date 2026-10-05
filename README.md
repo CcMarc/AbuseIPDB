@@ -1,4 +1,4 @@
-# AbuseIPDB v4.0.13 for Zen Cart 2.2.2 or later
+# AbuseIPDB v4.0.15 for Zen Cart 2.2.2 or later
 
 ## Prerequisites
 
@@ -34,6 +34,17 @@ Important: The following legacy files are automatically removed when v3.0.0 or l
 /includes/functions/abuseipdb_custom.php
 ```
 
+### Upgrading from v4.0.14
+
+A normal Plugin Manager **Upgrade** is all that is needed. v4.0.15 adds the **AbuseIPDB Console** under the admin **Tools** menu and three settings (`Session Block Expiry (days)`, `Write Session Blocks to .htaccess?` and `Log File Format Htaccess`).
+
+- **Your existing session blocks are kept.** The IPs already in the `.htaccess` session blocks section are imported into the console during the upgrade and show there as "Imported".
+- **Blocks now expire.** Imported blocks get the default expiry of 30 days, counted from the day you upgrade. If you prefer the old behavior, set `Session Block Expiry (days)` to 0 and use the console to change the imported blocks to never expire.
+
+### Upgrading from v4.0.13
+
+v4.0.14 is a bug-fix release with no new settings. A normal Plugin Manager **Upgrade** is all that is needed.
+
 ### Upgrading from v4.0.12
 
 v4.0.13 adds one setting (`ABUSEIPDB_QUOTA_TELEMETRY`, internal) that the installer creates automatically. No file or `.htaccess` changes; a normal Plugin Manager **Upgrade** is all that is needed.
@@ -62,6 +73,7 @@ A few things changed in v4.0.12 that are handled automatically during upgrade, b
 
 4. **Configure the Plugin**  
    - After installation, you'll find an **AbuseIPDB Settings** element under the admin's **Configuration** tab where you can configure the module.
+   - The **AbuseIPDB Console** is under the admin's **Tools** tab. Use it to see and manage the IPs blocked in `.htaccess`.
 
 ---
 
@@ -77,9 +89,16 @@ zc_plugins/AbuseIPDB/vX.X.X/admin/includes/functions/extra_functions/abuseipdb_b
 zc_plugins/AbuseIPDB/vX.X.X/admin/includes/languages/english/extra_definitions/lang.abuseipdb_admin_names.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/includes/modules/dashboard_widgets/AbuseIPDBDashboardWidget.php
 zc_plugins/AbuseIPDB/vX.X.X/admin/abuseipdb_settings.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/abuseipdb_console.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/extra_datafiles/abuseipdb_console_filenames.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/functions/extra_functions/abuseipdb_cfg_quota_telemetry.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/modules/abuseipdb_console/tab_blocks.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/modules/abuseipdb_console/tab_lookup.php
+zc_plugins/AbuseIPDB/vX.X.X/admin/includes/modules/abuseipdb_console/tab_logs.php
 zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/auto_loaders/config.abuseipdb.php
 zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/classes/observers/abuseipdb_observer.php
-zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/classes/functions/abuseipdb_custom.php
+zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/functions/abuseipdb_custom.php
+zc_plugins/AbuseIPDB/vX.X.X/catalog/includes/functions/abuseipdb_htaccess_blocks.php
 zc_plugins/AbuseIPDB/vX.X.X/installer/ScriptedInstaller.php
 ```
 
@@ -172,7 +191,7 @@ The `includes/blacklist.txt` file is auto-created on install/upgrade (existing f
 15. **Automatic API Usage Failsafe**  
     - If the AbuseIPDB API quota is exceeded, API calls fail gracefully, and cached -1 scores trigger retries to obtain valid scores.  
     - IPs with -1 scores are treated as neutral and **will not** trigger flood or country blocking, ensuring site accessibility during API unavailability.  
-    - **Quota telemetry (v4.0.13):** after every API call the module records what AbuseIPDB reported about your daily quota — the limit, calls remaining, the reset time, and the HTTP status of the last call (including `429 Too Many Requests` and any `Retry-After`). It is stored in an internal setting (`ABUSEIPDB_QUOTA_TELEMETRY`, not shown on the settings page) and is available to any companion tool that wants to display or act on real quota figures instead of estimating them. The module itself does not change its blocking decisions based on this data; it is observability only, and it costs no extra API calls.  
+    - **Quota telemetry (v4.0.13):** after every API call the module records what AbuseIPDB reported about your daily quota — the limit, calls remaining, the reset time, and the HTTP status of the last call (including `429 Too Many Requests` and any `Retry-After`). It is stored in an internal setting (`ABUSEIPDB_QUOTA_TELEMETRY`, shown read-only on the settings page) and is available to any companion tool that wants to display or act on real quota figures instead of estimating them. The module itself does not change its blocking decisions based on this data; it is observability only, and it costs no extra API calls.  
 
 16. **Expanded Admin Settings**  
     - New settings added:  
@@ -188,7 +207,7 @@ The `includes/blacklist.txt` file is auto-created on install/upgrade (existing f
       - If the threshold is exceeded, the IP is queued for blocking by adding it to the `abuseipdb_actions` table, and a log entry is generated in `logs/abuseipdb_session_blocks.log` (e.g., "2025-05-24 19:05:00 - IP xxx.xxx.xxx.xxx blocked: 101 sessions in 30 seconds").  
       - The next request (from any IP) checks the `abuseipdb_actions` table, adds the queued IP to a dedicated section in your `.htaccess` file (marked by `# AbuseIPDB Session Blocks Start` and `# AbuseIPDB Session Blocks End`), removes the IP from the table, and denies the request.  
       - This queuing mechanism reduces `.htaccess` write delays by decoupling the write operation from the bot's request, ensuring faster and more reliable blocking.  
-      - The block is permanent until the admin manually removes the IP from `.htaccess`.  
+      - The block is removed automatically when it expires (default: 30 days). You can also unblock it at any time from the AbuseIPDB Console.  
       - Log entries are created only for the initial block event, preventing duplicates, and are always generated regardless of whether general logging is enabled.  
     - **Server Requirements**:  
       - This feature is designed for Apache2 servers, as it relies on modifying the `.htaccess` file to block IPs.  
@@ -212,9 +231,9 @@ The `includes/blacklist.txt` file is auto-created on install/upgrade (existing f
         ```
       - This section is created after the `RewriteEngine on` directive but before other rewrite rules to ensure block rules are processed early.  
       - If the section doesn't exist, the plugin will create it during the first block event.  
-    - **Manual IP Removal**:  
-      - To unblock an IP, manually edit the `.htaccess` file and remove the corresponding `Require not ip <IP>` line from the AbuseIPDB session blocks section.  
-      - Save the file, and the IP will be able to access the site again.  
+    - **Removing a Block**:  
+      - Blocks are removed automatically when they expire. To unblock an IP sooner, go to **Tools → AbuseIPDB Console** and click **Unblock** next to it.  
+      - Editing `.htaccess` by hand still works. A `Require not ip <IP>` line you add to the section yourself is picked up by the console as "Imported". To remove a block, use the console so it is not written back.  
       - Note: After unblocking, the session count will continue to increment until the reset window expires (default: 300 seconds of inactivity). To immediately allow a fresh evaluation, manually reset the `session_count` and `session_window_start` for the IP in the `abuseipdb_cache` table.  
     - **Log File**:  
       - All session rate limit blocks are logged to `[log_path]/abuseipdb_session_blocks.log`, regardless of the general logging setting (`ABUSEIPDB_ENABLE_LOGGING`).  
@@ -224,9 +243,30 @@ The `includes/blacklist.txt` file is auto-created on install/upgrade (existing f
       - **Session Rate Limit Threshold**: Maximum sessions allowed in the time window (default: 100).  
       - **Session Rate Limit Window (seconds)**: Time window for counting sessions (default: 60 seconds).  
       - **Session Rate Limit Reset Window (seconds)**: Time after which the session count resets if no new sessions are created (default: 300 seconds = 5 minutes).  
+      - **Session Block Expiry (days)**: How long a block stays in `.htaccess` before it is removed automatically (default: 30). Set to 0 to keep blocks until you remove them. Changing it applies to new blocks only.  
+      - **Write Session Blocks to .htaccess?**: Set to `false` to stop the module from modifying `.htaccess`. Blocks are still recorded and shown in the console, marked as not written (default: `true`).  
+      - **Log File Format Htaccess**: File name for the `.htaccess` activity log (default: `abuseipdb_htaccess_%Y_%m.log`). It is stored in the same Log File Path as the other logs.  
     - **Admin Dashboard Widget**:  
       - When enabled, the widget displays the number of IPs blocked in `.htaccess` due to session rate limiting, along with a list of recent blocks.  
       - This allows admins to quickly see if a block has occurred without manually checking logs or `.htaccess`.  
+
+18. **AbuseIPDB Console (v4.0.15)**  
+    - **Where**: admin **Tools → AbuseIPDB Console**.  
+    - **Blocks tab**: lists every IP blocked in `.htaccess` on one line each, with its source (Session rate, Manual or Imported), cached AbuseIPDB score and country, when it was blocked, when it expires, and a note.  
+      - **Block an IP** by hand, with an optional note and its own expiry.  
+      - **Unblock** a single IP, or select several and unblock them, change their expiry, or unblock and whitelist them in one step.  
+      - **Status tiles** show the number of active blocks, how many expire in the next 24 hours, the current expiry setting, whether `.htaccess` matches the block list, and your remaining API quota.  
+      - **Rewrite section** rebuilds the `.htaccess` section from the block list on demand.  
+      - **Backups**: a copy of `.htaccess` is saved before every change (the five most recent are kept) and any of them can be restored from the console. Restore is refused while `Write Session Blocks to .htaccess?` is off.  
+    - **IP Lookup tab**: enter an IP to see what the module already knows about it (cached score, country, session count, block status, whitelist and blacklist status, flood counters). From there you can block or unblock it, clear its cached score, or add it to the whitelist or blacklist. No API call is made.  
+    - **Logs tab**: view the module's log files without leaving the admin. The new `abuseipdb_htaccess_YYYY_MM.log` records every block, unblock, expiry and `.htaccess` write. It is always written, the file is created on the first event, and its name can be changed with the `Log File Format Htaccess` setting.  
+    - **Automatic expiry**: expired blocks are removed by normal site traffic. No cron job is needed. The check runs on storefront page views while the module is enabled and whenever the console is opened, and `.htaccess` is only rewritten when something actually expired. If you disable the module, existing blocks stay in `.htaccess` and stop expiring until it is enabled again or you remove them in the console.  
+    - **Safeguards**:  
+      - Whitelisted IPs are never written to `.htaccess`, whether the block is automatic or manual. If you whitelist an IP that is already blocked, its block is removed on the next storefront page view. Ranges you added to the section by hand are not checked against the whitelist.  
+      - The console refuses to block the IP address you are logged in from.  
+      - Every write is locked and checked afterwards. If the check fails, the previous file is put back and the error is logged. A block is only removed from the list once the file has been written successfully, and a block that could not be written is retried on the next storefront page view.  
+      - The file is replaced in one step (atomic) when the web server user owns `.htaccess` and can write to its folder. Otherwise it is updated in place. The console shows which mode your server is using.  
+      - Lines you add to the section yourself that are not single-IP entries (comments, ranges such as `Require not ip 203.0.113.0/24`) are left untouched.  
 
 ## SCRIPT LOGIC
 
@@ -285,6 +325,8 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
+- **v4.0.15**: Added the AbuseIPDB Console under Tools to view, add and remove `.htaccess` session blocks, look up an IP and read the module logs. Session blocks now expire automatically (default 30 days), and existing blocks are imported on upgrade. Three new settings added.  
+- **v4.0.14**: Bug Fix - prevented `.htaccess` corruption when several requests add session blocks at the same time. Writes are now locked, and atomic where the server allows. API Quota Telemetry displays as a readable summary on the settings page.  
 - **v4.0.13**: Quota telemetry — the module now captures the daily-quota headers AbuseIPDB returns with every API response (limit, remaining, reset, and 429 / `Retry-After` when exhausted) and stores them in an internal setting for companion tools to read. No behaviour change to blocking; no extra API calls. One internal setting added; normal Upgrade.  
 - **v4.0.12**: Apache 2.4 `.htaccess` syntax (auto-migrated). Zero-config Who's Online integration. Optional triage-defer integration for companion plugins. "Trust Cloudflare?" setting. Auto-seeded `includes/blacklist.txt`.  
 - **v4.0.9**: Bug fixes.  
