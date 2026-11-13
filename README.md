@@ -1,4 +1,4 @@
-# AbuseIPDB v4.0.15 for Zen Cart 2.2.2 or later
+# AbuseIPDB v4.0.16 for Zen Cart 2.2.2 or later
 
 ## Prerequisites
 
@@ -33,6 +33,10 @@ Important: The following legacy files are automatically removed when v3.0.0 or l
 /includes/extra_datafiles/abuseipdb_filenames.php
 /includes/functions/abuseipdb_custom.php
 ```
+
+### Upgrading from v4.0.15
+
+v4.0.16 is a bug-fix release with no new settings. A normal Plugin Manager **Upgrade** is all that is needed. If you plan to uninstall the plugin, upgrade to v4.0.16 first so the corrected uninstaller is the one that runs.
 
 ### Upgrading from v4.0.14
 
@@ -325,6 +329,7 @@ For support, please refer to the [Zen Cart forums](https://www.zen-cart.com/show
 
 ## WHAT'S NEW
 
+- **v4.0.16**: Bug Fix - uninstalling the plugin now removes only its own settings. On some stores the previous uninstaller could also remove unrelated settings that shared its configuration group.  
 - **v4.0.15**: Added the AbuseIPDB Console under Tools to view, add and remove `.htaccess` session blocks, look up an IP and read the module logs. Session blocks now expire automatically (default 30 days), and existing blocks are imported on upgrade. Three new settings added.  
 - **v4.0.14**: Bug Fix - prevented `.htaccess` corruption when several requests add session blocks at the same time. Writes are now locked, and atomic where the server allows. API Quota Telemetry displays as a readable summary on the settings page.  
 - **v4.0.13**: Quota telemetry — the module now captures the daily-quota headers AbuseIPDB returns with every API response (limit, remaining, reset, and 429 / `Retry-After` when exhausted) and stores them in an internal setting for companion tools to read. No behaviour change to blocking; no extra API calls. One internal setting added; normal Upgrade.  
