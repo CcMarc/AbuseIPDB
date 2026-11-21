@@ -146,7 +146,7 @@ return [
     'AIPDB_CON_FACT_NO_COUNTER' => 'No counter',
     'AIPDB_CON_FACT_REQUESTS' => '%s requests',
     'AIPDB_CON_FACT_SINCE' => '%1$s, since %2$s',
-    'AIPDB_CON_FACT_EXEMPT' => '%s, flood exempt country',
+    'AIPDB_CON_FACT_HOME' => '%s, home country',
     'AIPDB_CON_BUTTON_LOOKUP' => 'Look up',
     'AIPDB_CON_LOOKUP_NOTE' => 'Shows what the module already knows. No API call is made.',
     'AIPDB_CON_LOOKUP_INVALID' => 'That is not a valid IPv4 or IPv6 address.',

@@ -420,7 +420,7 @@ class abuseipdb_observer extends base {
                     }
                 }
 
-                if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $countryCode && !abuseipdb_flood_exempt_country($countryCode)) {
+                if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $countryCode) {
                     $country_reset_minutes = defined('ABUSEIPDB_FLOOD_COUNTRY_RESET') ? (int) ABUSEIPDB_FLOOD_COUNTRY_RESET : 60;
                     $resCountry = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
                     if (
@@ -437,10 +437,9 @@ class abuseipdb_observer extends base {
                 if ($debug_mode == true) {
                     error_log("Checking foreign flood for IP: $ip, country: $countryCode, score: $abuseScore");
                 }
-                if (ABUSEIPDB_FOREIGN_FLOOD_ENABLED == 'true' && $countryCode && !abuseipdb_flood_exempt_country($countryCode)) {
-                    $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
+                if (ABUSEIPDB_FOREIGN_FLOOD_ENABLED == 'true' && $countryCode) {
                     $foreign_reset_minutes = defined('ABUSEIPDB_FLOOD_FOREIGN_RESET') ? (int)ABUSEIPDB_FLOOD_FOREIGN_RESET : 60;
-                    if (strcasecmp($countryCode, $default_country) !== 0) {
+                    if (!abuseipdb_is_home_country($countryCode)) {
                         $resForeign = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
                         if (
                             !$resForeign->EOF &&
@@ -600,7 +599,7 @@ class abuseipdb_observer extends base {
                         }
                     }
 
-                    if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $storedCountry !== '' && !abuseipdb_flood_exempt_country($storedCountry)) {
+                    if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $storedCountry !== '') {
                         $country_reset_minutes = defined('ABUSEIPDB_FLOOD_COUNTRY_RESET') ? (int) ABUSEIPDB_FLOOD_COUNTRY_RESET : 60;
                         $resCountry = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($storedCountry) . "' AND prefix_type = 'country'");
                         if (
@@ -617,10 +616,10 @@ class abuseipdb_observer extends base {
                     if ($debug_mode == true) {
                         error_log("(-1) Checking foreign flood for IP: $ip, country: $storedCountry, effScore: $effectiveScore");
                     }
-                    if (ABUSEIPDB_FOREIGN_FLOOD_ENABLED == 'true' && $storedCountry !== '' && !abuseipdb_flood_exempt_country($storedCountry)) {
+                    if (ABUSEIPDB_FOREIGN_FLOOD_ENABLED == 'true' && $storedCountry !== '') {
                         $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
                         $foreign_reset_minutes = defined('ABUSEIPDB_FLOOD_FOREIGN_RESET') ? (int)ABUSEIPDB_FLOOD_FOREIGN_RESET : 60;
-                        if ($default_country !== '' && strcasecmp($storedCountry, $default_country) !== 0) {
+                        if ($default_country !== '' && !abuseipdb_is_home_country($storedCountry)) {
                             $resForeign = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($storedCountry) . "' AND prefix_type = 'country'");
                             if (
                                 !$resForeign->EOF &&
@@ -701,7 +700,7 @@ class abuseipdb_observer extends base {
                     }
                 }
 
-                if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $countryCode && !abuseipdb_flood_exempt_country($countryCode)) {
+                if (ABUSEIPDB_FLOOD_COUNTRY_ENABLED == 'true' && $countryCode) {
                     $country_reset_minutes = defined('ABUSEIPDB_FLOOD_COUNTRY_RESET') ? (int) ABUSEIPDB_FLOOD_COUNTRY_RESET : 60;
                     $resCountry = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
                     if (
@@ -718,10 +717,9 @@ class abuseipdb_observer extends base {
                 if ($debug_mode == true) {
                     error_log("Checking foreign flood for IP: $ip, country: $countryCode, score: $abuseScore");
                 }
-                if (ABUSEIPDB_FOREIGN_FLOOD_ENABLED == 'true' && $countryCode && !abuseipdb_flood_exempt_country($countryCode)) {
-                    $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
+                if (ABUSEIPDB_FOREIGN_FLOOD_ENABLED == 'true' && $countryCode) {
                     $foreign_reset_minutes = defined('ABUSEIPDB_FLOOD_FOREIGN_RESET') ? (int)ABUSEIPDB_FLOOD_FOREIGN_RESET : 60;
-                    if (strcasecmp($countryCode, $default_country) !== 0) {
+                    if (!abuseipdb_is_home_country($countryCode)) {
                         $resForeign = $db->Execute("SELECT count, timestamp FROM " . TABLE_ABUSEIPDB_FLOOD . " WHERE prefix = '" . zen_db_input($countryCode) . "' AND prefix_type = 'country'");
                         if (
                             !$resForeign->EOF &&

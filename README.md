@@ -65,7 +65,7 @@ in Plugin Manager. Settings, cached scores and blocks are kept.
 
 | From | What to know |
 | ---- | ------------ |
-| v4.0.16 | One new setting, `Flood Exempt Country Codes`, empty by default. Nothing changes until you fill it in |
+| v4.0.16 | One new setting, `Additional Home Country Codes`, empty by default. Nothing changes until you fill it in |
 | v4.0.15 | If you plan to uninstall the plugin, upgrade first so the corrected uninstaller is the one that runs |
 | v4.0.14 | The AbuseIPDB Console is added under Tools. Existing `.htaccess` session blocks are imported and show as "Imported". Blocks now expire after 30 days by default, counted from the day you upgrade. Set `Session Block Expiry (days)` to 0 to keep the old behavior |
 | v4.0.12 or v4.0.13 | No action needed |
@@ -128,12 +128,12 @@ Hits are counted by 2-octet prefix (`192.168`), by 3-octet prefix
   it are blocked if their score is at or above
   `Country Flood Minimum Score` (default 5).
 - **Foreign flood**: the same check with its own lower threshold and
-  minimum score, for every country except your `Default Country Code`.
-- **Flood exempt countries**: `Flood Exempt Country Codes` is a list such
-  as `US,CA`. Country flood and foreign flood never block these countries.
-  Score blocking, the 2-octet and 3-octet floods, session rate limiting and
-  the blacklist still apply to them. Use it for the countries your
-  customers come from.
+  minimum score, for every country that is not a home country.
+- **Home countries**: `Default Country Code` is your home country.
+  `Additional Home Country Codes` adds more, for example `CA,GB`, for a
+  store that sells in several countries. They are treated exactly like
+  your default country: foreign flood skips them, and country flood
+  applies to them as it does to your default country.
 - **Score safe**: country and foreign flood only block an IP that also
   meets the minimum score, so a sale or a newsletter does not lock out
   real customers.
@@ -143,8 +143,7 @@ Hits are counted by 2-octet prefix (`192.168`), by 3-octet prefix
 ### Manual country blocking
 
 `Manually Blocked Country Codes` blocks whole countries at once, for
-example `VN,CN,RU`. A country listed here stays blocked even when it is
-also in the flood exempt list.
+example `VN,CN,RU`.
 
 ### Session rate limiting
 

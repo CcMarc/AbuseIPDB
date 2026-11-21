@@ -62,8 +62,8 @@ if ($lookup_valid) {
              WHERE prefix = '" . zen_db_input($prefix[0]) . "' AND prefix_type = '" . $prefix[1] . "' LIMIT 1"
         );
         $detail = $row->EOF ? $prefix[0] : sprintf(AIPDB_CON_FACT_SINCE, $prefix[0], $row->fields['timestamp']);
-        if ($prefix[1] === 'country' && abuseipdb_flood_exempt_country($prefix[0])) {
-            $detail = sprintf(AIPDB_CON_FACT_EXEMPT, $detail);
+        if ($prefix[1] === 'country' && abuseipdb_is_home_country($prefix[0])) {
+            $detail = sprintf(AIPDB_CON_FACT_HOME, $detail);
         }
         $facts[] = [$prefix[2], $row->EOF ? AIPDB_CON_FACT_NO_COUNTER : sprintf(AIPDB_CON_FACT_REQUESTS, (int)$row->fields['count']), $detail];
     }

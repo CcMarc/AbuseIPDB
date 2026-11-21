@@ -157,12 +157,16 @@ function formatLogFileName($fileNameFormat) {
 }
 
 // Function to reset flood tracking columns in the cache table for a given prefix and type
-function abuseipdb_flood_exempt_country($country_code): bool {
-    if (!defined('ABUSEIPDB_FLOOD_EXEMPT_COUNTRIES') || trim((string)ABUSEIPDB_FLOOD_EXEMPT_COUNTRIES) === '') {
+function abuseipdb_is_home_country($country_code): bool {
+    $country_code = strtoupper(trim((string)$country_code));
+    if ($country_code === '') {
         return false;
     }
-    $exempt = array_map('trim', explode(',', strtoupper((string)ABUSEIPDB_FLOOD_EXEMPT_COUNTRIES)));
-    return in_array(strtoupper(trim((string)$country_code)), $exempt, true);
+    $home = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? [strtoupper(trim((string)ABUSEIPDB_DEFAULT_COUNTRY))] : [];
+    if (defined('ABUSEIPDB_HOME_COUNTRIES') && trim((string)ABUSEIPDB_HOME_COUNTRIES) !== '') {
+        $home = array_merge($home, array_map('trim', explode(',', strtoupper((string)ABUSEIPDB_HOME_COUNTRIES))));
+    }
+    return in_array($country_code, $home, true);
 }
 
 function resetFloodTrackingColumns($prefix, $prefixType, $standardCacheTime, $extendedCacheTime, $highScoreThreshold) {
@@ -185,9 +189,8 @@ function resetFloodTrackingColumns($prefix, $prefixType, $standardCacheTime, $ex
         $columnToReset = 'flood_tracked_reset_3octet';
         $likePattern = "$prefix.%";
     } elseif ($prefixType == 'country') {
-        // Check if country matches the default country
-        $default_country = defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '';
-        if (strcasecmp($prefix, $default_country) === 0) {
+        // Check if country is a home country
+        if (abuseipdb_is_home_country($prefix)) {
             $columnToReset = 'flood_tracked_reset_country';
         } else {
             $columnToReset = 'flood_tracked_reset_foreign';
@@ -257,7 +260,7 @@ function updateFloodPrefix($prefix, $prefixType, $countryCode, $currentTime) {
         ('{$prefix}', '{$prefixType}', 1, '{$currentTime}')
         ON DUPLICATE KEY UPDATE
         count = CASE
-            WHEN (UNIX_TIMESTAMP('{$currentTime}') - UNIX_TIMESTAMP(timestamp)) > " . (int)($prefixType == '2' ? ABUSEIPDB_FLOOD_2OCTET_RESET : ($prefixType == '3' ? ABUSEIPDB_FLOOD_3OCTET_RESET : (strcasecmp($countryCode, defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '') === 0 ? ABUSEIPDB_FLOOD_COUNTRY_RESET : ABUSEIPDB_FLOOD_FOREIGN_RESET))) . "
+            WHEN (UNIX_TIMESTAMP('{$currentTime}') - UNIX_TIMESTAMP(timestamp)) > " . (int)($prefixType == '2' ? ABUSEIPDB_FLOOD_2OCTET_RESET : ($prefixType == '3' ? ABUSEIPDB_FLOOD_3OCTET_RESET : (abuseipdb_is_home_country($countryCode) ? ABUSEIPDB_FLOOD_COUNTRY_RESET : ABUSEIPDB_FLOOD_FOREIGN_RESET))) . "
             THEN 1
             ELSE count + 1
         END,
@@ -270,7 +273,7 @@ function updateFloodPrefix($prefix, $prefixType, $countryCode, $currentTime) {
          WHERE prefix = '{$prefix}' AND prefix_type = '{$prefixType}'"
     );
 
-    if (!$result->EOF && (time() - strtotime($result->fields['timestamp'])) > ($prefixType == '2' ? ABUSEIPDB_FLOOD_2OCTET_RESET : ($prefixType == '3' ? ABUSEIPDB_FLOOD_3OCTET_RESET : (strcasecmp($countryCode, defined('ABUSEIPDB_DEFAULT_COUNTRY') ? ABUSEIPDB_DEFAULT_COUNTRY : '') === 0 ? ABUSEIPDB_FLOOD_COUNTRY_RESET : ABUSEIPDB_FLOOD_FOREIGN_RESET)))) {
+    if (!$result->EOF && (time() - strtotime($result->fields['timestamp'])) > ($prefixType == '2' ? ABUSEIPDB_FLOOD_2OCTET_RESET : ($prefixType == '3' ? ABUSEIPDB_FLOOD_3OCTET_RESET : (abuseipdb_is_home_country($countryCode) ? ABUSEIPDB_FLOOD_COUNTRY_RESET : ABUSEIPDB_FLOOD_FOREIGN_RESET)))) {
         resetFloodTrackingColumns(
             $prefix,
             $prefixType,

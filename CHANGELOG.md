@@ -5,15 +5,15 @@ each file, not the current release, the same convention as Zen Cart core.
 
 ## v4.0.17 (11-21-2026)
 
-- New setting `Flood Exempt Country Codes`. Country flood and foreign flood
-  never block the countries listed there, for example `US,CA`. Score
-  blocking, the 2-octet and 3-octet floods, session rate limiting and the
-  blacklist still apply to them, and a country that is also in
-  `Manually Blocked Country Codes` stays blocked. Empty by default, so
+- New setting `Additional Home Country Codes`, for stores that sell in more
+  than one country. The countries listed there, for example `CA,GB`, are
+  treated exactly like the `Default Country Code`: foreign flood skips them
+  and their counters use the country flood reset time. Country flood
+  applies to them as it does to the default country. Empty by default, so
   nothing changes on upgrade.
-- Who's Online no longer shows a country flood or foreign flood shield for
-  an exempt country, and the console's IP Lookup tab marks the country
-  counter as flood exempt.
+- Who's Online no longer shows a foreign flood shield for a home country,
+  and the console's IP Lookup tab marks the country counter of a home
+  country.
 - All admin text now comes from language files: the AbuseIPDB Console, the
   Who's Online shields and legend, the dashboard widget and the settings
   page helpers. The title and description of every setting, the settings

@@ -51,8 +51,6 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
     $threshold = defined('ABUSEIPDB_THRESHOLD') ? (int)ABUSEIPDB_THRESHOLD : 100;
     $blocked_ips = defined('ABUSEIPDB_BLOCKED_IPS') ? explode(',', ABUSEIPDB_BLOCKED_IPS) : array();
     $blocked_countries = defined('ABUSEIPDB_BLOCKED_COUNTRIES') && !empty(ABUSEIPDB_BLOCKED_COUNTRIES) ? array_map('trim', explode(',', ABUSEIPDB_BLOCKED_COUNTRIES)) : array();
-    $flood_exempt_countries = defined('ABUSEIPDB_FLOOD_EXEMPT_COUNTRIES') && !empty(ABUSEIPDB_FLOOD_EXEMPT_COUNTRIES) ? array_map('trim', explode(',', strtoupper(ABUSEIPDB_FLOOD_EXEMPT_COUNTRIES))) : array();
-    $flood_exempt = !empty($country_code) && in_array(strtoupper($country_code), $flood_exempt_countries);
 
     // Score-based block (SB)
     if ($ip_score >= $threshold) {
@@ -84,6 +82,9 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
         ? trim(strtoupper(ABUSEIPDB_DEFAULT_COUNTRY))
         : trim(strtoupper($db->Execute("SELECT configuration_value FROM " . TABLE_CONFIGURATION . " WHERE configuration_key = 'ABUSEIPDB_DEFAULT_COUNTRY'")->fields['configuration_value']));
 
+    $home_countries = defined('ABUSEIPDB_HOME_COUNTRIES') && !empty(ABUSEIPDB_HOME_COUNTRIES) ? array_map('trim', explode(',', strtoupper(ABUSEIPDB_HOME_COUNTRIES))) : array();
+    $home_countries[] = $home_country;
+
     $country_flood_enabled = defined('ABUSEIPDB_FLOOD_COUNTRY_ENABLED')
         ? ABUSEIPDB_FLOOD_COUNTRY_ENABLED === 'true'
         : $db->Execute("SELECT configuration_value FROM " . TABLE_CONFIGURATION . " WHERE configuration_key = 'ABUSEIPDB_FLOOD_COUNTRY_ENABLED'")->fields['configuration_value'] === 'true';
@@ -111,7 +112,7 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
     $foreign_min_score = defined('ABUSEIPDB_FLOOD_FOREIGN_MIN_SCORE') ? (int)ABUSEIPDB_FLOOD_FOREIGN_MIN_SCORE : 5;
 
     // Country flood (CF)
-    if ($country_flood_enabled && !empty($country_code) && !$flood_exempt) {
+    if ($country_flood_enabled && !empty($country_code)) {
         $res_c = $db->Execute("
             SELECT timestamp, count FROM " . TABLE_ABUSEIPDB_FLOOD . "
             WHERE prefix = '" . zen_db_input($country_code) . "'
@@ -130,7 +131,7 @@ function getAbuseIPDBBlockStatus($ip_address, $whos_online, $db) {
     }
 
     // Foreign flood (FF)
-    if ($foreign_flood_enabled && !empty($country_code) && !$flood_exempt && strcasecmp($country_code, $home_country) !== 0) {
+    if ($foreign_flood_enabled && !empty($country_code) && !in_array(strtoupper($country_code), $home_countries, true)) {
         $res_f = $db->Execute("
             SELECT timestamp, count FROM " . TABLE_ABUSEIPDB_FLOOD . "
             WHERE prefix = '" . zen_db_input($country_code) . "'

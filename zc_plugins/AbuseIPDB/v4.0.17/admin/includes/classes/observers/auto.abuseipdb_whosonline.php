@@ -383,13 +383,13 @@ class zcObserverAbuseIPDBWhosOnline extends base
         $foreign_min_score = defined('ABUSEIPDB_FLOOD_FOREIGN_MIN_SCORE')
             ? (int)ABUSEIPDB_FLOOD_FOREIGN_MIN_SCORE : 5;
 
-        $flood_exempt_countries = (defined('ABUSEIPDB_FLOOD_EXEMPT_COUNTRIES') && !empty(ABUSEIPDB_FLOOD_EXEMPT_COUNTRIES))
-            ? array_map('trim', explode(',', strtoupper(ABUSEIPDB_FLOOD_EXEMPT_COUNTRIES)))
+        $home_countries = (defined('ABUSEIPDB_HOME_COUNTRIES') && !empty(ABUSEIPDB_HOME_COUNTRIES))
+            ? array_map('trim', explode(',', strtoupper(ABUSEIPDB_HOME_COUNTRIES)))
             : [];
-        $flood_exempt = $country_code !== '' && in_array(strtoupper($country_code), $flood_exempt_countries);
+        $home_countries[] = $home_country;
 
         // Country flood (CF)
-        if ($country_flood_enabled && $country_code !== '' && !$flood_exempt) {
+        if ($country_flood_enabled && $country_code !== '') {
             $res_c = $db->Execute("
                 SELECT timestamp, count FROM " . TABLE_ABUSEIPDB_FLOOD . "
                 WHERE prefix = '" . zen_db_input($country_code) . "'
@@ -408,7 +408,7 @@ class zcObserverAbuseIPDBWhosOnline extends base
         }
 
         // Foreign flood (FF)
-        if ($foreign_flood_enabled && $country_code !== '' && !$flood_exempt && $home_country !== '' && strcasecmp($country_code, $home_country) !== 0) {
+        if ($foreign_flood_enabled && $country_code !== '' && $home_country !== '' && !in_array(strtoupper($country_code), $home_countries, true)) {
             $res_f = $db->Execute("
                 SELECT timestamp, count FROM " . TABLE_ABUSEIPDB_FLOOD . "
                 WHERE prefix = '" . zen_db_input($country_code) . "'

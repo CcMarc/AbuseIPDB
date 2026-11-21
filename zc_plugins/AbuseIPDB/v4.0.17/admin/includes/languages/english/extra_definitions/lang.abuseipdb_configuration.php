@@ -148,8 +148,8 @@ return [
     'CFGTITLE_ABUSEIPDB_BLOCKED_COUNTRIES' => 'Manually Blocked Country Codes',
     'CFGDESC_ABUSEIPDB_BLOCKED_COUNTRIES' => 'Comma-separated list of ISO country codes to always block immediately, e.g., RU,CN,BR. (no spaces)',
 
-    'CFGTITLE_ABUSEIPDB_FLOOD_EXEMPT_COUNTRIES' => 'Flood Exempt Country Codes',
-    'CFGDESC_ABUSEIPDB_FLOOD_EXEMPT_COUNTRIES' => 'Comma-separated list of ISO country codes that country flood and foreign flood never block, e.g., US,CA. (no spaces)<br>Score blocking, 2-octet and 3-octet flood, session rate limiting and the blacklist still apply. A code also listed under Manually Blocked Country Codes stays blocked.',
+    'CFGTITLE_ABUSEIPDB_HOME_COUNTRIES' => 'Additional Home Country Codes',
+    'CFGDESC_ABUSEIPDB_HOME_COUNTRIES' => 'Comma-separated list of ISO country codes to treat like your Default Country Code, e.g., CA,GB. (no spaces)<br>Foreign flood detection skips these countries. Country flood detection applies to them as it does to your default country.',
 
     'CFGTITLE_ABUSEIPDB_DEFAULT_COUNTRY' => 'Default Country Code',
     'CFGDESC_ABUSEIPDB_DEFAULT_COUNTRY' => 'Store\'s default country code (e.g., US, CA, GB). Used for foreign flood detection.',
