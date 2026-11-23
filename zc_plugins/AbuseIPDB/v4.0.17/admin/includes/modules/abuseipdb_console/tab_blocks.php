@@ -97,7 +97,7 @@ $h = static fn($value): string => htmlspecialchars((string)$value, ENT_QUOTES, '
     <div class="aipdb-tile"><small><?= AIPDB_CON_TILE_EXPIRING ?></small><b><?= number_format($expiring) ?></b></div>
     <div class="aipdb-tile"><small><?= AIPDB_CON_TILE_EXPIRY ?> <span class="aipdb-tip" title="<?= $h(AIPDB_CON_TILE_EXPIRY_TIP) ?>">i</span></small><b><?= $expiry_days > 0 ? sprintf(AIPDB_CON_DAYS, $expiry_days) : AIPDB_CON_NEVER ?></b></div>
     <div class="aipdb-tile"><small>.htaccess <span class="aipdb-tip" title="<?= $h(AIPDB_CON_HTACCESS_TIP . ($write_mode === 'in-place' ? ' ' . AIPDB_CON_HTACCESS_TIP_INPLACE : '')) ?>">i</span></small><b class="<?= $file_state[1] ?>" style="font-size:1.15em"><?= $file_state[0] ?></b> <span><?= $h($write_mode === '' ? $file_detail : sprintf(AIPDB_CON_FILE_WRITES, $file_detail, $write_mode)) ?></span></div>
-    <div class="aipdb-tile"><small><?= AIPDB_CON_TILE_QUOTA ?></small><?php if (is_array($quota) && isset($quota['limit'], $quota['remaining'])): ?><b style="font-size:1.15em"><?= number_format((int)$quota['remaining']) ?></b> <span><?= sprintf(AIPDB_CON_QUOTA_LEFT, number_format((int)$quota['limit'])) ?></span><?php else: ?><span><?= AIPDB_CON_QUOTA_NONE ?></span><?php endif; ?></div>
+    <div class="aipdb-tile"><small><?= AIPDB_CON_TILE_QUOTA ?></small><?= (is_array($quota) && isset($quota['limit'], $quota['remaining'])) ? sprintf(AIPDB_CON_QUOTA_LEFT, '<b style="font-size:1.15em">' . number_format((int)$quota['remaining']) . '</b>', number_format((int)$quota['limit'])) : AIPDB_CON_QUOTA_NONE ?></div>
 </div>
 
 <div class="aipdb-panel">
