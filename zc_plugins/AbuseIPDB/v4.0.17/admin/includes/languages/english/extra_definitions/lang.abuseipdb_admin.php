@@ -73,7 +73,7 @@ return [
     'AIPDB_CON_HTACCESS_TIP' => 'In sync means the section in .htaccess lists exactly the blocks shown here. Use Rewrite section to bring them back in line.',
     'AIPDB_CON_HTACCESS_TIP_INPLACE' => 'Writes are done in place because the web server does not own this file. Make the web server user the owner of .htaccess and its folder writable to get atomic writes.',
     'AIPDB_CON_TILE_QUOTA' => 'API quota',
-    'AIPDB_CON_QUOTA_LEFT' => 'of %s left',
+    'AIPDB_CON_QUOTA_LEFT' => '%1$s of %2$s left',
     'AIPDB_CON_QUOTA_NONE' => 'No API calls recorded yet',
     'AIPDB_CON_LABEL_IP' => 'IP address',
     'AIPDB_CON_LABEL_NOTE' => 'Note',
