@@ -4,7 +4,7 @@ if (!defined('IS_ADMIN_FLAG')) {
 }
 
 return [
-    'pluginVersion'       => 'v4.0.17',
+    'pluginVersion'       => 'v4.0.18',
     'pluginName' => "AbuseIPDB",
     'pluginDescription' => 'Protect your e-commerce website from abusive IP addresses',
     'pluginAuthor' => 'marcopolo',

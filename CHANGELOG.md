@@ -3,6 +3,17 @@
 File headers (`@version` / `@updated`) record the release that last modified
 each file, not the current release, the same convention as Zen Cart core.
 
+## v4.0.18 (11-23-2026)
+
+- French and Japanese translations of the admin text are included.
+- The API quota line on the console is now one template that holds both
+  numbers, so a language with a different word order can translate it.
+- The English setting titles and descriptions and the English Plugin Manager
+  name and description are no longer shipped as language files. English
+  comes from the database, as it always has, and a translation overrides it.
+- No change to blocking, scoring, flood or console logic. A normal Plugin
+  Manager Upgrade from v4.0.17 is all that is needed.
+
 ## v4.0.17 (11-21-2026)
 
 - New setting `Additional Home Country Codes`, for stores that sell in more

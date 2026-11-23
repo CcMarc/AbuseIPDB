@@ -6,8 +6,8 @@
  * @author      Marcopolo
  * @copyright   2023-2026
  * @license     GNU General Public License (GPL) - https://www.gnu.org/licenses/gpl-3.0.html
- * @version     4.0.17
- * @updated     11-21-2026
+ * @version     4.0.18
+ * @updated     11-23-2026
  * @github      https://github.com/CcMarc/AbuseIPDB
  */
 
@@ -220,6 +220,7 @@ $abuseipdb_tab_dir = __DIR__ . '/includes/modules/abuseipdb_console/';
 .aipdb-tile small{display:block;color:#52606d}
 .aipdb-tile b{font-size:1.5em}
 .aipdb-tile span{color:#52606d}
+.aipdb-tile .aipdb-quota b{font-size:1.15em;color:#333}
 .aipdb-panel{margin-bottom:16px}
 .aipdb-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;padding:12px 14px}
 .aipdb-row label{display:block;font-size:.85em;color:#52606d;font-weight:normal;margin:0 0 3px}

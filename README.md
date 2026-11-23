@@ -2,7 +2,7 @@
 
 ![AbuseIPDB](https://socialify.git.ci/CcMarc/AbuseIPDB/image?custom_description=Block+abusive+IPs+on+your+Zen+Cart+store+with+AbuseIPDB+scores%2C+flood+protection+and+session+rate+limiting&description=1&font=Inter&forks=1&issues=1&language=1&name=1&owner=0&pattern=Signal&pulls=1&stargazers=1&theme=Auto)
 
-[![Version](https://badgen.net/badge/version/v4.0.17/0e8a16)](https://github.com/CcMarc/AbuseIPDB/blob/main/CHANGELOG.md) [![PHP](https://badgen.net/badge/php/8.0%2B/777BB4)](https://www.php.net/)
+[![Version](https://badgen.net/badge/version/v4.0.18/0e8a16)](https://github.com/CcMarc/AbuseIPDB/blob/main/CHANGELOG.md) [![PHP](https://badgen.net/badge/php/8.0%2B/777BB4)](https://www.php.net/)
 [![Zen Cart](https://badgen.net/badge/zen%20cart/2.2.2%2B/F6851F)](https://www.zen-cart.com/)
 [![License](https://badgen.net/badge/license/GPL/blue)](LICENSE.md)
 [![Last Commit](https://badgen.net/github/last-commit/CcMarc/AbuseIPDB/main)](https://github.com/CcMarc/AbuseIPDB/commits/main)
@@ -276,21 +276,26 @@ check, which saves API calls. Spiders are recognized with Zen Cart's own
 
 ## Translations
 
-All admin text lives in language files, in
-`zc_plugins/AbuseIPDB/v4.0.17/admin/includes/languages/english/extra_definitions/`:
+All admin text lives in language files. English is in
+`zc_plugins/AbuseIPDB/v4.0.18/admin/includes/languages/english/extra_definitions/`:
 
 - `lang.abuseipdb_admin.php`: the console, the Who's Online shields and
   legend, the dashboard widget and the settings page helpers.
-- `lang.abuseipdb_configuration.php`: the title and description of every
-  setting.
 - `lang.abuseipdb_admin_names.php`: the menu entries.
-- `lang.menu.php`: the name and description shown in Plugin Manager.
 
-To translate, copy the files to the matching folder for your language, for
-example `admin/includes/languages/french/extra_definitions/`, and translate
-the values. The keys stay as they are. Strings that build sentences are
-sprintf templates, so word order is yours. Anything you leave out falls
-back to English.
+The title and description of every setting, the settings group and the
+Plugin Manager name and description are stored in the database in English.
+A translation overrides them from its own `lang.menu.php`.
+
+French and Japanese are included, translated by
+[piloujp](https://github.com/piloujp).
+
+To add a language, copy the three files from the `french` folder to the
+matching folder for your language, for example
+`admin/includes/languages/german/extra_definitions/`, and translate the
+values. The keys stay as they are. Strings that build sentences are sprintf
+templates, so word order is yours. Anything you leave out falls back to
+English.
 
 Log files are written in English.
 
